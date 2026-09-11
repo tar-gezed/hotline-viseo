@@ -10,6 +10,8 @@
 *.css text eol=lf
 *.md text eol=lf
 *.svg text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
 
 # Windows launcher and batch scripts (force CRLF)
 *.cmd text eol=crlf

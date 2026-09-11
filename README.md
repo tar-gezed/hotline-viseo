@@ -4,14 +4,15 @@
 
 [![JavaScript: Vanilla ES6+](https://img.shields.io/badge/JavaScript-Vanilla%20ES6+-yellow.svg)](#)
 [![Runtime: Browser / Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero%20Runtime-brightgreen.svg)](#)
-[![Hosting: GitHub Pages](https://img.shields.io/badge/Hosting-GitHub%20Pages%20Ready-blue.svg)](#)
-[![Tests: 18 Node Suites Passing](https://img.shields.io/badge/Tests-18%20Passing-success.svg)](#)
+[![Hosting: GitHub Pages](https://img.shields.io/badge/Hosting-GitHub%20Pages%20Ready-blue.svg)](https://tar-gezed.github.io/hotline-viseo/)
+[![CI/CD: Deploy Pages](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml/badge.svg)](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml)
+[![Tests: 19 Node Suites Passing](https://img.shields.io/badge/Tests-19%20Passing-success.svg)](#)
 
 ---
 
 ## Sommaire / Table of Contents
 - [Running and inspecting the game](#running-and-inspecting-the-game)
-- [GitHub Pages](#github-pages)
+- [GitHub Pages & Déploiement Automatique](#github-pages--déploiement-automatique)
 - [Commandes & Contrôles](#commandes--contrôles)
 - [Architecture & Organisation du projet](#architecture--organisation-du-projet)
 - [Roster des 7 Personnages](#roster-des-7-personnages)
@@ -36,11 +37,19 @@ Ne pas ouvrir `index.html` en `file://` : le navigateur interdit la lecture auto
 
 Les brouillons et cartes importées dans le navigateur dépendent de l'origine (protocole, hôte et port). Pour récupérer un travail réalisé sous une autre adresse, importer son JSON dans l'éditeur. Conserver une copie des exports.
 
-## GitHub Pages
+## GitHub Pages & Déploiement Automatique
 
-Le jeu reste entièrement statique : publier ce dossier avec `index.html`, `css/`, `js/`, `maps/`, les pages de l'éditeur et les images. Inclure **`maps/active.json`** pour publier ta carte et `.nojekyll` pour servir les fichiers directement. Aucun serveur Node n'est nécessaire sur GitHub Pages ; `tools/serve.cjs` sert uniquement au développement local. Ne pas publier de sauvegardes privées.
+Le jeu est déployé et jouable publiquement en ligne sur GitHub Pages à l'adresse :
+👉 **https://tar-gezed.github.io/hotline-viseo/**
 
-Dans le dépôt GitHub, configurer Pages pour publier la branche et le dossier contenant `index.html` ([documentation officielle](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site)). Les chemins sont relatifs, y compris celui de la carte : ils fonctionnent aussi sous `https://utilisateur.github.io/nom-du-depot/`. Pour tester ce cas localement : **`npm run preview:pages`**, puis http://localhost:8081/hotline-viseo/. Les imports du navigateur restent locaux ; pour partager une modification, remplacer le JSON publié puis republier.
+Le déploiement est entièrement automatisé par GitHub Actions :
+- **Workflow :** `.github/workflows/deploy.yml` déclenché à chaque push sur la branche `main` (ou manuellement via *Actions*).
+- **Validation CI :** Exécute automatiquement la suite complète des 19 suites de régression (`npm test`) avant le packaging.
+- **Publication Pages :** Utilise les actions officielles `actions/configure-pages@v5`, `actions/upload-pages-artifact@v3` et `actions/deploy-pages@v4`.
+- **Compatibilité sous-dossier :** Tous les chemins de ressources (scripts, styles, cartes) sont relatifs (`maps/active.json`, `css/style.css`, etc.) pour fonctionner indifféremment à la racine ou sous le préfixe `/hotline-viseo/`. Le fichier `.nojekyll` est présent à la racine pour désactiver le traitement Jekyll.
+- **Configuration GitHub requise :** Dans le dépôt GitHub, sous **Settings > Pages > Build and deployment > Source**, sélectionner **GitHub Actions**.
+
+Pour tester le rendu sous le préfixe GitHub Pages en local : **`npm run preview:pages`**, puis ouvrir http://localhost:8081/hotline-viseo/.
 
 ## Commandes & Contrôles
 
@@ -88,7 +97,14 @@ Les sprites de mobilier sont partagés entre le jeu et l'éditeur, mis en cache 
 
 ## Verification
 
-Run each `test_*.js` file with Node. For example, in PowerShell:
+Exécuter l'ensemble des 19 suites de régression automatisées avec Node.js :
+
+```bash
+npm test
+# Équivalent à : node tools/test.cjs
+```
+
+Ou individuellement sous PowerShell :
 
 ```powershell
 Get-ChildItem test_*.js | ForEach-Object { node $_.FullName }

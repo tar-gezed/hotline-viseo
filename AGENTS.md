@@ -41,5 +41,19 @@ Before staging or committing any changes, the following two steps **MUST** be pe
 > **Before every single commit, all documentation files and READMEs MUST be updated.**
 
 ### 3.2 Execute Regression Test Suite
-All automated Node.js regression suites must pass with 0 errors:
+All automated Node.js regression suites must pass with 0 errors before staging or committing:
 
+```bash
+npm test
+# Equivalent to: node tools/test.cjs
+```
+
+---
+
+## 4. CI/CD & GitHub Pages Deployment
+
+- **Deployment Workflow:** `.github/workflows/deploy.yml` runs on every push to `main`.
+- **Pre-deploy Verification:** Automatically runs `npm test` across all 19 regression test suites in the GitHub Actions runner before initiating deployment.
+- **Pages Target:** Deployed as static content using official GitHub Pages actions (`actions/configure-pages@v5`, `actions/upload-pages-artifact@v3`, `actions/deploy-pages@v4`).
+- **Pathing Invariants:** All asset and map references MUST remain strictly relative (e.g., `maps/active.json`, `css/style.css`, `js/...`) so that the game runs identically on root domains and subpaths like `https://tar-gezed.github.io/hotline-viseo/`.
+- **No Jekyll:** `.nojekyll` must remain in the repository root to disable Jekyll processing and allow underscore/raw folder access.
