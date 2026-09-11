@@ -1,0 +1,30 @@
+# Auto-detect text files and normalize line endings across platforms
+* text=auto
+
+# Web and JavaScript source files (force LF)
+*.js text eol=lf
+*.cjs text eol=lf
+*.mjs text eol=lf
+*.json text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.md text eol=lf
+*.svg text eol=lf
+
+# Windows launcher and batch scripts (force CRLF)
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Git and editor configurations
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Binary media and plan reference files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.wav binary
+*.mp3 binary

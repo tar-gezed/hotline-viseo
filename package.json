@@ -1,0 +1,9 @@
+{
+  "name": "hotline-viseo",
+  "private": true,
+  "scripts": {
+    "start": "node tools/serve.cjs",
+    "preview:pages": "node tools/serve.cjs --port 8081 --prefix /hotline-viseo/"
+  },
+  "engines": { "node": ">=18" }
+}

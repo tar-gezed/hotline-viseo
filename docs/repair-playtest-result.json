@@ -1,0 +1,12 @@
+{
+  "wave": 1,
+  "state": "IN_PROGRESS",
+  "kills": 5,
+  "alive": false,
+  "restart": {
+    "wave": 1,
+    "state": "PREWAVE",
+    "alive": true
+  },
+  "errors": []
+}

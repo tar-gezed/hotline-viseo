@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict');
+global.CONFIG=require('./js/config');
+const data=new Map();global.localStorage={getItem:k=>data.get(k),setItem:(k,v)=>data.set(k,v)};
+const {GameHUD}=require('./js/ui/hud'),{ScoreScreen}=require('./js/ui/score_screen');
+const hud=new GameHUD();for(let i=0;i<5;i++)hud.addKillScore('GUN',400,0,0);
+const points=CONFIG.SCORING.COMBO_MULTIPLIERS.slice(0,5).reduce((a,m)=>a+400*m,0);assert.equal(hud.currentScore,points);
+hud.update(20);assert.equal(hud.comboCount,0);assert.equal(hud.maxComboRecorded,5);hud.reset();assert.equal(hud.maxComboRecorded,0);
+const screen=new ScoreScreen();assert.deepEqual(screen.leaderboard,[]);
+const run={runId:'empty',score:0,totalKills:0,weaponsUsed:new Set(),elapsedTime:0,waveReached:1,maxCombo:0};screen.show('GAME_OVER',run);assert.equal(screen.breakdown.totalCalculatedScore,0);screen.show('GAME_OVER',run);assert.equal(screen.leaderboard.length,1);
+screen.show('GAME_OVER',{...run,runId:'real',score:5000,totalKills:10,meleeKills:2,gunKills:6,throwKills:2,executions:1,doorSlams:1,weaponsUsed:new Set(['BAT','UZI']),waveReached:4,wavesCleared:3,elapsedTime:120,maxCombo:5});
+assert.equal(screen.stats.waveReached,4);assert.equal(screen.breakdown.timeBonus,1200);assert.equal(screen.breakdown.flexibilityScore,2500);assert.equal(screen.breakdown.carnageScore,1600);assert.equal(screen.breakdown.boldnessScore,5500);assert.equal(screen.breakdown.totalCalculatedScore,15800);
+assert.equal(new ScoreScreen().leaderboard[0].score,15800);
+for(let i=0;i<12;i++)screen.show('GAME_OVER',{...run,runId:'r'+i,score:i});assert.equal(screen.leaderboard.length,8);
+data.set(screen.LEADERBOARD_KEY,'{}');assert.deepEqual(screen.loadLeaderboard(),[]);data.set(screen.LEADERBOARD_KEY,'{');assert.deepEqual(screen.loadLeaderboard(),[]);
+data.set(screen.LEADERBOARD_KEY,JSON.stringify([{score:'bad',runId:'x'},null]));assert.deepEqual(screen.loadLeaderboard(),[]);
+console.log('PASS combos persist/reset, exact scoring, empty run, waves, bonuses, deduplication, top eight, persistence and corrupt storage');

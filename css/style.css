@@ -1,0 +1,379 @@
+/* ============================================================================
+   HOTLINE MIAMI: VISEO ARCADE EDITION - RETRO SYNTHWAVE & CRT STYLING
+   css/style.css
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Permanent+Marker&family=VT323&family=Orbitron:wght@900&display=swap');
+
+:root {
+  --neon-pink: #ff007f;
+  --neon-cyan: #00f3ff;
+  --neon-yellow: #ffe600;
+  --neon-green: #39ff14;
+  --neon-purple: #9d00ff;
+  --blood-red: #b80000;
+  --dark-bg: #0d0614;
+  --arcade-bezel: #181528;
+  --crt-curve-radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  background-color: var(--dark-bg);
+  background-image: 
+    radial-gradient(circle at 50% 30%, rgba(157, 0, 255, 0.15) 0%, transparent 60%),
+    linear-gradient(to bottom, #05020a 0%, #150022 100%);
+  color: #ffffff;
+  font-family: 'Press Start 2P', 'VT323', monospace;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+body.gamepad-mode,
+body.gamepad-mode #gameCanvas,
+body.gamepad-mode #game-container,
+body.gamepad-mode * {
+  cursor: none !important;
+}
+
+/* ============================================================================
+   ARCADE CABINET & CRT MONITOR WRAPPER
+   ============================================================================ */
+#arcade-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  background: var(--arcade-bezel);
+  border-radius: 28px;
+  box-shadow: 
+    0 0 60px rgba(0, 0, 0, 0.95),
+    inset 0 0 20px rgba(255, 255, 255, 0.1),
+    0 0 40px rgba(255, 0, 127, 0.35);
+  border: 4px solid #2d264a;
+}
+
+#viewport-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--crt-curve-radius);
+  box-shadow: 
+    inset 0 0 80px rgba(0, 0, 0, 0.85),
+    0 0 30px rgba(0, 243, 255, 0.3);
+  background: #000000;
+}
+
+/* Primary Game Canvas */
+#gameCanvas {
+  display: block;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  cursor: crosshair;
+  background: #000;
+}
+
+/* CRT Screen Glare & Reflection Overlay */
+#crt-glass-glare {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 25%,
+    transparent 50%,
+    rgba(0, 243, 255, 0.03) 100%
+  );
+  z-index: 10;
+}
+
+/* ============================================================================
+   RETRO HUD & COMBO BANNER
+   ============================================================================ */
+#hud-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+/* Top Bar */
+.hud-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* Score Display */
+.score-display {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.score-title {
+  font-size: 10px;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px var(--neon-cyan);
+  letter-spacing: 2px;
+}
+
+.score-value {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 
+    0 0 10px var(--neon-pink),
+    2px 2px 0px #000;
+}
+
+/* Dynamic Combo Banner */
+#combo-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  transform-origin: top right;
+  transition: transform 0.1s ease-out;
+}
+
+#combo-banner.active {
+  animation: comboPulse 0.3s ease-in-out infinite alternate;
+}
+
+.combo-count {
+  font-family: 'Permanent Marker', 'Impact', sans-serif;
+  font-size: 38px;
+  color: var(--neon-yellow);
+  text-shadow: 
+    0 0 12px var(--neon-yellow),
+    0 0 24px var(--neon-pink),
+    3px 3px 0px #000;
+  transform: rotate(-4deg);
+  letter-spacing: 1px;
+}
+
+.combo-timer-bar-wrapper {
+  width: 140px;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid var(--neon-yellow);
+  border-radius: 4px;
+  margin-top: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 8px var(--neon-yellow);
+}
+
+.combo-timer-bar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, var(--neon-pink), var(--neon-yellow));
+  transition: width 0.05s linear;
+}
+
+/* Kill Notifications Feed */
+#kill-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  max-height: 200px;
+  overflow: hidden;
+}
+
+.kill-feed-item {
+  font-size: 11px;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 5px 10px;
+  border-left: 4px solid var(--neon-pink);
+  box-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
+  animation: slideInLeft 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+
+/* Weapon HUD Bottom */
+.hud-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.weapon-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(13, 6, 20, 0.85);
+  padding: 10px 16px;
+  border: 2px solid var(--neon-cyan);
+  box-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
+  border-radius: 6px;
+}
+
+.weapon-name {
+  font-size: 14px;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px var(--neon-cyan);
+}
+
+.ammo-count {
+  font-size: 12px;
+  color: #fff;
+}
+
+/* ============================================================================
+   MENUS & OVERLAYS (Pause, Stage Clear, Game Over)
+   ============================================================================ */
+.overlay-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 2, 18, 0.92);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 30;
+  backdrop-filter: blur(4px);
+}
+
+.overlay-screen.hidden {
+  display: none;
+}
+
+.retro-title {
+  font-family: 'Permanent Marker', 'Impact', sans-serif;
+  font-size: 52px;
+  color: var(--neon-pink);
+  text-shadow: 
+    0 0 15px var(--neon-pink),
+    0 0 35px var(--neon-purple),
+    4px 4px 0px #000;
+  letter-spacing: 3px;
+  transform: rotate(-2deg);
+  margin-bottom: 24px;
+  animation: synthwaveGlow 1.5s ease-in-out infinite alternate;
+}
+
+.arcade-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  padding: 14px 28px;
+  background: #110022;
+  color: var(--neon-cyan);
+  border: 3px solid var(--neon-cyan);
+  box-shadow: 
+    0 0 12px var(--neon-cyan),
+    inset 0 0 8px rgba(0, 243, 255, 0.3);
+  cursor: pointer;
+  margin: 10px;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.arcade-btn:hover {
+  background: var(--neon-cyan);
+  color: #000000;
+  box-shadow: 
+    0 0 25px var(--neon-cyan),
+    0 0 45px rgba(0, 243, 255, 0.8);
+  transform: scale(1.08);
+}
+
+.arcade-btn:active {
+  transform: scale(0.96);
+}
+
+/* ============================================================================
+   CONTROLS BAR (CRT Toggle, Audio Toggle, Fullscreen)
+   ============================================================================ */
+#arcade-controls {
+  position: absolute;
+  bottom: 8px;
+  right: 24px;
+  display: flex;
+  gap: 12px;
+  z-index: 25;
+}
+
+.icon-btn {
+  font-size: 9px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--neon-pink);
+  color: #ffffff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: var(--neon-pink);
+  color: #000;
+  box-shadow: 0 0 10px var(--neon-pink);
+}
+
+/* ============================================================================
+   ANIMATIONS & KEYFRAMES
+   ============================================================================ */
+@keyframes synthwaveGlow {
+  0% {
+    text-shadow: 
+      0 0 15px var(--neon-pink),
+      0 0 30px var(--neon-purple),
+      4px 4px 0px #000;
+  }
+  100% {
+    text-shadow: 
+      0 0 25px var(--neon-yellow),
+      0 0 50px var(--neon-pink),
+      4px 4px 0px #000;
+  }
+}
+
+@keyframes comboPulse {
+  0% {
+    transform: scale(1.0) rotate(-4deg);
+  }
+  100% {
+    transform: scale(1.12) rotate(-2deg);
+  }
+}
+
+@keyframes slideInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

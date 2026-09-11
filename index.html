@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HOTLINE MIAMI: VISEO ARCADE EDITION</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Instant reset & full canvas styling */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #0b0813;
+      color: #fff;
+      font-family: 'Courier New', Courier, monospace;
+      cursor: crosshair;
+    }
+    body.gamepad-mode,
+    body.gamepad-mode * {
+      cursor: none !important;
+    }
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at center, #1a162b 0%, #0b0813 100%);
+    }
+    canvas#gameCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    #instructions-overlay {
+      position: absolute;
+      top: 10px;
+      left: 14px;
+      pointer-events: none;
+      z-index: 10;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: rgba(0, 243, 255, 0.7);
+      text-shadow: 0 0 4px rgba(0, 243, 255, 0.5);
+      line-height: 1.5;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+    #instructions-overlay.gameplay-hidden {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    #instructions-overlay span.key {
+      background: rgba(255, 0, 127, 0.25);
+      border: 1px solid #ff007f;
+      color: #fff;
+      padding: 1px 4px;
+      border-radius: 2px;
+      font-weight: bold;
+    }
+    @media (min-width: 2400px) and (min-height: 1300px) {
+      #instructions-overlay { font-size: 15px; }
+      #mapMenuLink { font-size: 19px !important; }
+    }
+    @media (min-width: 3500px) and (min-height: 1900px) {
+      #instructions-overlay { font-size: 22px; }
+      #mapMenuLink { font-size: 28px !important; }
+    }
+  </style>
+</head>
+<body>
+  <a id="mapMenuLink" href="maps.html" style="position:fixed;right:18px;top:14px;z-index:20;color:#7ef2df;background:#211827;padding:10px 16px;font:14px monospace;text-decoration:none">CARTES / IMPORTER · <span id="activeMapLabel">Chargement…</span></a>
+  <div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="instructions-overlay">
+      <div><span class="key">WASD / ZQSD</span> MOVE &nbsp;|&nbsp; <span class="key">MOUSE</span> AIM &nbsp;|&nbsp; <span class="key">L-CLICK</span> ATTACK &nbsp;|&nbsp; <span class="key">R-CLICK / E</span> PICK UP / THROW &nbsp;|&nbsp; <span class="key">SPACE</span> EXECUTE / KICK DOOR</div>
+      <div><span class="key">SHIFT</span> LOOK AHEAD &nbsp;|&nbsp; <span class="key">R</span> INSTANT RESTART &nbsp;|&nbsp; <span class="key">ESC/P</span> PAUSE &nbsp;|&nbsp; <span class="key">C</span> SCANLINES &nbsp;|&nbsp; <span class="key">M</span> MUTE &nbsp;|&nbsp; <span class="key">F2</span> COLLIDERS &nbsp;|&nbsp; <a href="map_editor.html" target="_blank" rel="noopener" style="color:#9fe">F3 MAP EDITOR</a></div>
+    </div>
+  </div>
+
+  <!-- 1. Config & Audio Engine -->
+  <script src="js/config.js"></script>
+  <script src="js/audio/synth_music.js"></script>
+  <script src="js/audio/sound_effects.js"></script>
+
+  <!-- 2. Core Physics & Navigation Engine -->
+  <script src="js/engine/physics.js"></script>
+  <script src="js/engine/collision.js"></script>
+  <script src="js/engine/camera.js"></script>
+  <script src="js/engine/input.js"></script>
+  <script src="js/engine/pathfinding.js"></script>
+
+  <!-- 3. VISEO Blueprint Map & Interactive Objects -->
+  <script src="js/map/doors.js"></script>
+  <script src="js/map/map_data.js"></script>
+  <script src="js/map/map_io.js"></script>
+  <script src="js/map/map_loader.js"></script>
+  <script src="js/map/prop_sprites.js"></script><script src="js/map/map_renderer.js"></script>
+  <script src="js/map/debug_overlay.js"></script>
+
+  <!-- 4. Gore & Visual FX Post-Processing -->
+  <script src="js/effects/blood.js"></script>
+  <script src="js/effects/particles.js"></script>
+  <script src="js/effects/postprocess.js"></script>
+
+  <!-- 5. Weapons, Player & Enemy AI Entities -->
+  <script src="js/entities/weapon.js"></script>
+  <script src="js/entities/character_art.js"></script>
+  <script src="js/entities/player.js"></script>
+  <script src="js/entities/enemy.js"></script>
+  <script src="js/entities/spawner.js"></script>
+
+  <!-- 6. Retro Arcade UI, Masks & HUD -->
+  <script src="js/ui/hud.js"></script>
+  <script src="js/ui/mask_menu.js"></script>
+  <script src="js/ui/score_screen.js"></script>
+
+  <!-- 7. Master Orchestration Game Loop -->
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!doctype html><meta charset="utf-8"><title>Personnages — revue visuelle</title>
+<style>body{margin:0;background:#191426;color:#eddfc8;font:14px monospace}h1,p{margin:20px}canvas{display:block;width:1400px;height:900px}section{display:flex;gap:20px;margin:20px}figure{margin:0;width:660px}img{width:100%;height:400px;object-fit:contain;background:#100d19}a{color:#80d7ca}</style>
+<h1>AFTER HOURS / SEPT IDENTITÉS</h1>
+<p>Portraits partagés avec le menu · sprites réels du joueur · taille de jeu et agrandissement ×2.</p>
+<canvas id="review" width="1400" height="900"></canvas>
+<section>
+ <figure><img src="https://cdn.mos.cms.futurecdn.net/3121a85c1f2d8029947ab4da7ac2b6ee.jpg"><figcaption><a href="https://www.pcgamer.com/hotline-miami-2-pushed-back-possibly-to-2015/">Hotline Miami 2 — capture PC Gamer</a> : silhouette compacte, vêtement contrasté, arme projetée devant les mains.</figcaption></figure>
+ <figure><img src="https://i0.wp.com/downrightupleft.com/wp-content/uploads/2015/01/hotline-miami-tony-tiger-mask.jpg"><figcaption><a href="https://downrightupleft.com/backtracking-hotline-miami/">Hotline Miami — Tony, DownRightUpLeft</a> : masque immédiatement reconnaissable et rôle de combat annoncé.</figcaption></figure>
+</section>
+<script src="js/config.js"></script><script src="js/engine/collision.js"></script><script src="js/entities/weapon.js"></script><script src="js/entities/character_art.js"></script><script src="js/entities/player.js"></script>
+<script>
+const ctx=document.getElementById('review').getContext('2d');ctx.imageSmoothingEnabled=false;
+const chars=Object.values(CONFIG.MASKS);
+for(let i=0;i<chars.length;i++){
+ const ch=chars[i],x=i*200+100;
+ ctx.fillStyle=i%2?'#292137':'#241e30';ctx.fillRect(i*200,0,199,900);
+ ctx.textAlign='center';ctx.fillStyle=ch.color;ctx.font='bold 19px monospace';ctx.fillText(ch.name,x,26);
+ ctx.font='12px monospace';ctx.fillText(ch.animal.toUpperCase(),x,47);
+ CharacterArt.portrait(ctx,ch,x,132,2.2);
+ const player=new Player(0,0,ch.id);
+ const draw=(y,scale,angle,label)=>{player.angle=angle;ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);player.render(ctx);ctx.restore();ctx.fillStyle='#b9acc1';ctx.font='11px monospace';ctx.fillText(label,x,y+52);};
+ draw(270,1,0,'EN JEU / ×1');
+ draw(395,2,-Math.PI/4,'VISÉE / ×2');
+ player.gaitMoving=true;player.legPhase=1.1;draw(525,2,Math.PI/2,'MARCHE / ×2');
+ player.state='EXECUTING';player.executionTimer=.5;draw(655,2,-Math.PI/4,'EXÉCUTION / ×2');
+ player.state='DEAD';player.isAlive=false;draw(800,2,0,'AU SOL / ×2');
+}
+</script>

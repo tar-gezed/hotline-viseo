@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Map Inspection</title>
+  <style>
+    body { background:#111; color:#eee; font-family: Arial, sans-serif; margin:0; padding:16px; }
+    h1,h2 { margin: 0 0 10px 0; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    canvas { background:#222; border:1px solid #555; image-rendering: pixelated; }
+    .panel { background:#181818; padding:12px; border:1px solid #333; }
+    .label { margin: 0 0 6px 0; font-size:14px; color:#9fe; }
+  </style>
+</head>
+<body>
+  <h1>Hotline VISEO Map Inspection</h1>
+  <p>Automatic zone-by-zone inspection render.</p>
+  <div class="panel">
+    <div class="label">Full map</div>
+    <canvas id="full"></canvas>
+  </div>
+  <h2 style="margin-top:16px">Zones</h2>
+  <div class="grid" id="zones"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/engine/physics.js"></script>
+  <script src="js/map/doors.js"></script>
+  <script src="js/map/map_data.js"></script>
+  <script src="js/map/prop_sprites.js"></script><script src="js/map/map_renderer.js"></script>
+  <script>
+    const mapData = window.MapData;
+    const renderer = new window.MapRenderer(mapData);
+    const full = document.getElementById('full');
+    full.width = mapData.MAP_WIDTH; full.height = mapData.MAP_HEIGHT;
+    const fctx = full.getContext('2d');
+    renderer.render(fctx, null);
+
+    const zones = [
+      { name:'A. West social area', x:0, y:0, w:1200, h:950 },
+      { name:'B. North open space + focus rooms', x:850, y:0, w:1300, h:1100 },
+      { name:'C. West south open space', x:0, y:700, w:1700, h:1200 },
+      { name:'D. Central core + diagonal corridor', x:1450, y:350, w:1350, h:1400 },
+      { name:'E. Diagonal glass offices', x:2200, y:650, w:1300, h:1200 },
+      { name:'F. Lower-right meeting / reception', x:1850, y:1450, w:1500, h:1200 }
+    ];
+    const root = document.getElementById('zones');
+    zones.forEach(z => {
+      const panel = document.createElement('div');
+      panel.className = 'panel';
+      const label = document.createElement('div');
+      label.className = 'label';
+      label.textContent = z.name;
+      const c = document.createElement('canvas');
+      c.width = z.w; c.height = z.h;
+      c.style.width = Math.round(z.w/2)+'px';
+      c.style.height = Math.round(z.h/2)+'px';
+      const ctx = c.getContext('2d');
+      ctx.drawImage(full, z.x, z.y, z.w, z.h, 0, 0, z.w, z.h);
+      panel.appendChild(label); panel.appendChild(c); root.appendChild(panel);
+    });
+  </script>
+</body>
+</html>

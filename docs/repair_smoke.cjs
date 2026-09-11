@@ -1,0 +1,2 @@
+const {chromium}=require('C:/Users/Quentin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+(async()=>{const b=await chromium.launch({headless:true});const p=await b.newPage({viewport:{width:1280,height:720}});await p.goto('http://localhost:8080/');await p.keyboard.press('Enter');await p.waitForTimeout(300);await p.keyboard.press('e');await p.waitForTimeout(200);await p.screenshot({path:'docs/repair-ready.png'});await p.keyboard.press('F2');await p.screenshot({path:'docs/repair-debug.png'});await b.close()})();

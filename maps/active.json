@@ -1,0 +1,4025 @@
+{
+  "format": "hotline-viseo-map-edits",
+  "version": 2,
+  "mapSize": {
+    "width": 3563,
+    "height": 2700
+  },
+  "name": "Carte importée",
+  "walls": [
+    {
+      "id": "wall_001",
+      "x1": 148.8,
+      "y1": 157.6,
+      "x2": 1988.0000000000002,
+      "y2": 157.6,
+      "type": "exterior"
+    },
+    {
+      "id": "wall_002",
+      "x1": 1988.0000000000002,
+      "y1": 157.6,
+      "x2": 3422.4,
+      "y2": 1768.0000000000002,
+      "type": "exterior"
+    },
+    {
+      "id": "wall_003",
+      "x1": 3422.4,
+      "y1": 1768.0000000000002,
+      "x2": 2498.4,
+      "y2": 2560,
+      "type": "exterior"
+    },
+    {
+      "id": "wall_004",
+      "x1": 2498.4,
+      "y1": 2560,
+      "x2": 1468.8000000000002,
+      "y2": 1363.2,
+      "type": "exterior"
+    },
+    {
+      "id": "wall_005",
+      "x1": 1468.8000000000002,
+      "y1": 1363.2,
+      "x2": 148.8,
+      "y2": 1090.4,
+      "type": "exterior"
+    },
+    {
+      "id": "wall_006",
+      "x1": 148.8,
+      "y1": 1090.4,
+      "x2": 148.8,
+      "y2": 157.6,
+      "type": "exterior"
+    },
+    {
+      "id": "wall_011",
+      "x1": 876.468317731273,
+      "y1": 634.4213155672674,
+      "x2": 868.3822492429553,
+      "y2": 840.6152715961124,
+      "type": "interior"
+    },
+    {
+      "id": "wall_012",
+      "x1": 869.392988525379,
+      "y1": 839.6045323136888,
+      "x2": 1072.8000000000002,
+      "y2": 879.2,
+      "type": "interior"
+    },
+    {
+      "id": "wall_013",
+      "x1": 1072.8000000000002,
+      "y1": 632.8000000000001,
+      "x2": 1072.8000000000002,
+      "y2": 879.2,
+      "type": "interior"
+    },
+    {
+      "id": "wall_016",
+      "x1": 1072.8000000000002,
+      "y1": 879.2,
+      "x2": 1241.549875815148,
+      "y2": 931.5278418617106,
+      "type": "interior"
+    },
+    {
+      "id": "wall_017",
+      "x1": 1292.8000000000002,
+      "y1": 632.8000000000001,
+      "x2": 1240,
+      "y2": 932.0000000000001,
+      "type": "interior"
+    },
+    {
+      "id": "wall_020",
+      "x1": 1240,
+      "y1": 932.0000000000001,
+      "x2": 1583.2,
+      "y2": 967.2,
+      "type": "interior"
+    },
+    {
+      "id": "wall_021",
+      "x1": 1609.6000000000001,
+      "y1": 632.8000000000001,
+      "x2": 1583.2,
+      "y2": 967.2,
+      "type": "interior"
+    },
+    {
+      "id": "wall_024",
+      "x1": 1667.4651049694446,
+      "y1": 370.0448194826329,
+      "x2": 1580.5751732668539,
+      "y2": 371.44624929933764,
+      "type": "interior"
+    },
+    {
+      "id": "wall_025",
+      "x1": 1663.260708597089,
+      "y1": 374.2491623938678,
+      "x2": 1659.056526069216,
+      "y2": 162.63002567364998,
+      "type": "interior"
+    },
+    {
+      "id": "wall_026",
+      "x1": 1078.5225955559497,
+      "y1": 989.4439995146511,
+      "x2": 1014.0557547651176,
+      "y2": 1269.734239745255,
+      "type": "interior"
+    },
+    {
+      "id": "wall_027",
+      "x1": 1672.0349738466402,
+      "y1": 791.0096785387088,
+      "x2": 1812.0000000000002,
+      "y2": 694.4000000000001,
+      "type": "core"
+    },
+    {
+      "id": "wall_028",
+      "x1": 1812.0000000000002,
+      "y1": 694.4000000000001,
+      "x2": 1935.657367187452,
+      "y2": 843.5917722276035,
+      "type": "core"
+    },
+    {
+      "id": "wall_031",
+      "x1": 2332,
+      "y1": 1320,
+      "x2": 2151.8327222647235,
+      "y2": 1069.910243250429,
+      "type": "core"
+    },
+    {
+      "id": "wall_034",
+      "x1": 1936,
+      "y1": 1100,
+      "x2": 1768.0000000000002,
+      "y2": 976.0000000000001,
+      "type": "core"
+    },
+    {
+      "id": "wall_037",
+      "x1": 1768.0000000000002,
+      "y1": 976.0000000000001,
+      "x2": 1935.2,
+      "y2": 844,
+      "type": "core"
+    },
+    {
+      "id": "wall_038",
+      "x1": 1936,
+      "y1": 1100,
+      "x2": 2067.2,
+      "y2": 984.8000000000001,
+      "type": "core"
+    },
+    {
+      "id": "wall_040",
+      "x1": 2672.1245108071957,
+      "y1": 1989.5233944535794,
+      "x2": 2885.1301391285942,
+      "y2": 2210.7703316867237,
+      "type": "interior"
+    },
+    {
+      "id": "wall_2",
+      "type": "core",
+      "x1": 2492.95034409205,
+      "y1": 1408.3785977994853,
+      "x2": 2300.1248361747867,
+      "y2": 1577.3027079527947
+    },
+    {
+      "id": "wall_3",
+      "type": "core",
+      "x1": 2691.7555455498264,
+      "y1": 1632.6308940443807,
+      "x2": 2505.998944149607,
+      "y2": 1796.3450574840192
+    },
+    {
+      "id": "wall_008",
+      "x1": 150.25716906688672,
+      "y1": 637.3914872291724,
+      "x2": 488.9392686148118,
+      "y2": 634.9981487253981,
+      "type": "interior"
+    },
+    {
+      "id": "wall_4",
+      "x1": 601.8316476116593,
+      "y1": 634.2003809136463,
+      "x2": 800,
+      "y2": 632.8000000000001,
+      "type": "interior"
+    },
+    {
+      "id": "wall_009",
+      "x1": 875.9629095328291,
+      "y1": 633.9159459260555,
+      "x2": 929.6325797344377,
+      "y2": 633.6646753318382,
+      "type": "interior"
+    },
+    {
+      "id": "wall_5",
+      "x1": 1020.188916376439,
+      "y1": 633.2407087892321,
+      "x2": 1073.2375006248594,
+      "y2": 632.9923459944466,
+      "type": "interior"
+    },
+    {
+      "id": "wall_014",
+      "x1": 1072.8000000000002,
+      "y1": 632.8000000000001,
+      "x2": 1137.9192487704597,
+      "y2": 632.9728040321363,
+      "type": "interior"
+    },
+    {
+      "id": "wall_6",
+      "x1": 1208.1055699003973,
+      "y1": 633.1590543271114,
+      "x2": 1292.208936420727,
+      "y2": 633.3822356617452,
+      "type": "interior"
+    },
+    {
+      "id": "wall_018",
+      "x1": 1292.8000000000002,
+      "y1": 632.8000000000001,
+      "x2": 1400.556618754546,
+      "y2": 633.2150565377926,
+      "type": "interior"
+    },
+    {
+      "id": "wall_7",
+      "x1": 1488.8547879689293,
+      "y1": 633.5551630930198,
+      "x2": 1608.5476279638567,
+      "y2": 634.0161955227773,
+      "type": "interior"
+    },
+    {
+      "id": "wall_022",
+      "x1": 1082.726885006064,
+      "y1": 988.0425162368256,
+      "x2": 1337.2137660627084,
+      "y2": 1039.4766106984541,
+      "type": "interior"
+    },
+    {
+      "id": "wall_8",
+      "x1": 1406.919197891156,
+      "y1": 1053.564707303933,
+      "x2": 1459.5643213962453,
+      "y2": 1064.2047616912637,
+      "type": "interior"
+    },
+    {
+      "id": "wall_9",
+      "type": "core",
+      "x1": 2245.6566535850284,
+      "y1": 1410.9728131626032,
+      "x2": 2041.5262698533113,
+      "y2": 1223.9589345661211
+    },
+    {
+      "id": "wall_10",
+      "type": "core",
+      "x1": 1934.3894474653878,
+      "y1": 1099.0717197312183,
+      "x2": 2041.8126679786565,
+      "y2": 1220.8886903830041
+    },
+    {
+      "id": "wall_029",
+      "x1": 1935.2,
+      "y1": 844,
+      "x2": 1975.6453239895807,
+      "y2": 885.9951400510226,
+      "type": "core"
+    },
+    {
+      "id": "wall_11",
+      "x1": 2041.2869564929294,
+      "y1": 954.1520807857796,
+      "x2": 2146.909108930583,
+      "y2": 1064.134662939246,
+      "type": "core"
+    },
+    {
+      "id": "wall_035",
+      "x1": 1768.0000000000002,
+      "y1": 976.0000000000001,
+      "x2": 1741.6573436251176,
+      "y2": 925.7094741934061,
+      "type": "core"
+    },
+    {
+      "id": "wall_12",
+      "x1": 1706.244397587884,
+      "y1": 858.1029408495963,
+      "x2": 1671.2,
+      "y2": 791.2,
+      "type": "core"
+    },
+    {
+      "id": "wall_1",
+      "type": "core",
+      "x1": 2330.9498391851384,
+      "y1": 1318.5340487926167,
+      "x2": 2320.596670521175,
+      "y2": 1329.5582649698692
+    },
+    {
+      "id": "wall_13",
+      "type": "core",
+      "x1": 2259.796343904818,
+      "y1": 1394.2994051967567,
+      "x2": 2245.0660630185826,
+      "y2": 1409.9844390363721
+    }
+  ],
+  "glassPartitions": [
+    {
+      "id": "glass_social_link",
+      "x1": 798.1348280692434,
+      "y1": 631.3890591627643,
+      "x2": 645.0054362336671,
+      "y2": 766.3248161782417,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_north_divider_1",
+      "x1": 1298.9528944186022,
+      "y1": 161.15439365780367,
+      "x2": 1301.3484668502192,
+      "y2": 490.0988759783233,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_north_divider_2",
+      "x1": 1479.4598091271114,
+      "y1": 167.43282917486852,
+      "x2": 1478.8658978582846,
+      "y2": 435.18766847249327,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_phone_room_front",
+      "x1": 1412.662093176506,
+      "y1": 490.9685333810824,
+      "x2": 1299.609152044701,
+      "y2": 489.22931809767783,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_sw_meeting_front",
+      "x1": 1459.7172795006747,
+      "y1": 1062.319472666832,
+      "x2": 1402.257801637849,
+      "y2": 1345.4125725308459,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_central_room_back",
+      "x1": 2491.2784743315547,
+      "y1": 1406.6385987224648,
+      "x2": 2692.778656526505,
+      "y2": 1634.1382290543752,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_office_sep_0",
+      "x1": 2789.7680000000005,
+      "y1": 1057.7520000000002,
+      "x2": 2516,
+      "y2": 1301.6000000000001,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_office_sep_1",
+      "x1": 2909.7560000000003,
+      "y1": 1192.4624000000001,
+      "x2": 2635.9880000000003,
+      "y2": 1436.3104,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_office_sep_2",
+      "x1": 3029.744,
+      "y1": 1327.1728,
+      "x2": 2755.976,
+      "y2": 1571.0208000000002,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_office_sep_3",
+      "x1": 3149.7408000000005,
+      "y1": 1461.8832,
+      "x2": 2873.503310100813,
+      "y2": 1695.723950197509,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_office_sep_4",
+      "x1": 3245.407553528807,
+      "y1": 1570.2799591745484,
+      "x2": 2969.0073417237654,
+      "y2": 1805.4736989701507,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_lower_room_north_a",
+      "x1": 2590.257562974297,
+      "y1": 2068.388855595018,
+      "x2": 2672.1245108071957,
+      "y2": 1990.1573543146117,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_lower_room_north_b",
+      "x1": 2304.64468361555,
+      "y1": 2323.1497646783273,
+      "x2": 2548.0408679508223,
+      "y2": 2104.691636319293,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_1",
+      "x1": 1911.904319107261,
+      "y1": 1869.1727391358127,
+      "x2": 2165.5151130269346,
+      "y2": 1669.1888959201576,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_2",
+      "x1": 2104.0675555784205,
+      "y1": 2092.6184025849543,
+      "x2": 2339.5708143774336,
+      "y2": 1887.681681702456,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_social_east_upper",
+      "x1": 793.4986339544957,
+      "y1": 158.88184600284512,
+      "x2": 796.2516832770232,
+      "y2": 487.0453220975026,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_5",
+      "x1": 797.002253533668,
+      "y1": 576.5132958306065,
+      "x2": 797.4747391970623,
+      "y2": 632.833586366488,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_west_south",
+      "x1": 576.7794936248027,
+      "y1": 1178.7127282359318,
+      "x2": 628.4818640801462,
+      "y2": 871.6315820831928,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_6",
+      "x1": 642.7523392450483,
+      "y1": 786.873497856333,
+      "x2": 646.6173668792514,
+      "y2": 763.9175462167801,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_3",
+      "x1": 2161.0461827104004,
+      "y1": 1672.540572348119,
+      "x2": 2264.449806104585,
+      "y2": 1800.7298138682863,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_4",
+      "x1": 2312.5247528252244,
+      "y1": 1860.328218198359,
+      "x2": 2338.8882018111844,
+      "y2": 1893.010927163816,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_central_room_front_b",
+      "x1": 2506.7676243803353,
+      "y1": 1801.4645570370278,
+      "x2": 2480.190553533527,
+      "y2": 1772.818426813953,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_7",
+      "x1": 2431.167744431272,
+      "y1": 1719.9791285504741,
+      "x2": 2299.144298182967,
+      "y2": 1577.677486073489,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_office_front_4b",
+      "x1": 3143.2973589559574,
+      "y1": 2000.9770198400672,
+      "x2": 3074.9871209201388,
+      "y2": 1924.0835247731848,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_8",
+      "x1": 3017.3996476527363,
+      "y1": 1859.2601217383522,
+      "x2": 2967.2948342488044,
+      "y2": 1802.8595830624054,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_office_front_1a",
+      "x1": 2516,
+      "y1": 1301.6000000000001,
+      "x2": 2541.450974404182,
+      "y2": 1330.4223950031544,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_9",
+      "x1": 2588.0001281552554,
+      "y1": 1383.1377871594377,
+      "x2": 2639.5450586718653,
+      "y2": 1441.5107328929316,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_office_front_2a",
+      "x1": 2635.9880000000003,
+      "y1": 1436.3104,
+      "x2": 2662.0272711813595,
+      "y2": 1465.403935712204,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_10",
+      "x1": 2707.431854461441,
+      "y1": 1516.1342290432422,
+      "x2": 2758.0928199950226,
+      "y2": 1572.7374496057714,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_office_front_3a",
+      "x1": 2755.976,
+      "y1": 1571.0208000000002,
+      "x2": 2780.152414005963,
+      "y2": 1596.406242565244,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    },
+    {
+      "id": "glass_11",
+      "x1": 2831.1241289576415,
+      "y1": 1649.9269814985976,
+      "x2": 2874.7388226505636,
+      "y2": 1695.7227848575778,
+      "thickness": 6,
+      "tintColor": "rgba(160, 225, 255, 0.35)",
+      "frameColor": "#1c2833",
+      "hasFrostedBand": true
+    }
+  ],
+  "doors": [
+    {
+      "id": "door_lower_room_north",
+      "name": "Lower meeting room north door",
+      "x": 2546.4076660865285,
+      "y": 2104.2861478087066,
+      "length": 58,
+      "thickness": 6,
+      "baseAngle": -0.6981533301973414,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "glass",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "rgba(120, 210, 255, 0.45)",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_2",
+      "name": "Porte en bois",
+      "x": 796.2516832770232,
+      "y": 487.0453220975026,
+      "length": 89.47112204291126,
+      "thickness": 6,
+      "baseAngle": 1.5624072617723597,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "wood",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "#7a5230",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_3",
+      "name": "Porte en bois",
+      "x": 488.9392686148118,
+      "y": 634.9981487253981,
+      "length": 112.89519772359368,
+      "thickness": 6,
+      "baseAngle": -0.007066504752765277,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "wood",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "#7a5230",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_4",
+      "name": "Porte vitrée",
+      "x": 642.7523392450483,
+      "y": 786.873497856333,
+      "length": 85.95102851763647,
+      "thickness": 6,
+      "baseAngle": 1.7375990489288917,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "glass",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "rgba(120, 210, 255, 0.45)",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_5",
+      "name": "Porte en bois",
+      "x": 929.6325797344377,
+      "y": 633.6646753318382,
+      "length": 90.55732909957487,
+      "thickness": 6,
+      "baseAngle": -0.004681764531268166,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "wood",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "#7a5230",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_6",
+      "name": "Porte en bois",
+      "x": 1137.9192487704597,
+      "y": 632.9728040321363,
+      "length": 70.186568251533,
+      "thickness": 6,
+      "baseAngle": 0.002653648956008662,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "wood",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "#7a5230",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_7",
+      "name": "Porte en bois",
+      "x": 1400.556618754546,
+      "y": 633.2150565377926,
+      "length": 88.29882422252729,
+      "thickness": 6,
+      "baseAngle": 0.003851777180546346,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "wood",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "#7a5230",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_8",
+      "name": "Porte en bois",
+      "x": 1337.2137660627084,
+      "y": 1039.4766106984541,
+      "length": 71.1148486067127,
+      "thickness": 6,
+      "baseAngle": 0.19942264001406704,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "wood",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "#7a5230",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_11",
+      "name": "Porte vitrée",
+      "x": 1975.6453239895807,
+      "y": 885.9951400510226,
+      "length": 94.62659503557057,
+      "thickness": 6,
+      "baseAngle": 0.8041951648993093,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "glass",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "rgba(120, 210, 255, 0.45)",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_12",
+      "name": "Porte vitrée",
+      "x": 1706.244397587884,
+      "y": 858.1029408495963,
+      "length": 76.31985389008352,
+      "thickness": 6,
+      "baseAngle": 1.0882830317724197,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "glass",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "rgba(120, 210, 255, 0.45)",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_9",
+      "name": "Porte vitrée",
+      "x": 2320.596670521175,
+      "y": 1329.5582649698692,
+      "length": 88.81494781022603,
+      "thickness": 6,
+      "baseAngle": 2.3248142610648093,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "glass",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "rgba(120, 210, 255, 0.45)",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_1",
+      "name": "Porte en bois",
+      "x": 2264.449806104585,
+      "y": 1800.7298138682863,
+      "length": 76.57134125038645,
+      "thickness": 6,
+      "baseAngle": 0.892014718448576,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "wood",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "#7a5230",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_10",
+      "name": "Porte en bois",
+      "x": 2431.167744431272,
+      "y": 1719.9791285504741,
+      "length": 72.07792486783327,
+      "thickness": 6,
+      "baseAngle": 0.8228478579921564,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "wood",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "#7a5230",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_13",
+      "name": "Porte en bois",
+      "x": 3017.3996476527363,
+      "y": 1859.2601217383522,
+      "length": 86.70865388379715,
+      "thickness": 6,
+      "baseAngle": 0.8444412783955979,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "wood",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "#7a5230",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_14",
+      "name": "Porte en bois",
+      "x": 2541.450974404182,
+      "y": 1330.4223950031544,
+      "length": 70.32592896742855,
+      "thickness": 6,
+      "baseAngle": 0.8474376885310408,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "wood",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "#7a5230",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_15",
+      "name": "Porte en bois",
+      "x": 2662.0272711813595,
+      "y": 1465.403935712204,
+      "length": 68.08185400156965,
+      "thickness": 6,
+      "baseAngle": 0.8407399092338428,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "wood",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "#7a5230",
+      "trimColor": "#222222"
+    },
+    {
+      "id": "door_16",
+      "name": "Porte en bois",
+      "x": 2780.152414005963,
+      "y": 1596.406242565244,
+      "length": 73.90930402248001,
+      "thickness": 6,
+      "baseAngle": 0.8097876617766829,
+      "swingRange": 1.7278759594743864,
+      "swingDirection": 0,
+      "type": "wood",
+      "angularFriction": 0.9,
+      "springStrength": 2.5,
+      "restitution": 0.35,
+      "isLocked": false,
+      "keyCardRequired": null,
+      "dangerThreshold": 6,
+      "color": "#7a5230",
+      "trimColor": "#222222"
+    }
+  ],
+  "props": [
+    {
+      "id": "focus_table_1",
+      "type": "conference_table_oval",
+      "x": 968.8042777094423,
+      "y": 763.075290648662,
+      "width": 105.60000000000001,
+      "height": 61.60000000000001,
+      "collisionWidth": 105.60000000000001,
+      "collisionHeight": 61.60000000000001,
+      "angle": 0.1,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#b8ab81",
+      "chairs": 4
+    },
+    {
+      "id": "focus_table_2",
+      "type": "conference_table_oval",
+      "x": 1170.851372088345,
+      "y": 816.3486279116553,
+      "width": 70.4,
+      "height": 52.800000000000004,
+      "collisionWidth": 70.4,
+      "collisionHeight": 52.800000000000004,
+      "angle": 0.18,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#b8ab81",
+      "chairs": 2
+    },
+    {
+      "id": "focus_table_3",
+      "type": "conference_table_oval",
+      "x": 1424.8000000000002,
+      "y": 800,
+      "width": 132,
+      "height": 79.2,
+      "collisionWidth": 132,
+      "collisionHeight": 79.2,
+      "angle": 0.1,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#b8ab81",
+      "chairs": 6
+    },
+    {
+      "id": "sw_meeting_table",
+      "type": "conference_table_oval",
+      "x": 1565.0918604976443,
+      "y": 1161.1912607164097,
+      "width": 79.2,
+      "height": 105.60000000000001,
+      "collisionWidth": 79.2,
+      "collisionHeight": 105.60000000000001,
+      "angle": 0.2617993877991494,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#b8ab81",
+      "chairs": 4
+    },
+    {
+      "id": "table_boardroom_west",
+      "type": "conference_table_oval",
+      "x": 632.8000000000001,
+      "y": 373.20000000000005,
+      "width": 281.6,
+      "height": 149.60000000000002,
+      "collisionWidth": 281.6,
+      "collisionHeight": 149.60000000000002,
+      "angle": 0,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#6d4c2b",
+      "chairs": 8
+    },
+    {
+      "id": "desk_north_1",
+      "type": "desk_cluster_6",
+      "x": 936.4000000000001,
+      "y": 368.8,
+      "width": 264,
+      "height": 114.4,
+      "collisionWidth": 264,
+      "collisionHeight": 114.4,
+      "angle": -1.5707963267948966,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#d8b98a",
+      "monitors": 6,
+      "chairs": 6
+    },
+    {
+      "id": "desk_north_2",
+      "type": "desk_cluster_6",
+      "x": 1165.2,
+      "y": 351.20000000000005,
+      "width": 264,
+      "height": 114.4,
+      "collisionWidth": 264,
+      "collisionHeight": 114.4,
+      "angle": -1.5707963267948966,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#d8b98a",
+      "monitors": 6,
+      "chairs": 6
+    },
+    {
+      "id": "desk_north_3",
+      "type": "desk_cluster_6",
+      "x": 1802.3337365197524,
+      "y": 333.12087311079296,
+      "width": 299.20000000000005,
+      "height": 140.8,
+      "collisionWidth": 299.20000000000005,
+      "collisionHeight": 140.8,
+      "angle": -1.5707963267948966,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#d8b98a",
+      "monitors": 6,
+      "chairs": 6
+    },
+    {
+      "id": "desk_north_diag_1",
+      "type": "desk_cluster_4",
+      "x": 2039.0400000000002,
+      "y": 420.72,
+      "width": 206.8,
+      "height": 147.84000000000003,
+      "collisionWidth": 206.8,
+      "collisionHeight": 147.84000000000003,
+      "angle": -0.5404,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#d8b98a",
+      "monitors": 4,
+      "chairs": 4
+    },
+    {
+      "id": "desk_north_diag_2",
+      "type": "desk_cluster_6",
+      "x": 2123.5200000000004,
+      "y": 602,
+      "width": 277.20000000000005,
+      "height": 154,
+      "collisionWidth": 277.20000000000005,
+      "collisionHeight": 154,
+      "angle": -0.6747,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#d8b98a",
+      "monitors": 6,
+      "chairs": 6
+    },
+    {
+      "id": "table_west_meeting",
+      "type": "conference_table_oval",
+      "x": 317.8950796032179,
+      "y": 770.270991791938,
+      "width": 149.60000000000002,
+      "height": 132,
+      "collisionWidth": 149.60000000000002,
+      "collisionHeight": 132,
+      "angle": -1.5707963267948966,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#8b6a45",
+      "chairs": 6
+    },
+    {
+      "id": "desk_west_1",
+      "type": "desk_cluster_6",
+      "x": 712.88,
+      "y": 1023.5200000000001,
+      "width": 257.84000000000003,
+      "height": 149.60000000000002,
+      "collisionWidth": 257.84000000000003,
+      "collisionHeight": 149.60000000000002,
+      "angle": -1.3258,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#d8b98a",
+      "monitors": 6,
+      "chairs": 6
+    },
+    {
+      "id": "table_west_small",
+      "type": "conference_table_oval",
+      "x": 304.41255691655607,
+      "y": 999.5530419799603,
+      "width": 114.4,
+      "height": 105.60000000000001,
+      "collisionWidth": 114.4,
+      "collisionHeight": 105.60000000000001,
+      "angle": 0,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#8b6a45",
+      "chairs": 4
+    },
+    {
+      "id": "desk_west_2",
+      "type": "desk_cluster_6",
+      "x": 925.84,
+      "y": 1068.4,
+      "width": 244.64000000000001,
+      "height": 127.60000000000001,
+      "collisionWidth": 244.64000000000001,
+      "collisionHeight": 127.60000000000001,
+      "angle": -1.3734,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#d8b98a",
+      "monitors": 6,
+      "chairs": 6
+    },
+    {
+      "id": "desk_west_3",
+      "type": "desk_cluster_4",
+      "x": 1203.92,
+      "y": 1165.2,
+      "width": 188.32,
+      "height": 141.68000000000004,
+      "collisionWidth": 188.32,
+      "collisionHeight": 141.68000000000004,
+      "angle": -1.3734,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#d8b98a",
+      "monitors": 4,
+      "chairs": 4
+    },
+    {
+      "id": "desk_mid_1",
+      "type": "desk_cluster_4",
+      "x": 1653.6000000000001,
+      "y": 1367.6000000000001,
+      "width": 199.76000000000002,
+      "height": 154,
+      "collisionWidth": 199.76000000000002,
+      "collisionHeight": 154,
+      "angle": -0.6981317007977318,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#d8b98a",
+      "monitors": 4,
+      "chairs": 4
+    },
+    {
+      "id": "desk_mid_2",
+      "type": "desk_cluster_6",
+      "x": 1836.6400000000003,
+      "y": 1509.28,
+      "width": 273.68,
+      "height": 148.72,
+      "collisionWidth": 273.68,
+      "collisionHeight": 148.72,
+      "angle": -0.6981317007977318,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#d8b98a",
+      "monitors": 6,
+      "chairs": 6
+    },
+    {
+      "id": "desk_mid_3",
+      "type": "desk_cluster_6",
+      "x": 1960.7200000000003,
+      "y": 1656.2400000000002,
+      "width": 252.56,
+      "height": 124.96000000000001,
+      "collisionWidth": 252.56,
+      "collisionHeight": 124.96000000000001,
+      "angle": -0.6981317007977318,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#d8b98a",
+      "monitors": 6,
+      "chairs": 6
+    },
+    {
+      "id": "table_central_glass_room",
+      "type": "conference_table_oval",
+      "x": 2456.1366608222465,
+      "y": 1597.5163886000464,
+      "width": 158.4,
+      "height": 70.4,
+      "collisionWidth": 158.4,
+      "collisionHeight": 70.4,
+      "angle": 0.8431,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#b99463",
+      "chairs": 6
+    },
+    {
+      "id": "desk_lower_1",
+      "type": "desk_cluster_6",
+      "x": 2358.6267547690472,
+      "y": 2097.3474650094317,
+      "width": 276.32,
+      "height": 132.88,
+      "collisionWidth": 276.32,
+      "collisionHeight": 132.88,
+      "angle": -0.7,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#d8b98a",
+      "monitors": 6,
+      "chairs": 6
+    },
+    {
+      "id": "desk_lower_2",
+      "type": "desk_cluster_4",
+      "x": 2554.4817155402775,
+      "y": 2304.719207660295,
+      "width": 223.52,
+      "height": 114.4,
+      "collisionWidth": 223.52,
+      "collisionHeight": 114.4,
+      "angle": -0.7,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#d8b98a",
+      "monitors": 4,
+      "chairs": 4
+    },
+    {
+      "id": "desk_right_1",
+      "type": "executive_desk",
+      "x": 2877.5280110261565,
+      "y": 1969.5492753684923,
+      "width": 286.88000000000005,
+      "height": 61.60000000000001,
+      "collisionWidth": 286.88000000000005,
+      "collisionHeight": 61.60000000000001,
+      "angle": 0.833,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#c6b087",
+      "monitors": 3
+    },
+    {
+      "id": "printer_reference",
+      "type": "printer_station",
+      "x": 1305.6766479019936,
+      "y": 1289.242307823658,
+      "width": 44,
+      "height": 35.2,
+      "collisionWidth": 44,
+      "collisionHeight": 35.2,
+      "angle": 0,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": true,
+      "color": "#f0f3f4"
+    },
+    {
+      "id": "reception_counter_reference",
+      "type": "reception_counter",
+      "x": 2748.9546828458483,
+      "y": 2142.889966521975,
+      "width": 105.60000000000001,
+      "height": 44,
+      "collisionWidth": 105.60000000000001,
+      "collisionHeight": 44,
+      "angle": 0.7853981633974483,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": true,
+      "color": "#2c3e50"
+    },
+    {
+      "id": "executive_bay_0_desk",
+      "type": "executive_desk",
+      "x": 2742.747341500783,
+      "y": 1220.426267406407,
+      "width": 154,
+      "height": 68,
+      "collisionWidth": 154,
+      "collisionHeight": 68,
+      "angle": 2.4139337087174497,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#c6b087",
+      "monitors": 1
+    },
+    {
+      "id": "executive_bay_1_desk",
+      "type": "executive_desk",
+      "x": 2862.7353415007824,
+      "y": 1355.136667406407,
+      "width": 154,
+      "height": 68,
+      "collisionWidth": 154,
+      "collisionHeight": 68,
+      "angle": 2.413933708717449,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#c6b087",
+      "monitors": 1
+    },
+    {
+      "id": "executive_bay_2_desk",
+      "type": "executive_desk",
+      "x": 2982.7255415007826,
+      "y": 1489.8470674064072,
+      "width": 154,
+      "height": 68,
+      "collisionWidth": 154,
+      "collisionHeight": 68,
+      "angle": 2.4139337087174484,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#c6b087",
+      "monitors": 1
+    },
+    {
+      "id": "executive_bay_3_desk",
+      "type": "executive_desk",
+      "x": 3179.1479646177927,
+      "y": 1755.1318522748168,
+      "width": 154,
+      "height": 68,
+      "collisionWidth": 154,
+      "collisionHeight": 68,
+      "angle": 2.4139496733906625,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#c6b087",
+      "monitors": 1
+    },
+    {
+      "id": "ambient_sofa",
+      "type": "lounge_sofa",
+      "x": 202.09934178945184,
+      "y": 383.29410392567485,
+      "width": 172,
+      "height": 52,
+      "collisionWidth": 172,
+      "collisionHeight": 52,
+      "angle": -1.5707963267948966,
+      "centered": true,
+      "solid": false
+    },
+    {
+      "id": "ambient_pouf_cyan",
+      "type": "pouf_cyan",
+      "x": 375.4015934356124,
+      "y": 264.5885799972903,
+      "width": 38,
+      "height": 38,
+      "collisionWidth": 38,
+      "collisionHeight": 38,
+      "angle": 0,
+      "centered": true,
+      "solid": false
+    },
+    {
+      "id": "ambient_pouf_navy",
+      "type": "pouf_navy",
+      "x": 350.00039117222553,
+      "y": 524.9426066269884,
+      "width": 34,
+      "height": 34,
+      "collisionWidth": 34,
+      "collisionHeight": 34,
+      "angle": 0,
+      "centered": true,
+      "solid": false
+    },
+    {
+      "id": "ambient_plant",
+      "type": "plant",
+      "x": 210.4,
+      "y": 541.6,
+      "width": 44,
+      "height": 44,
+      "collisionWidth": 44,
+      "collisionHeight": 44,
+      "angle": 0,
+      "centered": true,
+      "solid": false
+    },
+    {
+      "id": "ambient_spawn_north_open",
+      "type": "elevator",
+      "x": 2550.009813012281,
+      "y": 857.9423017043023,
+      "width": 104,
+      "height": 72,
+      "collisionWidth": 104,
+      "collisionHeight": 72,
+      "angle": 0.8377580409572781,
+      "centered": true,
+      "solid": false
+    },
+    {
+      "id": "prop_1",
+      "type": "coffee_machine",
+      "x": 655.8663687996059,
+      "y": 664.6567331302127,
+      "width": 40,
+      "height": 36,
+      "collisionWidth": 40,
+      "collisionHeight": 36,
+      "angle": 0,
+      "centered": true,
+      "solid": false,
+      "color": "#c6b087",
+      "chairs": 4
+    },
+    {
+      "id": "prop_2",
+      "type": "water_cooler",
+      "x": 552.5513317179773,
+      "y": 1134.9186116084343,
+      "width": 36,
+      "height": 36,
+      "collisionWidth": 36,
+      "collisionHeight": 36,
+      "angle": 0,
+      "centered": true,
+      "solid": false,
+      "color": "#c6b087",
+      "chairs": 4
+    },
+    {
+      "id": "prop_3",
+      "type": "kitchen_counter",
+      "x": 574.8174531253327,
+      "y": 979.9459200839567,
+      "width": 180,
+      "height": 64,
+      "collisionWidth": 180,
+      "collisionHeight": 64,
+      "angle": -1.3962634015954636,
+      "centered": true,
+      "solid": true,
+      "color": "#c6b087",
+      "chairs": 4
+    },
+    {
+      "id": "prop_5",
+      "type": "pouf_navy",
+      "x": 336.0219835280412,
+      "y": 333.6400631478544,
+      "width": 38,
+      "height": 38,
+      "collisionWidth": 38,
+      "collisionHeight": 38,
+      "angle": 0,
+      "centered": true,
+      "solid": true,
+      "color": "#c6b087",
+      "chairs": 4
+    },
+    {
+      "id": "prop_6",
+      "type": "pouf_cyan",
+      "x": 317.0689879251664,
+      "y": 434.39017764073077,
+      "width": 38,
+      "height": 38,
+      "collisionWidth": 38,
+      "collisionHeight": 38,
+      "angle": 0,
+      "centered": true,
+      "solid": true,
+      "color": "#c6b087",
+      "chairs": 4
+    },
+    {
+      "id": "prop_4",
+      "type": "acoustic_sofa_pod",
+      "x": 1574.969454000035,
+      "y": 228.49821608950566,
+      "width": 150,
+      "height": 120,
+      "collisionWidth": 150,
+      "collisionHeight": 120,
+      "angle": 0,
+      "centered": true,
+      "solid": true,
+      "color": "#c6b087",
+      "chairs": 4
+    },
+    {
+      "id": "prop_7",
+      "type": "printer_station",
+      "x": 2006.616466724061,
+      "y": 270.5418055852168,
+      "width": 62,
+      "height": 48,
+      "collisionWidth": 62,
+      "collisionHeight": 48,
+      "angle": 0.7853981633974483,
+      "centered": true,
+      "solid": true,
+      "color": "#c6b087",
+      "chairs": 4
+    },
+    {
+      "id": "prop_8",
+      "type": "conference_table_oval",
+      "x": 2130.269540865362,
+      "y": 1871.1746243433215,
+      "width": 150,
+      "height": 80,
+      "collisionWidth": 150,
+      "collisionHeight": 80,
+      "angle": -0.6981317007977318,
+      "centered": true,
+      "solid": true,
+      "color": "#c6b087",
+      "chairs": 4
+    },
+    {
+      "id": "prop_9",
+      "type": "conference_table_oval",
+      "x": 1907.1676123154402,
+      "y": 988.0512934757481,
+      "width": 70.4,
+      "height": 52.800000000000004,
+      "collisionWidth": 70.4,
+      "collisionHeight": 52.800000000000004,
+      "angle": 0.7853981633974483,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#b8ab81",
+      "chairs": 2
+    },
+    {
+      "id": "prop_10",
+      "type": "conference_table_oval",
+      "x": 1817.7919357130415,
+      "y": 810.7963060208917,
+      "width": 70.4,
+      "height": 52.800000000000004,
+      "collisionWidth": 70.4,
+      "collisionHeight": 52.800000000000004,
+      "angle": 0.9599310885968813,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#b8ab81",
+      "chairs": 2
+    },
+    {
+      "id": "prop_11",
+      "type": "conference_table_oval",
+      "x": 2083.72987860878,
+      "y": 1133.1645630592989,
+      "width": 132,
+      "height": 79.2,
+      "collisionWidth": 132,
+      "collisionHeight": 79.2,
+      "angle": 0.8726646259971648,
+      "centered": true,
+      "solid": true,
+      "isCover": false,
+      "blocksBullets": false,
+      "color": "#b8ab81",
+      "chairs": 6
+    }
+  ],
+  "buildingFootprint": [
+    {
+      "x": 148.8,
+      "y": 157.6
+    },
+    {
+      "x": 1988.0000000000002,
+      "y": 157.6
+    },
+    {
+      "x": 3422.4,
+      "y": 1768.0000000000002
+    },
+    {
+      "x": 2498.4,
+      "y": 2560
+    },
+    {
+      "x": 1468.8000000000002,
+      "y": 1363.2
+    },
+    {
+      "x": 148.8,
+      "y": 1090.4
+    }
+  ],
+  "zones": [
+    {
+      "id": "west_social_area",
+      "name": "West social / meeting area",
+      "type": "wood_parquet",
+      "polygon": [
+        {
+          "x": 157.6,
+          "y": 184
+        },
+        {
+          "x": 800,
+          "y": 184
+        },
+        {
+          "x": 800,
+          "y": 632.8000000000001
+        },
+        {
+          "x": 157.6,
+          "y": 632.8000000000001
+        }
+      ]
+    },
+    {
+      "id": "north_open_space",
+      "name": "North open space",
+      "type": "carpet_jade",
+      "polygon": [
+        {
+          "x": 791.2,
+          "y": 184
+        },
+        {
+          "x": 1988.0000000000002,
+          "y": 184
+        },
+        {
+          "x": 2331.2000000000003,
+          "y": 571.2
+        },
+        {
+          "x": 1847.2,
+          "y": 720.8000000000001
+        },
+        {
+          "x": 1583.2,
+          "y": 597.6
+        },
+        {
+          "x": 791.2,
+          "y": 606.4000000000001
+        }
+      ]
+    },
+    {
+      "id": "west_open_space",
+      "name": "West open space",
+      "type": "carpet_grey",
+      "polygon": [
+        {
+          "x": 650.4000000000001,
+          "y": 606.4000000000001
+        },
+        {
+          "x": 1583.2,
+          "y": 597.6
+        },
+        {
+          "x": 1583.2,
+          "y": 967.2
+        },
+        {
+          "x": 1468.8000000000002,
+          "y": 1363.2
+        },
+        {
+          "x": 157.6,
+          "y": 1081.6
+        },
+        {
+          "x": 157.6,
+          "y": 852.8000000000001
+        },
+        {
+          "x": 624,
+          "y": 852.8000000000001
+        }
+      ]
+    },
+    {
+      "id": "diagonal_upper",
+      "name": "Diagonal glass suites",
+      "type": "carpet_dark",
+      "polygon": [
+        {
+          "x": 1847.2,
+          "y": 720.8000000000001
+        },
+        {
+          "x": 2331.2000000000003,
+          "y": 571.2
+        },
+        {
+          "x": 3422.4,
+          "y": 1768.0000000000002
+        },
+        {
+          "x": 3211.2000000000003,
+          "y": 1944.0000000000002
+        },
+        {
+          "x": 2454.4,
+          "y": 1486.4
+        }
+      ]
+    },
+    {
+      "id": "diagonal_lower",
+      "name": "Diagonal collaboration wing",
+      "type": "carpet_lavender",
+      "polygon": [
+        {
+          "x": 1583.2,
+          "y": 967.2
+        },
+        {
+          "x": 1847.2,
+          "y": 720.8000000000001
+        },
+        {
+          "x": 2454.4,
+          "y": 1486.4
+        },
+        {
+          "x": 3211.2000000000003,
+          "y": 1944.0000000000002
+        },
+        {
+          "x": 2498.4,
+          "y": 2560
+        },
+        {
+          "x": 1468.8000000000002,
+          "y": 1363.2
+        }
+      ]
+    },
+    {
+      "id": "focus_material_1",
+      "name": "West focus room",
+      "type": "carpet_dark",
+      "polygon": [
+        {
+          "x": 835.2,
+          "y": 632.8000000000001
+        },
+        {
+          "x": 1072.8000000000002,
+          "y": 632.8000000000001
+        },
+        {
+          "x": 1072.8000000000002,
+          "y": 879.2
+        },
+        {
+          "x": 835.2,
+          "y": 835.2
+        }
+      ]
+    },
+    {
+      "id": "focus_material_2",
+      "name": "Middle focus room",
+      "type": "carpet_jade",
+      "polygon": [
+        {
+          "x": 1072.8000000000002,
+          "y": 632.8000000000001
+        },
+        {
+          "x": 1292.8000000000002,
+          "y": 632.8000000000001
+        },
+        {
+          "x": 1240,
+          "y": 932.0000000000001
+        },
+        {
+          "x": 1072.8000000000002,
+          "y": 879.2
+        }
+      ]
+    },
+    {
+      "id": "focus_material_3",
+      "name": "East focus room",
+      "type": "carpet_dark",
+      "polygon": [
+        {
+          "x": 1292.8000000000002,
+          "y": 632.8000000000001
+        },
+        {
+          "x": 1609.6000000000001,
+          "y": 632.8000000000001
+        },
+        {
+          "x": 1583.2,
+          "y": 967.2
+        },
+        {
+          "x": 1240,
+          "y": 932.0000000000001
+        }
+      ]
+    },
+    {
+      "id": "central_meeting_material",
+      "name": "Glass meeting room",
+      "type": "carpet_jade",
+      "polygon": [
+        {
+          "x": 2440.32,
+          "y": 1448.1992
+        },
+        {
+          "x": 2639.332,
+          "y": 1671.6224000000002
+        },
+        {
+          "x": 2468.4800000000005,
+          "y": 1823.8008000000002
+        },
+        {
+          "x": 2269.4680000000003,
+          "y": 1600.3776
+        }
+      ]
+    },
+    {
+      "id": "meeting_accent",
+      "name": "Meeting rooms",
+      "type": "carpet_blue_accent",
+      "polygon": [
+        {
+          "x": 2180.9576,
+          "y": 2182.5064
+        },
+        {
+          "x": 2517.4872,
+          "y": 1899.0496
+        },
+        {
+          "x": 2710.2424,
+          "y": 2127.8936000000003
+        },
+        {
+          "x": 2373.7128000000002,
+          "y": 2411.3504000000003
+        }
+      ]
+    }
+  ],
+  "serviceCoreRooms": [
+    {
+      "id": "service_north",
+      "polygon": [
+        {
+          "x": 1671.2,
+          "y": 694.4000000000001
+        },
+        {
+          "x": 1812.0000000000002,
+          "y": 694.4000000000001
+        },
+        {
+          "x": 1891.2,
+          "y": 791.2
+        },
+        {
+          "x": 1935.2,
+          "y": 844
+        },
+        {
+          "x": 1768.0000000000002,
+          "y": 976.0000000000001
+        },
+        {
+          "x": 1671.2,
+          "y": 791.2
+        }
+      ]
+    },
+    {
+      "id": "service_middle",
+      "polygon": [
+        {
+          "x": 1768.0000000000002,
+          "y": 976.0000000000001
+        },
+        {
+          "x": 1935.2,
+          "y": 844
+        },
+        {
+          "x": 2067.2,
+          "y": 984.8000000000001
+        },
+        {
+          "x": 1900.0000000000002,
+          "y": 1064
+        }
+      ]
+    },
+    {
+      "id": "service_south",
+      "polygon": [
+        {
+          "x": 1900.0000000000002,
+          "y": 1064
+        },
+        {
+          "x": 2067.2,
+          "y": 984.8000000000001
+        },
+        {
+          "x": 2146.4,
+          "y": 1064
+        },
+        {
+          "x": 2190.4,
+          "y": 1152
+        },
+        {
+          "x": 2146.4,
+          "y": 1319.2
+        },
+        {
+          "x": 2040.8000000000002,
+          "y": 1222.4
+        }
+      ]
+    }
+  ],
+  "visualFixtures": {
+    "executiveOfficeBays": [
+      {
+        "id": "executive_bay_0",
+        "separatorStartId": "glass_office_sep_0",
+        "separatorEndId": "glass_office_sep_1",
+        "polygon": [
+          {
+            "x": 2789.7680000000005,
+            "y": 1057.7520000000002
+          },
+          {
+            "x": 2909.7560000000003,
+            "y": 1192.4624000000001
+          },
+          {
+            "x": 2635.9880000000003,
+            "y": 1436.3104
+          },
+          {
+            "x": 2516,
+            "y": 1301.6000000000001
+          }
+        ],
+        "carpetColor": "#30434f",
+        "desk": {
+          "x": 2742.747341500783,
+          "y": 1220.426267406407,
+          "width": 154,
+          "height": 68,
+          "angle": 2.4139337087174497
+        },
+        "chair": {
+          "x": 2674.3008477392905,
+          "y": 1203.7206548238655,
+          "radius": 11
+        },
+        "collidableDeskId": "executive_bay_0_desk"
+      },
+      {
+        "id": "executive_bay_1",
+        "separatorStartId": "glass_office_sep_1",
+        "separatorEndId": "glass_office_sep_2",
+        "polygon": [
+          {
+            "x": 2909.7560000000003,
+            "y": 1192.4624000000001
+          },
+          {
+            "x": 3029.744,
+            "y": 1327.1728
+          },
+          {
+            "x": 2755.976,
+            "y": 1571.0208000000002
+          },
+          {
+            "x": 2635.9880000000003,
+            "y": 1436.3104
+          }
+        ],
+        "carpetColor": "#30434f",
+        "desk": {
+          "x": 2862.7353415007824,
+          "y": 1355.136667406407,
+          "width": 154,
+          "height": 68,
+          "angle": 2.413933708717449
+        },
+        "chair": {
+          "x": 2794.28884773929,
+          "y": 1338.4310548238655,
+          "radius": 11
+        },
+        "collidableDeskId": "executive_bay_1_desk"
+      },
+      {
+        "id": "executive_bay_2",
+        "separatorStartId": "glass_office_sep_2",
+        "separatorEndId": "glass_office_sep_3",
+        "polygon": [
+          {
+            "x": 3029.744,
+            "y": 1327.1728
+          },
+          {
+            "x": 3149.7408000000005,
+            "y": 1461.8832
+          },
+          {
+            "x": 2875.964,
+            "y": 1705.7312000000002
+          },
+          {
+            "x": 2755.976,
+            "y": 1571.0208000000002
+          }
+        ],
+        "carpetColor": "#30434f",
+        "desk": {
+          "x": 2982.7255415007826,
+          "y": 1489.8470674064072,
+          "width": 154,
+          "height": 68,
+          "angle": 2.4139337087174484
+        },
+        "chair": {
+          "x": 2914.27904773929,
+          "y": 1473.1414548238656,
+          "radius": 11
+        },
+        "collidableDeskId": "executive_bay_2_desk"
+      },
+      {
+        "id": "executive_bay_3",
+        "separatorStartId": "glass_office_sep_3",
+        "separatorEndId": "glass_office_sep_4",
+        "polygon": [
+          {
+            "x": 3149.7408000000005,
+            "y": 1461.8832
+          },
+          {
+            "x": 3269.7288000000003,
+            "y": 1596.5936000000002
+          },
+          {
+            "x": 2995.952,
+            "y": 1840.4416
+          },
+          {
+            "x": 2875.964,
+            "y": 1705.7312000000002
+          }
+        ],
+        "carpetColor": "#30434f",
+        "desk": {
+          "x": 3102.7161662360313,
+          "y": 1624.5579442640735,
+          "width": 154,
+          "height": 68,
+          "angle": 2.4139496733906625
+        },
+        "chair": {
+          "x": 3034.269939182907,
+          "y": 1607.8512389577556,
+          "radius": 11
+        },
+        "collidableDeskId": "executive_bay_3_desk"
+      }
+    ],
+    "meetingAccent": {
+      "zoneId": "meeting_accent",
+      "fillColor": "#427e86",
+      "strokeColor": "#70a09f",
+      "alpha": 0.78
+    },
+    "westLounge": {
+      "loungeAnchor": {
+        "x": 236.8,
+        "y": 395.20000000000005
+      },
+      "mural": {
+        "x": 236.8,
+        "y": 756,
+        "angle": 0,
+        "width": 216,
+        "height": 62
+      },
+      "sofaColor": "#22558a",
+      "cushionColor": "#3b78b5",
+      "accentColor": "#47d5e0"
+    },
+    "reception": {
+      "elevatorBeacon": {
+        "x": 3193.6000000000004,
+        "y": 1838.4,
+        "radius": 45
+      },
+      "label": "RECEPTION"
+    }
+  },
+  "playerSpawn": {
+    "x": 2471.701588318934,
+    "y": 919.5882797857753,
+    "angle": 2.5307274153917776
+  },
+  "extractionElevator": {
+    "x": 3193.6000000000004,
+    "y": 1838.4,
+    "radius": 45
+  },
+  "spawnLocations": [
+    {
+      "x": 3166.874988555908,
+      "y": 1883.343755722046,
+      "id": "spawn_reception_elevators",
+      "type": "elevator",
+      "name": "East arrival",
+      "angle": -2.35
+    },
+    {
+      "x": 448,
+      "y": 527.2,
+      "id": "spawn_west_meeting",
+      "type": "cafeteria",
+      "name": "West meeting area",
+      "angle": 0
+    },
+    {
+      "x": 1768.0000000000002,
+      "y": 527.2,
+      "id": "spawn_north_open",
+      "type": "elevator",
+      "name": "North open space",
+      "angle": 1.5707963267948966
+    },
+    {
+      "x": 478.91499558539135,
+      "y": 786.5859319611942,
+      "id": "spawn_west_exit",
+      "type": "stairwell",
+      "name": "West fire exit",
+      "angle": 0
+    },
+    {
+      "x": 2770.8361079417364,
+      "y": 1448.3261432043546,
+      "id": "spawn_diagonal_suites",
+      "type": "executive",
+      "name": "Glass suites corridor",
+      "angle": 2.356194490192345
+    },
+    {
+      "x": 2340,
+      "y": 1979.2,
+      "id": "spawn_conference_hub",
+      "type": "conference",
+      "name": "Lower conference hub",
+      "angle": -1.5707963267948966
+    },
+    {
+      "id": "spawn_1",
+      "x": 2176.3505561207635,
+      "y": 1242.6883333581454,
+      "type": "entry",
+      "name": "Arrivée 7",
+      "angle": 0
+    },
+    {
+      "id": "spawn_2",
+      "x": 1036.1009848317008,
+      "y": 837.5171429284579,
+      "type": "entry",
+      "name": "Arrivée 8",
+      "angle": 0
+    },
+    {
+      "id": "spawn_3",
+      "x": 1095.0577944020133,
+      "y": 1154.8803333581454,
+      "type": "entry",
+      "name": "Arrivée 9",
+      "angle": 0
+    }
+  ],
+  "crateLocations": [
+    {
+      "x": 474.40000000000003,
+      "y": 553.6,
+      "area": "West meeting floor"
+    },
+    {
+      "x": 2920.8,
+      "y": 2023.2,
+      "area": "East lounge corridor"
+    },
+    {
+      "x": 2340,
+      "y": 1979.2,
+      "area": "Lower conference hub"
+    },
+    {
+      "x": 1328,
+      "y": 1231.2,
+      "area": "West open space"
+    }
+  ],
+  "enemies": [
+    {
+      "x": 2973.6000000000004,
+      "y": 1917.6000000000001,
+      "id": "e1",
+      "angle": 3.141592653589793,
+      "type": "guard_pistol",
+      "patrol": "patrol_reception"
+    },
+    {
+      "x": 2780,
+      "y": 2067.2,
+      "id": "e2",
+      "angle": -1.5707963267948966,
+      "type": "guard_bat",
+      "patrol": null
+    },
+    {
+      "x": 2762.4,
+      "y": 1662.4,
+      "id": "e3",
+      "angle": -2.356194490192345,
+      "type": "guard_shotgun",
+      "patrol": "patrol_diag_lower"
+    },
+    {
+      "x": 2410.4,
+      "y": 1952.8000000000002,
+      "id": "e4",
+      "angle": 0,
+      "type": "guard_uzi",
+      "patrol": null
+    },
+    {
+      "x": 2604,
+      "y": 2243.2000000000003,
+      "id": "e5",
+      "angle": 0.7853981633974483,
+      "type": "guard_pistol",
+      "patrol": null
+    },
+    {
+      "x": 2181.6000000000004,
+      "y": 1768.0000000000002,
+      "id": "e6",
+      "angle": -2.356194490192345,
+      "type": "guard_shotgun",
+      "patrol": "patrol_diag_lower"
+    },
+    {
+      "x": 2084.8,
+      "y": 1565.6000000000001,
+      "id": "e7",
+      "angle": -0.7853981633974483,
+      "type": "guard_knife",
+      "patrol": null
+    },
+    {
+      "x": 2340,
+      "y": 1028.8000000000002,
+      "id": "e8",
+      "angle": 2.356194490192345,
+      "type": "guard_pistol",
+      "patrol": null
+    },
+    {
+      "x": 2656.8,
+      "y": 1336.8000000000002,
+      "id": "e9",
+      "angle": 2.356194490192345,
+      "type": "guard_katana",
+      "patrol": null
+    },
+    {
+      "x": 2991.2000000000003,
+      "y": 1662.4,
+      "id": "e10",
+      "angle": -0.7853981633974483,
+      "type": "guard_uzi",
+      "patrol": null
+    },
+    {
+      "x": 1935.2,
+      "y": 905.6,
+      "id": "e11",
+      "angle": 3.141592653589793,
+      "type": "guard_rifle",
+      "patrol": "loop_core_counter_clockwise"
+    },
+    {
+      "x": 1768.0000000000002,
+      "y": 1213.6000000000001,
+      "id": "e12",
+      "angle": 0,
+      "type": "guard_shotgun",
+      "patrol": "loop_core_clockwise"
+    },
+    {
+      "x": 1099.2,
+      "y": 1213.6000000000001,
+      "id": "e13",
+      "angle": -1.5707963267948966,
+      "type": "guard_bat",
+      "patrol": null
+    },
+    {
+      "x": 1354.4,
+      "y": 1284,
+      "id": "e14",
+      "angle": 0,
+      "type": "guard_pistol",
+      "patrol": "patrol_south_hall"
+    },
+    {
+      "x": 1556.8000000000002,
+      "y": 1160.8000000000002,
+      "id": "e15",
+      "angle": 3.141592653589793,
+      "type": "guard_uzi",
+      "patrol": null
+    },
+    {
+      "x": 1196,
+      "y": 729.6,
+      "id": "e16",
+      "angle": 3.141592653589793,
+      "type": "guard_knife",
+      "patrol": "loop_focus_island"
+    },
+    {
+      "x": 857.2,
+      "y": 923.2,
+      "id": "e17",
+      "angle": -1.5707963267948966,
+      "type": "guard_pistol",
+      "patrol": null
+    },
+    {
+      "x": 584.4000000000001,
+      "y": 993.6,
+      "id": "e18",
+      "angle": 0,
+      "type": "guard_bat",
+      "patrol": null
+    },
+    {
+      "x": 448,
+      "y": 764.8000000000001,
+      "id": "e19",
+      "angle": -1.5707963267948966,
+      "type": "guard_shotgun",
+      "patrol": null
+    },
+    {
+      "x": 597.6,
+      "y": 527.2,
+      "id": "e20",
+      "angle": 1.5707963267948966,
+      "type": "boss_executive",
+      "patrol": null
+    },
+    {
+      "x": 949.6,
+      "y": 553.6,
+      "id": "e21",
+      "angle": 0,
+      "type": "guard_rifle",
+      "patrol": null
+    },
+    {
+      "x": 1512.8000000000002,
+      "y": 544.8,
+      "id": "e22",
+      "angle": -1.5707963267948966,
+      "type": "guard_knife",
+      "patrol": null
+    }
+  ],
+  "weapons": [
+    {
+      "x": 2326.6441079417364,
+      "y": 965.4781432043544,
+      "type": "pipe",
+      "id": "weapons_1"
+    },
+    {
+      "x": 2499.111346222987,
+      "y": 1041.9965240637296,
+      "type": "pistol",
+      "id": "weapons_2"
+    },
+    {
+      "x": 2858.004107941737,
+      "y": 2096.1022389074797,
+      "type": "baseball_bat",
+      "id": "weapons_3"
+    },
+    {
+      "x": 2685.728,
+      "y": 2192.966380859375,
+      "type": "katana",
+      "id": "weapons_4"
+    },
+    {
+      "x": 2340,
+      "y": 1979.2,
+      "type": "shotgun",
+      "id": "weapons_5"
+    },
+    {
+      "x": 1160.8000000000002,
+      "y": 747.2,
+      "type": "uzi",
+      "id": "weapons_6"
+    },
+    {
+      "x": 446.61122178494935,
+      "y": 1011.6190514425352,
+      "type": "pistol",
+      "id": "weapons_7"
+    },
+    {
+      "x": 1365.9198003036618,
+      "y": 1227.8547999243115,
+      "type": "SILENCED_PISTOL",
+      "id": "weapons_8",
+      "ammo": 12
+    },
+    {
+      "x": 658.542571222233,
+      "y": 563.4993925898633,
+      "type": "assault_rifle",
+      "id": "weapons_9"
+    },
+    {
+      "id": "weapon_1",
+      "x": 484,
+      "y": 220,
+      "type": "MAGNUM",
+      "ammo": 6,
+      "angle": 0
+    },
+    {
+      "id": "weapon_2",
+      "x": 2555.1795092457637,
+      "y": 1562.5602855065829,
+      "type": "M16",
+      "ammo": 24,
+      "angle": 0
+    },
+    {
+      "id": "weapon_3",
+      "x": 2093.5601752613884,
+      "y": 2006.6178567956454,
+      "type": "KATANA",
+      "ammo": 0,
+      "angle": 0
+    },
+    {
+      "id": "weapon_4",
+      "x": 3312.8370326832637,
+      "y": 1773.2994759362705,
+      "type": "DOUBLE_BARREL",
+      "ammo": 2,
+      "angle": 0
+    },
+    {
+      "id": "weapon_5",
+      "x": 1805.0481752613885,
+      "y": 881.4211429284579,
+      "type": "SHOTGUN",
+      "ammo": 6,
+      "angle": 0
+    },
+    {
+      "id": "weapon_6",
+      "x": 1416.1841752613884,
+      "y": 905.2547142175205,
+      "type": "UZI",
+      "ammo": 30,
+      "angle": 0
+    },
+    {
+      "id": "weapon_7",
+      "x": 1387.3331283863881,
+      "y": 281.8180482018955,
+      "type": "KATANA",
+      "ammo": 0,
+      "angle": 0
+    }
+  ],
+  "navGraphDefinition": {
+    "nodes": [
+      {
+        "id": "grid_28_20",
+        "x": 210.4,
+        "y": 219.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_46_20",
+        "x": 368.8,
+        "y": 219.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_64_20",
+        "x": 527.2,
+        "y": 219.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_82_20",
+        "x": 685.6,
+        "y": 219.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_100_20",
+        "x": 844,
+        "y": 219.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_172_20",
+        "x": 1477.6000000000001,
+        "y": 219.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_190_20",
+        "x": 1636.0000000000002,
+        "y": 219.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_226_20",
+        "x": 1952.8000000000002,
+        "y": 219.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_28_38",
+        "x": 210.4,
+        "y": 377.6,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_46_38",
+        "x": 368.8,
+        "y": 377.6,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_100_38",
+        "x": 844,
+        "y": 377.6,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_190_38",
+        "x": 1636.0000000000002,
+        "y": 377.6,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_28_56",
+        "x": 210.4,
+        "y": 536,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_46_56",
+        "x": 368.8,
+        "y": 536,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_64_56",
+        "x": 527.2,
+        "y": 536,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_82_56",
+        "x": 685.6,
+        "y": 536,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_100_56",
+        "x": 844,
+        "y": 536,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_118_56",
+        "x": 1002.4000000000001,
+        "y": 536,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_136_56",
+        "x": 1160.8000000000002,
+        "y": 536,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_172_56",
+        "x": 1477.6000000000001,
+        "y": 536,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_190_56",
+        "x": 1636.0000000000002,
+        "y": 536,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_208_56",
+        "x": 1794.4,
+        "y": 536,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_226_56",
+        "x": 1952.8000000000002,
+        "y": 536,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_28_74",
+        "x": 210.4,
+        "y": 694.4000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_46_74",
+        "x": 368.8,
+        "y": 694.4000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_64_74",
+        "x": 527.2,
+        "y": 694.4000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_82_74",
+        "x": 685.6,
+        "y": 694.4000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_118_74",
+        "x": 1002.4000000000001,
+        "y": 694.4000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_136_74",
+        "x": 1160.8000000000002,
+        "y": 694.4000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_154_74",
+        "x": 1319.2,
+        "y": 694.4000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_172_74",
+        "x": 1477.6000000000001,
+        "y": 694.4000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_190_74",
+        "x": 1636.0000000000002,
+        "y": 694.4000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_226_74",
+        "x": 1952.8000000000002,
+        "y": 694.4000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_262_74",
+        "x": 2269.6000000000004,
+        "y": 694.4000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_280_74",
+        "x": 2428,
+        "y": 694.4000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_28_92",
+        "x": 210.4,
+        "y": 852.8000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_64_92",
+        "x": 527.2,
+        "y": 852.8000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_82_92",
+        "x": 685.6,
+        "y": 852.8000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_154_92",
+        "x": 1319.2,
+        "y": 852.8000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_190_92",
+        "x": 1636.0000000000002,
+        "y": 852.8000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_208_92",
+        "x": 1794.4,
+        "y": 852.8000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_244_92",
+        "x": 2111.2000000000003,
+        "y": 852.8000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_262_92",
+        "x": 2269.6000000000004,
+        "y": 852.8000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_280_92",
+        "x": 2428,
+        "y": 852.8000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_28_110",
+        "x": 210.4,
+        "y": 1011.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_64_110",
+        "x": 527.2,
+        "y": 1011.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_100_110",
+        "x": 844,
+        "y": 1011.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_136_110",
+        "x": 1160.8000000000002,
+        "y": 1011.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_154_110",
+        "x": 1319.2,
+        "y": 1011.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_190_110",
+        "x": 1636.0000000000002,
+        "y": 1011.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_226_110",
+        "x": 1952.8000000000002,
+        "y": 1011.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_262_110",
+        "x": 2269.6000000000004,
+        "y": 1011.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_280_110",
+        "x": 2428,
+        "y": 1011.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_298_110",
+        "x": 2586.4,
+        "y": 1011.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_118_128",
+        "x": 1002.4000000000001,
+        "y": 1169.6000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_154_128",
+        "x": 1319.2,
+        "y": 1169.6000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_190_128",
+        "x": 1636.0000000000002,
+        "y": 1169.6000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_208_128",
+        "x": 1794.4,
+        "y": 1169.6000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_226_128",
+        "x": 1952.8000000000002,
+        "y": 1169.6000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_244_128",
+        "x": 2111.2000000000003,
+        "y": 1169.6000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_262_128",
+        "x": 2269.6000000000004,
+        "y": 1169.6000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_280_128",
+        "x": 2428,
+        "y": 1169.6000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_298_128",
+        "x": 2586.4,
+        "y": 1169.6000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_172_146",
+        "x": 1477.6000000000001,
+        "y": 1328,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_208_146",
+        "x": 1794.4,
+        "y": 1328,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_226_146",
+        "x": 1952.8000000000002,
+        "y": 1328,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_244_146",
+        "x": 2111.2000000000003,
+        "y": 1328,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_262_146",
+        "x": 2269.6000000000004,
+        "y": 1328,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_280_146",
+        "x": 2428,
+        "y": 1328,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_298_146",
+        "x": 2586.4,
+        "y": 1328,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_244_164",
+        "x": 2111.2000000000003,
+        "y": 1486.4,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_262_164",
+        "x": 2269.6000000000004,
+        "y": 1486.4,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_280_164",
+        "x": 2428,
+        "y": 1486.4,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_298_164",
+        "x": 2586.4,
+        "y": 1486.4,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_316_164",
+        "x": 2744.8,
+        "y": 1486.4,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_244_182",
+        "x": 2111.2000000000003,
+        "y": 1644.8000000000002,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_262_182",
+        "x": 2269.6000000000004,
+        "y": 1644.8000000000002,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_298_182",
+        "x": 2586.4,
+        "y": 1644.8000000000002,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_316_182",
+        "x": 2744.8,
+        "y": 1644.8000000000002,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_334_182",
+        "x": 2903.2000000000003,
+        "y": 1644.8000000000002,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_226_200",
+        "x": 1952.8000000000002,
+        "y": 1803.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_244_200",
+        "x": 2111.2000000000003,
+        "y": 1803.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_262_200",
+        "x": 2269.6000000000004,
+        "y": 1803.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_298_200",
+        "x": 2586.4,
+        "y": 1803.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_316_200",
+        "x": 2744.8,
+        "y": 1803.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_334_200",
+        "x": 2903.2000000000003,
+        "y": 1803.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_370_200",
+        "x": 3220.0000000000005,
+        "y": 1803.2,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_244_218",
+        "x": 2111.2000000000003,
+        "y": 1961.6000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_262_218",
+        "x": 2269.6000000000004,
+        "y": 1961.6000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_316_218",
+        "x": 2744.8,
+        "y": 1961.6000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_352_218",
+        "x": 3061.6000000000004,
+        "y": 1961.6000000000001,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_316_236",
+        "x": 2744.8,
+        "y": 2120,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_298_254",
+        "x": 2586.4,
+        "y": 2278.4,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_316_254",
+        "x": 2744.8,
+        "y": 2278.4,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_280_272",
+        "x": 2428,
+        "y": 2436.8,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "grid_298_272",
+        "x": 2586.4,
+        "y": 2436.8,
+        "zone": "plan_grid"
+      },
+      {
+        "id": "anchor_west_social",
+        "x": 448,
+        "y": 527.2,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_west_junction",
+        "x": 720.8000000000001,
+        "y": 800,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_focus_lower",
+        "x": 1002.4000000000001,
+        "y": 1028.8000000000002,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_top_corridor_1",
+        "x": 932.0000000000001,
+        "y": 571.2,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_top_corridor_2",
+        "x": 1196,
+        "y": 571.2,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_top_corridor_3",
+        "x": 1460,
+        "y": 571.2,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_top_corridor_4",
+        "x": 1724.0000000000002,
+        "y": 571.2,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_focus_mid",
+        "x": 1336.8000000000002,
+        "y": 1064,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_core_west",
+        "x": 1671.2,
+        "y": 1064,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_core_southwest",
+        "x": 1768.0000000000002,
+        "y": 1433.6000000000001,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_core_south",
+        "x": 2005.6000000000001,
+        "y": 1644.8000000000002,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_diag_1",
+        "x": 2208,
+        "y": 1451.2,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_diag_2",
+        "x": 2392.8,
+        "y": 1363.2,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_diag_3",
+        "x": 2551.2000000000003,
+        "y": 1504,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_diag_4",
+        "x": 2718.4,
+        "y": 1644.8000000000002,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_diag_5",
+        "x": 2894.4,
+        "y": 1750.4,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_reception_lane",
+        "x": 3008.8,
+        "y": 1926.4,
+        "zone": "anchor"
+      },
+      {
+        "id": "anchor_reception_center",
+        "x": 2780,
+        "y": 2049.6000000000004,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_352_200",
+        "x": 3061.6000000000004,
+        "y": 1803.2,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_226_182",
+        "x": 1952.8000000000002,
+        "y": 1644.8000000000002,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_208_164",
+        "x": 1794.4,
+        "y": 1486.4,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_190_146",
+        "x": 1636.0000000000002,
+        "y": 1328,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_118_56",
+        "x": 1002.4000000000001,
+        "y": 536,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_118_110",
+        "x": 1002.4000000000001,
+        "y": 1011.2,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_100_110",
+        "x": 844,
+        "y": 1011.2,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_82_92",
+        "x": 685.6,
+        "y": 852.8000000000001,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_316_218",
+        "x": 2744.8,
+        "y": 1961.6000000000001,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_334_218",
+        "x": 2903.2000000000003,
+        "y": 1961.6000000000001,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_280_218",
+        "x": 2428,
+        "y": 1961.6000000000001,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_172_110",
+        "x": 1477.6000000000001,
+        "y": 1011.2,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_298_218",
+        "x": 2586.4,
+        "y": 1961.6000000000001,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_334_200",
+        "x": 2903.2000000000003,
+        "y": 1803.2,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_316_182",
+        "x": 2744.8,
+        "y": 1644.8000000000002,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_82_110",
+        "x": 685.6,
+        "y": 1011.2,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_100_128",
+        "x": 844,
+        "y": 1169.6000000000001,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_118_128",
+        "x": 1002.4000000000001,
+        "y": 1169.6000000000001,
+        "zone": "anchor"
+      },
+      {
+        "id": "grid_136_128",
+        "x": 1160.8000000000002,
+        "y": 1169.6000000000001,
+        "zone": "anchor"
+      }
+    ],
+    "autoConnectDistance": 280,
+    "patrolRoutes": {
+      "loop_core_counter_clockwise": [
+        "grid_190_110",
+        "grid_208_128",
+        "grid_226_146",
+        "grid_244_164",
+        "grid_226_182",
+        "grid_208_164",
+        "grid_190_146",
+        "anchor_focus_mid"
+      ],
+      "loop_core_clockwise": [
+        "anchor_focus_mid",
+        "grid_190_146",
+        "grid_208_164",
+        "grid_226_182",
+        "grid_244_164",
+        "grid_226_146",
+        "grid_208_128",
+        "grid_190_110"
+      ],
+      "loop_focus_island": [
+        "grid_100_56",
+        "grid_118_56",
+        "grid_136_56",
+        "grid_172_110",
+        "grid_154_110",
+        "grid_136_110",
+        "grid_118_110",
+        "grid_100_110",
+        "grid_82_92"
+      ],
+      "patrol_reception": [
+        "grid_298_218",
+        "grid_316_218",
+        "grid_334_218",
+        "grid_352_200",
+        "grid_334_200",
+        "grid_316_200"
+      ],
+      "patrol_diag_lower": [
+        "grid_208_164",
+        "grid_226_182",
+        "grid_244_200",
+        "grid_262_218",
+        "grid_280_218",
+        "grid_298_200",
+        "grid_316_182"
+      ],
+      "patrol_south_hall": [
+        "grid_82_110",
+        "grid_100_128",
+        "grid_118_128",
+        "grid_136_128",
+        "grid_154_128",
+        "anchor_focus_mid",
+        "grid_190_146"
+      ]
+    }
+  },
+  "editableDecor": true,
+  "floorLayers": [
+    {
+      "id": "west_social_area",
+      "name": "West social / meeting area",
+      "type": "wood_parquet",
+      "polygon": [
+        {
+          "x": 157.6,
+          "y": 184
+        },
+        {
+          "x": 800,
+          "y": 184
+        },
+        {
+          "x": 800,
+          "y": 632.8000000000001
+        },
+        {
+          "x": 157.6,
+          "y": 632.8000000000001
+        }
+      ]
+    },
+    {
+      "id": "north_open_space",
+      "name": "North open space",
+      "type": "carpet_jade",
+      "polygon": [
+        {
+          "x": 791.2,
+          "y": 184
+        },
+        {
+          "x": 1988.0000000000002,
+          "y": 184
+        },
+        {
+          "x": 2331.2000000000003,
+          "y": 571.2
+        },
+        {
+          "x": 1847.2,
+          "y": 720.8000000000001
+        },
+        {
+          "x": 1583.2,
+          "y": 597.6
+        },
+        {
+          "x": 791.2,
+          "y": 606.4000000000001
+        }
+      ]
+    },
+    {
+      "id": "west_open_space",
+      "name": "West open space",
+      "type": "carpet_grey",
+      "polygon": [
+        {
+          "x": 650.4000000000001,
+          "y": 606.4000000000001
+        },
+        {
+          "x": 1583.2,
+          "y": 597.6
+        },
+        {
+          "x": 1583.2,
+          "y": 967.2
+        },
+        {
+          "x": 1468.8000000000002,
+          "y": 1363.2
+        },
+        {
+          "x": 157.6,
+          "y": 1081.6
+        },
+        {
+          "x": 157.6,
+          "y": 852.8000000000001
+        },
+        {
+          "x": 624,
+          "y": 852.8000000000001
+        }
+      ]
+    },
+    {
+      "id": "diagonal_lower",
+      "name": "Diagonal collaboration wing",
+      "type": "carpet_lavender",
+      "polygon": [
+        {
+          "x": 1583.2,
+          "y": 967.2
+        },
+        {
+          "x": 1847.2,
+          "y": 720.8000000000001
+        },
+        {
+          "x": 2454.4,
+          "y": 1486.4
+        },
+        {
+          "x": 3211.2000000000003,
+          "y": 1944.0000000000002
+        },
+        {
+          "x": 2498.4,
+          "y": 2560
+        },
+        {
+          "x": 1468.8000000000002,
+          "y": 1363.2
+        }
+      ]
+    },
+    {
+      "id": "focus_material_1",
+      "name": "West focus room",
+      "type": "carpet_dark",
+      "polygon": [
+        {
+          "x": 835.2,
+          "y": 632.8000000000001
+        },
+        {
+          "x": 1072.8000000000002,
+          "y": 632.8000000000001
+        },
+        {
+          "x": 1072.8000000000002,
+          "y": 879.2
+        },
+        {
+          "x": 835.2,
+          "y": 835.2
+        }
+      ]
+    },
+    {
+      "id": "focus_material_2",
+      "name": "Middle focus room",
+      "type": "carpet_jade",
+      "polygon": [
+        {
+          "x": 1072.8000000000002,
+          "y": 632.8000000000001
+        },
+        {
+          "x": 1292.8000000000002,
+          "y": 632.8000000000001
+        },
+        {
+          "x": 1240,
+          "y": 932.0000000000001
+        },
+        {
+          "x": 1072.8000000000002,
+          "y": 879.2
+        }
+      ]
+    },
+    {
+      "id": "focus_material_3",
+      "name": "East focus room",
+      "type": "carpet_dark",
+      "polygon": [
+        {
+          "x": 1292.8000000000002,
+          "y": 632.8000000000001
+        },
+        {
+          "x": 1609.6000000000001,
+          "y": 632.8000000000001
+        },
+        {
+          "x": 1583.2,
+          "y": 967.2
+        },
+        {
+          "x": 1240,
+          "y": 932.0000000000001
+        }
+      ]
+    },
+    {
+      "id": "central_meeting_material",
+      "name": "Glass meeting room",
+      "type": "carpet_jade",
+      "polygon": [
+        {
+          "x": 2491.5878283255192,
+          "y": 1403.5240643149634
+        },
+        {
+          "x": 2695.9596135252195,
+          "y": 1634.1382290543752
+        },
+        {
+          "x": 2504.3112922970704,
+          "y": 1801.929827821298
+        },
+        {
+          "x": 2295.1681929404003,
+          "y": 1574.4965897453255
+        }
+      ]
+    },
+    {
+      "id": "meeting_accent",
+      "name": "Meeting rooms",
+      "type": "carpet_blue_accent",
+      "polygon": [
+        {
+          "x": 2297.8369302855713,
+          "y": 2325.111816043808
+        },
+        {
+          "x": 2672.1245108071957,
+          "y": 1990.1573543146117
+        },
+        {
+          "x": 2894.005432084468,
+          "y": 2220.2795119543416
+        },
+        {
+          "x": 2500.171482012858,
+          "y": 2560.425289716642
+        }
+      ]
+    },
+    {
+      "id": "floor_executive_bay_0",
+      "name": "Bureau vitré 0",
+      "type": "carpet_dark",
+      "polygon": [
+        {
+          "x": 2789.7680000000005,
+          "y": 1057.7520000000002
+        },
+        {
+          "x": 2909.7560000000003,
+          "y": 1192.4624000000001
+        },
+        {
+          "x": 2635.9880000000003,
+          "y": 1436.3104
+        },
+        {
+          "x": 2516,
+          "y": 1301.6000000000001
+        }
+      ]
+    },
+    {
+      "id": "floor_executive_bay_1",
+      "name": "Bureau vitré 1",
+      "type": "carpet_dark",
+      "polygon": [
+        {
+          "x": 2909.7560000000003,
+          "y": 1192.4624000000001
+        },
+        {
+          "x": 3029.744,
+          "y": 1327.1728
+        },
+        {
+          "x": 2755.976,
+          "y": 1571.0208000000002
+        },
+        {
+          "x": 2635.9880000000003,
+          "y": 1436.3104
+        }
+      ]
+    },
+    {
+      "id": "floor_executive_bay_2",
+      "name": "Bureau vitré 2",
+      "type": "carpet_dark",
+      "polygon": [
+        {
+          "x": 3029.744,
+          "y": 1327.1728
+        },
+        {
+          "x": 3149.7408000000005,
+          "y": 1461.8832
+        },
+        {
+          "x": 2875.964,
+          "y": 1705.7312000000002
+        },
+        {
+          "x": 2755.976,
+          "y": 1571.0208000000002
+        }
+      ]
+    },
+    {
+      "id": "floor_executive_bay_3",
+      "name": "Bureau vitré 3",
+      "type": "carpet_dark",
+      "polygon": [
+        {
+          "x": 3149.7408000000005,
+          "y": 1461.8832
+        },
+        {
+          "x": 3269.7288000000003,
+          "y": 1596.5936000000002
+        },
+        {
+          "x": 2995.952,
+          "y": 1840.4416
+        },
+        {
+          "x": 2875.964,
+          "y": 1705.7312000000002
+        }
+      ]
+    },
+    {
+      "id": "service_north",
+      "name": "Pièce centrale 1",
+      "type": "tile_restroom",
+      "polygon": [
+        {
+          "x": 1742.8480195128077,
+          "y": 746.5420660474181
+        },
+        {
+          "x": 1812.0000000000002,
+          "y": 694.4000000000001
+        },
+        {
+          "x": 1891.2,
+          "y": 791.2
+        },
+        {
+          "x": 1935.2,
+          "y": 844
+        },
+        {
+          "x": 1768.0000000000002,
+          "y": 976.0000000000001
+        },
+        {
+          "x": 1671.2,
+          "y": 791.2
+        }
+      ]
+    },
+    {
+      "id": "service_middle",
+      "name": "Pièce centrale 2",
+      "type": "tile_restroom",
+      "polygon": [
+        {
+          "x": 1768.0000000000002,
+          "y": 976.0000000000001
+        },
+        {
+          "x": 1935.2,
+          "y": 844
+        },
+        {
+          "x": 2067.2,
+          "y": 984.8000000000001
+        },
+        {
+          "x": 1900.0000000000002,
+          "y": 1064
+        }
+      ]
+    },
+    {
+      "id": "service_south",
+      "name": "Pièce centrale 3",
+      "type": "tile_restroom",
+      "polygon": [
+        {
+          "x": 1900.0000000000002,
+          "y": 1064
+        },
+        {
+          "x": 2067.2,
+          "y": 984.8000000000001
+        },
+        {
+          "x": 2146.4,
+          "y": 1064
+        },
+        {
+          "x": 2332,
+          "y": 1320
+        },
+        {
+          "x": 2244,
+          "y": 1408
+        },
+        {
+          "x": 2040.8000000000002,
+          "y": 1222.4
+        }
+      ]
+    },
+    {
+      "id": "floor_1",
+      "name": "Sol 17",
+      "type": "wood_parquet",
+      "polygon": [
+        {
+          "x": 149.97858734798808,
+          "y": 634.3746680371137
+        },
+        {
+          "x": 794.8074447566655,
+          "y": 633.4840340529822
+        },
+        {
+          "x": 647.8505949914056,
+          "y": 761.737264371904
+        },
+        {
+          "x": 631.8189114729703,
+          "y": 845.4581499495888
+        },
+        {
+          "x": 576.5987890446129,
+          "y": 1176.779020421768
+        },
+        {
+          "x": 151.75988929175958,
+          "y": 1090.3862328916887
+        }
+      ]
+    }
+  ],
+  "exportedAt": "2026-09-11T12:26:08.547Z",
+  "note": "Carte directement lisible par le jeu. Déposer dans maps/active.json."
+}

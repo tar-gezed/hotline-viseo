@@ -1,0 +1,2 @@
+const {chromium}=require('C:/Users/Quentin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+(async()=>{const b=await chromium.launch({headless:true});const p=await b.newPage({viewport:{width:1440,height:900}});let errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto('http://localhost:8080/map_editor.html');await p.waitForTimeout(300);await p.screenshot({path:'docs/repair-editor-pass1.png'});console.log(errors);await b.close()})();

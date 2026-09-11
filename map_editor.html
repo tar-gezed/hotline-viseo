@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hotline VISEO · Map Editor</title>
+  <style>
+    :root {
+      --bg: #080a14;
+      --panel: #101426;
+      --panel-2: #151a31;
+      --line: #2b3455;
+      --muted: #8d98b8;
+      --text: #edf3ff;
+      --pink: #ff3e9e;
+      --cyan: #42e8ff;
+      --yellow: #ffe36a;
+      --green: #56f59a;
+      --red: #ff6578;
+      --shadow: 0 14px 40px rgba(0, 0, 0, .32);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 45% -10%, #1c1c43 0, var(--bg) 52%);
+      color: var(--text);
+      font: 13px/1.35 "Segoe UI", system-ui, sans-serif;
+      overflow: hidden;
+    }
+    button, input, select { font: inherit; }
+    button {
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--text);
+      background: #191e35;
+      padding: 6px 9px;
+      cursor: pointer;
+      transition: border-color .12s, background .12s, color .12s;
+    }
+    button:hover { border-color: var(--cyan); background: #202747; }
+    button:active { transform: translateY(1px); }
+    button:disabled { cursor: default; opacity: .42; }
+    button.primary { border-color: #9d2f75; background: #54204d; }
+    button.primary:hover { border-color: var(--pink); background: #6c2758; }
+    button.danger { color: #ffc1c7; }
+    input[type="number"], input[type="text"], select {
+      width: 100%;
+      border: 1px solid #303b62;
+      border-radius: 4px;
+      background: #0b0f20;
+      color: var(--text);
+      padding: 5px 6px;
+      min-width: 0;
+    }
+    input:focus, select:focus, button:focus-visible { outline: 1px solid var(--cyan); outline-offset: 1px; }
+    input[readonly] { color: #a7b0cc; background: #0e1325; }
+    input[type="checkbox"] { accent-color: var(--pink); }
+
+    .app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      min-width: 930px;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 11px 16px 9px;
+      border-bottom: 1px solid #252d4b;
+      background: rgba(9, 11, 25, .96);
+      box-shadow: 0 3px 18px rgba(0,0,0,.25);
+      z-index: 2;
+    }
+    .brand { white-space: nowrap; }
+    .brand h1 {
+      font: 800 16px/1 "Segoe UI", system-ui, sans-serif;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      margin: 0;
+      color: var(--pink);
+      text-shadow: 0 0 13px rgba(255,62,158,.35);
+    }
+    .brand p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+    .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .toolbar .sep { width: 1px; height: 22px; background: var(--line); margin: 0 3px; }
+    .toolbar label { color: var(--muted); display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .toolbar select { width: auto; padding: 5px 6px; }
+    .top-spacer { flex: 1; }
+    .draft-pill {
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+      max-width: 245px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .workspace {
+      min-height: 0;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 187px minmax(400px, 1fr) 288px;
+      gap: 8px;
+      padding: 8px;
+    }
+    .panel {
+      min-height: 0;
+      background: linear-gradient(180deg, rgba(20,25,48,.98), rgba(12,16,32,.98));
+      border: 1px solid #283252;
+      border-radius: 7px;
+      box-shadow: var(--shadow);
+    }
+    .side-panel { overflow: auto; padding: 12px; }
+    .panel h2 {
+      margin: 0 0 10px;
+      color: var(--cyan);
+      font-size: 12px;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+    .panel h3 {
+      margin: 16px 0 7px;
+      color: #c9d4f1;
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .hint { color: var(--muted); font-size: 11px; margin: 0 0 10px; }
+    .layer-list { display: grid; gap: 6px; }
+    .layer-list label, .check-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: #c6cee3;
+      padding: 3px 2px;
+    }
+    .layer-list label span, .check-row span { flex: 1; }
+    .swatch { width: 9px; height: 9px; border-radius: 2px; display: inline-block; margin-right: 5px; }
+    .swatch.wall { background: var(--pink); }
+    .swatch.glass { background: var(--cyan); }
+    .swatch.door { background: var(--yellow); }
+    .swatch.prop { background: #c39162; }
+    .swatch.plan { background: #bcb7a3; }
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(43,52,85,.45);
+    }
+    .metric strong { color: var(--text); font-weight: 600; }
+    .mini-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .mini-actions button { padding-inline: 5px; }
+
+    .canvas-panel { min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+    .canvas-wrap { position: relative; min-height: 0; flex: 1; background: #060810; border-radius: 7px 7px 0 0; overflow: hidden; }
+    #mapCanvas { display: block; width: 100%; height: 100%; cursor: grab; image-rendering: auto; }
+    #mapCanvas.dragging { cursor: grabbing; }
+    .canvas-hud {
+      position: absolute;
+      left: 10px;
+      top: 9px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      pointer-events: none;
+    }
+    .hud-chip {
+      border: 1px solid rgba(102,129,193,.48);
+      border-radius: 4px;
+      background: rgba(8, 11, 24, .78);
+      padding: 4px 7px;
+      color: #bac6e7;
+      font-size: 11px;
+      backdrop-filter: blur(3px);
+    }
+    .hud-chip strong { color: var(--cyan); font-weight: 600; }
+    .canvas-help {
+      position: absolute;
+      bottom: 9px;
+      left: 10px;
+      color: #9ca6c6;
+      background: rgba(8,11,24,.72);
+      border: 1px solid rgba(102,129,193,.34);
+      border-radius: 4px;
+      padding: 4px 7px;
+      font-size: 10px;
+      pointer-events: none;
+    }
+    .statusbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 31px;
+      padding: 6px 10px;
+      border-top: 1px solid #283252;
+      background: #0c1021;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .statusbar .status-main { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .statusbar .status-collision { color: var(--green); white-space: nowrap; }
+
+    .inspector-empty { color: var(--muted); font-size: 12px; padding: 10px 2px; }
+    #inspectorContent { display: none; }
+    .object-title { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; }
+    .object-title .object-kind { color: var(--pink); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+    .object-title .object-id { color: var(--text); font-weight: 700; overflow-wrap: anywhere; }
+    .field { margin: 8px 0; }
+    .field > label { display: flex; justify-content: space-between; gap: 6px; color: #aeb9d5; font-size: 11px; margin-bottom: 4px; }
+    .field > label em { color: #707b9c; font-style: normal; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .field-row label { display: block; }
+    .field-row label span { display: block; color: #7f8bab; font-size: 10px; margin-bottom: 3px; }
+    .readonly-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 8px; padding: 7px; border: 1px solid #283252; border-radius: 4px; background: rgba(8,11,24,.4); }
+    .readonly-grid span { color: #7480a0; font-size: 10px; }
+    .readonly-grid strong { display: block; color: #dbe4ff; font-size: 11px; font-weight: 500; }
+    .inspector-note { color: #7f8bab; font-size: 10px; margin: 10px 1px 0; }
+    .danger-note { color: var(--red); font-size: 11px; margin: 8px 0; }
+
+    .footer {
+      display: flex;
+      gap: 18px;
+      padding: 7px 16px 8px;
+      border-top: 1px solid #252d4b;
+      color: #7d89aa;
+      font-size: 10px;
+      background: rgba(9,11,25,.96);
+    }
+    .footer kbd { color: #ccd6f4; border: 1px solid #374367; border-radius: 3px; padding: 1px 4px; background: #12182d; }
+    .footer .safe { margin-left: auto; color: var(--green); }
+
+    @media (max-width: 1100px) {
+      .workspace { grid-template-columns: 168px minmax(360px, 1fr) 255px; }
+      .draft-pill { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>VISEO Map Editor</h1>
+        <p>Plan aligned collision and fixture debug view</p>
+      </div>
+      <div class="toolbar" aria-label="Editor controls">
+        <button id="fitBtn" title="Fit the whole map (F)">Fit</button>
+        <button id="zoomOutBtn" title="Zoom out">−</button>
+        <button id="zoomInBtn" title="Zoom in">+</button>
+        <span class="sep"></span>
+        <button id="undoBtn" title="Undo (Ctrl/Cmd+Z)" disabled>Undo</button>
+        <button id="redoBtn" title="Redo (Ctrl/Cmd+Y)" disabled>Redo</button>
+        <button id="resetBtn" class="danger" title="Reset the in-memory working copy">Reset source</button>
+        <span class="sep"></span>
+        <button id="saveBtn" class="primary" title="Save a local draft">Save draft</button>
+        <button id="restoreBtn" title="Restore the saved local draft" disabled>Restore draft</button>
+        <button id="playDraftBtn" title="Enregistrer et lancer cette carte dans le jeu">Jouer cette carte</button>
+        <button id="clearDraftBtn" title="Remove the saved local draft">Clear draft</button>
+        <button id="exportBtn" title="JSON directement lisible par le jeu">Exporter la carte</button>
+        <button id="importBtn" title="Accepte aussi les anciens exports JSON">Importer JSON</button>
+        <a href="maps.html" style="color:var(--cyan)">Mes cartes / aide</a>
+        <input id="importFile" type="file" accept="application/json,.json" hidden>
+      </div>
+      <div class="top-spacer"></div>
+      <div id="draftPill" class="draft-pill">Source loaded · no draft restored</div>
+    </header>
+
+    <div class="workspace">
+      <aside class="panel side-panel" aria-label="Map layers and tools">
+        <h2>Sols</h2>
+        <label class="check-row"><span>Modifier les sols</span><input id="editFloors" type="checkbox"></label>
+        <select id="floorList" aria-label="Zone de sol" style="width:100%"><option value="">Choisir une zone…</option></select>
+        <select id="floorMaterial" aria-label="Matériau de sol" style="width:100%;margin-top:6px"></select>
+        <button id="drawFloorBtn">Dessiner</button><button id="rectFloorBtn">Rectangle</button>
+        <button id="finishFloorBtn" disabled>Terminer le tracé</button>
+        <p class="hint">Dessiner : cliquer les sommets puis Entrée. Rectangle : deux coins. Pour agrandir une zone, déplacer ses poignées blanches. Double-clic sur un bord : ajouter un sommet. Retour arrière retire le dernier point. Échap annule.</p>
+        <h2>Départs et armes</h2>
+        <label class="check-row"><span>Afficher / modifier</span><input id="layerGameplay" type="checkbox" checked></label>
+        <select id="gameplayList" aria-label="Départs et armes existants"></select>
+        <button id="focusGameplay" style="width:100%;margin-top:5px">Centrer la sélection</button>
+        <p class="hint" style="margin-top:8px">J : départ du joueur · E : arrivée ennemie · A : arme au sol. Les arrivées servent à toutes les vagues, dès la première. Choix aléatoire parmi ces points ; priorité à ceux éloignés du joueur.</p>
+        <h3>Ajouter un élément</h3>
+        <select id="addType" aria-label="Type d’élément" style="width:100%"></select>
+        <button id="addBtn" style="width:100%;margin-top:6px">Placer sur la carte</button>
+        <p class="hint" id="placementHint">Départ, arme, arrivée et mobilier : un clic. Mur, vitre ou porte : deux extrémités. Échap annule.</p>
+        <button id="duplicateBtn" disabled>Dupliquer</button>
+        <button id="deleteBtn" class="danger" disabled>Supprimer</button>
+        <p class="hint">Suppr retire la sélection. Ctrl+Z annule. Une porte posée sur un mur ou une vitre y découpe son ouverture.</p>
+        <p class="hint"><a href="sprite_review.html" target="_blank" rel="noopener" style="color:var(--cyan)">Voir les sprites et références ↗</a></p>
+        <h2>Layers</h2>
+        <div class="layer-list">
+          <label><span>Map art</span><input id="layerArt" type="checkbox" checked></label>
+          <label><span><i class="swatch plan"></i>Source plan</span><input id="layerPlan" type="checkbox"></label>
+          <label><span><i class="swatch wall"></i>Walls</span><input id="layerWalls" type="checkbox" checked></label>
+          <label><span><i class="swatch glass"></i>Glass</span><input id="layerGlass" type="checkbox" checked></label>
+          <label><span><i class="swatch door"></i>Doors</span><input id="layerDoors" type="checkbox" checked></label>
+          <label><span><i class="swatch prop"></i>Furniture</span><input id="layerProps" type="checkbox" checked></label>
+          <label><span>Object IDs</span><input id="layerLabels" type="checkbox"></label>
+        </div>
+
+        <h3>Editing</h3>
+        <label class="check-row"><span>Snap while dragging</span><input id="snapToggle" type="checkbox" checked></label>
+        <div class="field">
+          <label for="snapGrid">Snap grid <em>plan px</em></label>
+          <select id="snapGrid">
+            <option value="1">1 px</option>
+            <option value="2">2 px</option>
+            <option value="5" selected>5 px</option>
+            <option value="10">10 px</option>
+          </select>
+        </div>
+        <button id="probeBtn" style="width:100%; margin-top:4px">Probe mode: off</button>
+        <button id="clearanceBtn" style="width:100%; margin-top:4px">Player clearance: off</button>
+        <p class="hint">Clearance dots: green = free, red = blocked for a radius-14 player. Doors are shown closed. Sampling is approximate; use the probe for exact positions.</p>
+        <p class="hint" style="margin-top:7px">Probe tests a radius 14 circle against the live Physics geometry.</p>
+
+        <h3>Working set</h3>
+        <div class="metric"><span>Walls</span><strong id="wallCount">0</strong></div>
+        <div class="metric"><span>Glass</span><strong id="glassCount">0</strong></div>
+        <div class="metric"><span>Doors</span><strong id="doorCount">0</strong></div>
+        <div class="metric"><span>Furniture</span><strong id="propCount">0</strong></div>
+        <div class="metric"><span>History</span><strong id="historyCount">0 / 0</strong></div>
+
+        <h3>Draft rules</h3>
+        <p class="hint">Edits live in this page's working copy. Local drafts and exported JSON are explicit; the source map files are never written.</p>
+      </aside>
+
+      <section class="panel canvas-panel" aria-label="Map canvas">
+        <div class="canvas-wrap">
+          <canvas id="mapCanvas" tabindex="0" aria-label="Editable map canvas"></canvas>
+          <div class="canvas-hud">
+            <div class="hud-chip">Zoom <strong id="zoomReadout">100%</strong></div>
+            <div class="hud-chip" id="selectionReadout">No selection</div>
+          </div>
+          <div class="canvas-help">Drag a prop or endpoint · wheel zoom · middle mouse / Space pan · click blank to clear</div>
+        </div>
+        <div class="statusbar">
+          <span id="statusMain" class="status-main">Loading cloned map data…</span>
+          <span id="statusCollision" class="status-collision">Physics preview live</span>
+        </div>
+      </section>
+
+      <aside class="panel side-panel" aria-label="Property inspector">
+        <h2>Inspector</h2>
+        <div id="inspectorEmpty" class="inspector-empty">Select a wall, glass span, door, or furniture on the map.</div>
+        <div id="inspectorContent"></div>
+      </aside>
+    </div>
+
+    <footer class="footer">
+      <span><kbd>Ctrl/Cmd</kbd> + <kbd>Z</kbd> undo</span>
+      <span><kbd>Ctrl/Cmd</kbd> + <kbd>Y</kbd> redo</span>
+      <span><kbd>F</kbd> fit map</span>
+      <span><kbd>Esc</kbd> clear selection</span>
+      <span class="safe">Working copy only · collision reads the current edited geometry</span>
+    </footer>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/engine/physics.js"></script>
+  <script src="js/engine/collision.js"></script>
+  <script src="js/map/doors.js"></script>
+  <script src="js/map/map_data.js"></script>
+  <script src="js/map/map_io.js"></script>
+  <script src="js/map/prop_sprites.js"></script><script src="js/map/map_renderer.js"></script>
+  <script src="js/entities/weapon.js"></script>
+  <script src="js/map/map_editor.js"></script>
+</body>
+</html>
