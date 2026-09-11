@@ -169,7 +169,7 @@ Centralized parameter repository defining:
 
 ## 4. Testing & Verification Framework
 
-The codebase includes 18 automated regression test suites executed via Node.js:
+The codebase includes 19 automated regression test suites executed via Node.js (`npm test` / `node tools/test.cjs`):
 - `test_arcade_waves.js`: Wave progression, enemy ingress routes, and boundary safety.
 - `test_character_gait.js`: Procedural leg movement, strafing gait, and torso orientation.
 - `test_character_roster.js`: Stats, starting loadouts, perks, and ammo caps for all 7 characters.
@@ -189,3 +189,15 @@ The codebase includes 18 automated regression test suites executed via Node.js:
 - `test_scoring.js`: Multipliers, combos, bonuses, leaderboard persistence, and corrupt storage recovery.
 - `test_scoring_events.js`: Event deduplication for thrown weapon kills and melee stuns.
 - `test_visual_pipeline.js`: Visual asset contracts, sprite caching, and canvas dimensions.
+
+---
+
+## 5. Automated CI/CD & GitHub Pages Deployment
+
+The repository is configured for automated deployment to GitHub Pages via GitHub Actions:
+- **Workflow (`.github/workflows/deploy.yml`):** Automatically triggered on every push to the `main` branch or manual dispatch.
+- **Automated Validation:** Runs `npm test` across all 19 test suites prior to artifact creation.
+- **Zero-Build Packaging:** Uploads static web assets directly (`index.html`, `css/`, `js/`, `maps/`, asset images) using `actions/upload-pages-artifact@v3`.
+- **Atomic Deployment:** Deploys via `actions/deploy-pages@v4` with GitHub Pages environment tracking.
+- **Static Hosting Guarantees:** Includes `.nojekyll` to bypass Jekyll filters, and strict relative URI resolution ensuring flawless execution under subpaths such as `https://tar-gezed.github.io/hotline-viseo/`.
+

@@ -41,5 +41,9 @@ Before staging or committing any changes, the following two steps **MUST** be pe
 > **Before every single commit, all documentation files and READMEs MUST be updated.**
 
 ### 3.2 Execute Regression Test Suite
-All automated Node.js regression suites must pass with 0 errors:
+All automated Node.js regression suites must pass with 0 errors before staging or committing:
 
+```bash
+npm test
+# Equivalent to: node tools/test.cjs
+```
