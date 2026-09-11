@@ -173,6 +173,16 @@
     maskMenu = new MaskMenuClass();
     const HudClass = window.GameHUD || (typeof GameHUD !== 'undefined' ? GameHUD : null);
     hud = new HudClass();
+    // Resolve the victory fonts/glyphs in the menu, not on the first wave's
+    // final frame (the checkmark can trigger a separate fallback font).
+    const textWarmup = document.createElement('canvas');
+    textWarmup.width = 1024;
+    textWarmup.height = 192;
+    const textWarmupCtx = textWarmup.getContext('2d');
+    hud._drawIntermissionBanner(textWarmupCtx, 1024, 192);
+    new window.FloatingText(512, 64, 'WAVE 0123456789 COMPLETE! +', { fontSize: 28 }).draw(textWarmupCtx);
+    // Materialize the offscreen text before entering the animation loop.
+    ctx.drawImage(textWarmup, 0, 0);
     const ScoreClass = window.ScoreScreen || (typeof ScoreScreen !== 'undefined' ? ScoreScreen : null);
     scoreScreen = new ScoreClass();
 
@@ -318,7 +328,7 @@
       soundFX.playWaveClearFanfare();
       synthMusic.play('wave_clear');
       postProcessor.screenFlash('#39ff14', 0.5);
-      triggerHitStop(0.12);
+      // Keep intermission responsive; the final hit already supplies hit-stop.
       hud.addScore(bonusPoints, 'WAVE CLEAR BONUS');
       hud.setIntermission(waveSpawner.intermissionTimeTotal);
       particleSystem.addFloatingText(player.x, player.y - 40, `WAVE ${waveNum} COMPLETE! +${bonusPoints}`, '#39ff14', 28);

@@ -140,7 +140,9 @@ Centralized parameter repository defining:
 - **Map Editor (`map_editor.html`, `map_editor.js`):** Full-featured visual editor allowing non-destructive manipulation of walls, glass, doors, furniture, floor polygons, and spawn points with undo/redo and JSON export.
 
 ### 2.6 Audio & Visual FX (`js/audio/`, `js/effects/`)
-- **Music Synthesizer (`synth_music.js`):** Procedural Web Audio API synthwave music engine generating driving basslines, arpeggios, and synth pads synchronized to 124 BPM in combat and 100 BPM in menus.
+
+Floating labels rasterize their outline/glow once per instance and animate the resulting bitmap. Victory fonts are warmed during menu initialization. Wave clear no longer adds its own 120 ms simulation hit-stop; normal combat impacts retain theirs. See [wave-transition profiling](wave-transition-performance.md) for the browser measurements and regression scenario.
+- **Music Synthesizer (`synth_music.js`):** The original four-bar combat score is preserved first in a six-track rotation, followed by five 24-bar scores (120–132 BPM, under 49 seconds). Explicit note-name phrases follow each chord; bass figures select chord members instead of blindly transposing minor intervals. Pads release before the next chord. New leads use gentler resonance and cents-based vibrato while the original voice defaults remain intact. Tempo stays stable as intensity changes orchestration. Menu (100 BPM), wave-clear (92 BPM), and game-over (60 BPM) retain their four-bar schedules. Source tracking, short transition fades, cached percussion noise, background scheduler recovery and output headroom support playback. `test_music.js` checks original-score fingerprints, harmony, lifecycle, rotation and controls; optional `tools/render_music.cjs` exports and audits real browser Web Audio renders. See [music direction](music-direction.md).
 - **Sound FX (`sound_effects.js`):** Dynamic sound generator synthesizing visceral gunshots, blade slashes, blunt impacts, door kicks, glass breaks, and execution sounds.
 - **Gore & Blood (`blood.js`):** Dedicated off-screen blood canvas preserving persistent splatter decals, expanding pools under corpses, arterial sprays, and dismembered limbs.
 - **Particles (`particles.js`):** Dynamic particle emitter handling muzzle flashes, sparks, bullet debris, smoke, and shattered glass fragments.
@@ -169,7 +171,7 @@ Centralized parameter repository defining:
 
 ## 4. Testing & Verification Framework
 
-The codebase includes 19 automated regression test suites executed via Node.js (`npm test` / `node tools/test.cjs`):
+The codebase includes 20 automated regression test suites executed via Node.js (`npm test` / `node tools/test.cjs`):
 - `test_arcade_waves.js`: Wave progression, enemy ingress routes, and boundary safety.
 - `test_character_gait.js`: Procedural leg movement, strafing gait, and torso orientation.
 - `test_character_roster.js`: Stats, starting loadouts, perks, and ammo caps for all 7 characters.
@@ -184,6 +186,7 @@ The codebase includes 19 automated regression test suites executed via Node.js (
 - `test_interaction_guards.js`: Obstacle interaction safety and actor spacing.
 - `test_map_files.js`: JSON schema compatibility (v1/v2) and active map isolation.
 - `test_map_plan.js`: Architectural accuracy against reference office blueprints.
+- `test_music.js`: Original combat score fingerprint preservation, 6-track harmonic compatibility, note registers, voice release lifecycles, and audio volume/mute controls.
 - `test_player_reach.js`: Melee swing arcs and frame-rate-independent weapon throws.
 - `test_rotated_furniture.js`: OBB collision detection for rotated desks and furniture.
 - `test_scoring.js`: Multipliers, combos, bonuses, leaderboard persistence, and corrupt storage recovery.
@@ -196,7 +199,7 @@ The codebase includes 19 automated regression test suites executed via Node.js (
 
 The repository is configured for automated deployment to GitHub Pages via GitHub Actions:
 - **Workflow (`.github/workflows/deploy.yml`):** Automatically triggered on every push to the `main` branch or manual dispatch.
-- **Automated Validation:** Runs `npm test` across all 19 test suites prior to artifact creation.
+- **Automated Validation:** Runs `npm test` across all 20 test suites prior to artifact creation.
 - **Zero-Build Packaging:** Uploads static web assets directly (`index.html`, `css/`, `js/`, `maps/`, asset images) using `actions/upload-pages-artifact@v3`.
 - **Atomic Deployment:** Deploys via `actions/deploy-pages@v4` with GitHub Pages environment tracking.
 - **Static Hosting Guarantees:** Includes `.nojekyll` to bypass Jekyll filters, and strict relative URI resolution ensuring flawless execution under subpaths such as `https://tar-gezed.github.io/hotline-viseo/`.

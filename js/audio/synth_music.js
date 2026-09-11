@@ -2,8 +2,49 @@
  * Hotline Miami: VISEO Arcade Edition - Procedural Synthwave Music Engine
  * Generates real-time 80s dark synthwave BGM with multi-channel synthesis,
  * sidechained 4-on-the-floor kicks, rolling 16th analog bass arpeggios,
- * lush chorus pads, retro lead riffs, and dynamic adrenaline tempo shifts.
+ * lush chorus pads, retro lead riffs, and dynamic adrenaline orchestration.
  */
+
+// The original score stays first. New scores use explicit pitches per chord;
+// bass figures address chord members, never a minor interval over a major triad.
+const COMBAT_TRACKS = [
+  { id: 'original', title: 'Original — Combat', bpm: 124, bars: 4, legacy: true },
+  { id: 'neon-lockdown', title: 'Neon Lockdown', bpm: 124, bars: 24, tone: 'square', cutoff: 2400,
+    chords: ['D2 F2 A2', 'F2 A2 C3', 'C2 E2 G2', 'Bb1 D2 F2'],
+    bass: [0,3,1,3,2,3,1,3,0,3,1,3,2,3,2,3],
+    rhythm: [0,3,6,8,11,14], gate: 0.82,
+    melody: ['D4 F4 A4 D5 C5 A4', 'C5 A4 F4 A4 G4 F4', 'G4 E4 G4 C5 D5 C5', 'Bb4 A4 F4 D4 F4 A4'],
+    answer: ['A4 F4 D4 F4 A4 D5', 'C5 A4 F4 C5 A4 F4', 'E4 G4 C5 G4 E4 G4', 'F4 D4 Bb3 D4 F4 A4'] },
+  { id: 'chrome-pursuit', title: 'Chrome Pursuit', bpm: 130, bars: 24, tone: 'sawtooth', cutoff: 2600,
+    chords: ['A1 C2 E2', 'F2 A2 C3', 'G1 B1 D2', 'E2 G2 B2'],
+    bass: [0,3,0,null,2,3,1,3,0,3,0,null,2,3,1,2],
+    rhythm: [0,2,4,7,8,10,12,14], gate: 0.72,
+    melody: ['A4 A4 E4 G4 A4 C5 E5 C5', 'A4 A4 F4 G4 A4 C5 A4 F4', 'G4 G4 D4 A4 B4 D5 B4 G4', 'G4 G4 E4 F4 G4 B4 G4 E4'],
+    answer: ['E5 C5 A4 G4 E4 G4 A4 C5', 'C5 A4 F4 G4 A4 G4 F4 A4', 'D5 B4 G4 A4 B4 A4 G4 D4', 'B4 G4 E4 F4 G4 F4 E4 G4'] },
+  { id: 'violet-afterburn', title: 'Violet Afterburn', bpm: 120, bars: 24, tone: 'triangle', cutoff: 2200,
+    chords: ['D2 F2 A2', 'Bb1 D2 F2', 'F2 A2 C3', 'C2 E2 G2'],
+    bass: [0,null,3,2,0,null,1,3,0,null,3,2,0,null,1,2],
+    rhythm: [0,4,6,8,12,14], gate: 0.9,
+    melody: ['A4 F4 G4 A4 D5 C5', 'Bb4 F4 A4 Bb4 D5 F5', 'C5 A4 G4 F4 A4 C5', 'G4 E4 F4 G4 C5 E5'],
+    answer: ['F5 D5 C5 A4 F4 E4', 'F4 D4 C4 Bb3 D4 F4', 'A4 F4 G4 A4 C5 A4', 'G4 E4 D4 C4 E4 G4'] },
+  { id: 'redline-protocol', title: 'Redline Protocol', bpm: 132, bars: 24, tone: 'square', cutoff: 2300,
+    chords: ['E2 G2 B2', 'C2 E2 G2', 'A1 C2 E2', 'B1 D2 Fs2'],
+    bass: [0,0,3,null,2,0,3,1,0,0,3,null,2,3,1,2],
+    rhythm: [0,3,4,6,8,11,12,14], gate: 0.65,
+    melody: ['E4 B4 E4 G4 B4 A4 G4 E4', 'E4 G4 E4 G4 C5 B4 G4 E4', 'E4 A4 E4 C5 A4 G4 E4 C4', 'Fs4 B4 Fs4 A4 B4 A4 Fs4 D4'],
+    answer: ['G4 B4 G4 E4 B4 A4 G4 E4', 'G4 C5 G4 E4 C5 B4 G4 E4', 'A4 C5 A4 E4 C5 B4 A4 E4', 'B4 D5 B4 Fs4 D5 C5 B4 Fs4'] },
+  { id: 'last-elevator', title: 'Last Elevator', bpm: 126, bars: 24, tone: 'sawtooth', cutoff: 2500,
+    chords: ['A1 C2 E2', 'G1 B1 D2', 'F2 A2 C3', 'E2 G2 B2'],
+    bass: [0,3,2,3,1,3,2,3,0,3,2,3,1,3,2,3],
+    rhythm: [0,3,6,8,12,14], gate: 0.85,
+    melody: ['E4 A4 C5 E5 C5 A4', 'D5 B4 G4 B4 D5 B4', 'C5 A4 F4 A4 C5 A4', 'B4 G4 E4 G4 B4 G4'],
+    answer: ['C5 B4 A4 E4 A4 C5', 'B4 A4 G4 D4 G4 B4', 'A4 G4 F4 C4 F4 A4', 'G4 F4 E4 B3 E4 G4'] }
+].map(track => track.legacy ? track : {
+  ...track,
+  chords: track.chords.map(chord => chord.split(' ')),
+  melody: track.melody.map(phrase => phrase.split(' ')),
+  answer: track.answer.map(phrase => phrase.split(' '))
+});
 
 class SynthMusicEngine {
   constructor() {
@@ -21,6 +62,9 @@ class SynthMusicEngine {
     this.step = 0;
     this.bar = 0;
     this.totalSteps = 64; // 4 bars of 16 steps
+    this.combatTracks = COMBAT_TRACKS;
+    this.combatTrackIndex = -1;
+    this.combatTrack = null;
     this.nextNoteTime = 0;
     this.scheduleAheadTime = 0.12; // 120ms lookahead
     this.timerId = null;
@@ -47,6 +91,8 @@ class SynthMusicEngine {
 
     // Cached synthetic impulse response for 80s gated digital reverb
     this.reverbBuffer = null;
+    this.activeVoices = new Set();
+    this.noiseBuffers = new Map();
   }
 
   /**
@@ -110,7 +156,12 @@ class SynthMusicEngine {
     // Graph Routing: duckingBus -> limiter, directBus -> limiter, limiter -> masterGain -> destination
     this.duckingGain.connect(this.limiter);
     this.directBus.connect(this.limiter);
-    this.limiter.connect(this.masterGain);
+    // The compressor is not a brick-wall limiter: reserve headroom for transients
+    // even when the user sets music volume to 100%.
+    this.outputHeadroom = this.ctx.createGain();
+    this.outputHeadroom.gain.setValueAtTime(0.6, this.ctx.currentTime);
+    this.limiter.connect(this.outputHeadroom);
+    this.outputHeadroom.connect(this.masterGain);
     this.masterGain.connect(this.ctx.destination);
 
     this.isInitialized = true;
@@ -156,19 +207,23 @@ class SynthMusicEngine {
       this.ctx.resume();
     }
 
+    if (!this.ctx) return;
+
     if (this.currentTrack === trackName && this.isPlaying) {
       return;
     }
 
+    this._releaseVoices();
+    this.masterGain.gain.linearRampToValueAtTime(this.isMuted ? 0 : this.volume, this.ctx.currentTime + 0.05);
     this.currentTrack = trackName;
     this.isPlaying = true;
     this.step = 0;
     this.bar = 0;
 
     if (trackName === 'combat') {
-      this.bpm = 124;
-      this.baseBpm = 124;
-      this.targetBpm = 124;
+      this.combatTrackIndex = (this.combatTrackIndex + 1) % this.combatTracks.length;
+      this.combatTrack = this.combatTracks[this.combatTrackIndex];
+      this.bpm = this.baseBpm = this.targetBpm = this.combatTrack.bpm;
     } else if (trackName === 'menu') {
       this.bpm = 100;
       this.baseBpm = 100;
@@ -183,6 +238,7 @@ class SynthMusicEngine {
       this.targetBpm = 60;
     }
 
+    this.totalSteps = trackName === 'combat' ? this.combatTrack.bars * 16 : 64;
     if (this.timerId) {
       clearInterval(this.timerId);
     }
@@ -195,6 +251,7 @@ class SynthMusicEngine {
    * Stop music playback
    */
   stop() {
+    this._releaseVoices();
     this.isPlaying = false;
     this.currentTrack = null;
     if (this.timerId) {
@@ -209,6 +266,7 @@ class SynthMusicEngine {
   setVolume(vol) {
     this.volume = Math.max(0, Math.min(1, vol));
     if (this.masterGain && this.ctx) {
+      this.masterGain.gain.cancelScheduledValues(this.ctx.currentTime);
       this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : this.volume, this.ctx.currentTime);
     }
   }
@@ -219,6 +277,7 @@ class SynthMusicEngine {
   setMute(isMuted) {
     this.isMuted = isMuted;
     if (this.masterGain && this.ctx) {
+      this.masterGain.gain.cancelScheduledValues(this.ctx.currentTime);
       this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : this.volume, this.ctx.currentTime);
     }
   }
@@ -234,13 +293,13 @@ class SynthMusicEngine {
 
   /**
    * Dynamic adrenaline intensity (0.0 to 1.0)
-   * Higher intensity raises BPM slightly, boosts filter cutoffs & arpeggio density
+   * Higher intensity boosts filter cutoffs and percussion/counterpoint density
    */
   setIntensity(level) {
     this.intensity = Math.max(0, Math.min(1, level));
     if (this.currentTrack === 'combat') {
-      // Dynamic tempo shift: 124 BPM up to 136 BPM on hyper-adrenaline
-      this.targetBpm = this.baseBpm + Math.floor(this.intensity * 12);
+      // Stable groove: adrenaline changes orchestration, never the song's tempo.
+      this.targetBpm = this.baseBpm;
     }
   }
 
@@ -253,6 +312,11 @@ class SynthMusicEngine {
     // Smooth tempo lerp
     this.bpm += (this.targetBpm - this.bpm) * 0.08;
     const secondsPerStep = (60.0 / this.bpm) / 4; // 16th notes
+
+    // Do not emit a burst of missed notes after a throttled background tab.
+    if (this.nextNoteTime < this.ctx.currentTime - this.scheduleAheadTime) {
+      this.nextNoteTime = this.ctx.currentTime + 0.02;
+    }
 
     while (this.nextNoteTime < this.ctx.currentTime + this.scheduleAheadTime) {
       this._scheduleStep(this.step, this.nextNoteTime);
@@ -277,10 +341,58 @@ class SynthMusicEngine {
     }
   }
 
-  // ==========================================
-  // TRACK 1: COMBAT WAVE (Dark Synthwave 124BPM)
-  // ==========================================
+  // 24 bars (~44–48 seconds): hook x2, bass break, answer, full reprise x2.
   _scheduleCombatTrack(step, time) {
+    const track = this.combatTrack || this.combatTracks[0];
+    if (track.legacy) return this._scheduleOriginalCombatTrack(step % 64, time);
+    const bar = Math.floor(step / 16) % track.bars;
+    const tick = step % 16;
+    const chordBar = bar % 4;
+    const chord = track.chords[chordBar].map(note => this.notes[note]);
+    const dt = 15 / this.bpm;
+    const breakdown = bar >= 8 && bar < 12;
+    const finale = bar >= 16;
+    const fill = bar % 8 === 7;
+
+    // Keep the original's dependable four-on-the-floor drive, even in the break.
+    if (tick % 4 === 0) {
+      this._synthKick(time, 0.95);
+      this._triggerSidechainDucking(time);
+    }
+    if (tick === 4 || tick === 12) this._synthSnare(time, breakdown ? 0.56 : 0.8);
+    if (tick % 2 === 0 || (!breakdown && (finale || this.intensity > 0.6))) {
+      this._synthHiHat(time, tick % 4 === 2 ? 0.48 : tick % 2 ? 0.2 : 0.25, tick % 2 === 1);
+    }
+    if (!breakdown && tick === 14) this._synthOpenHat(time, 0.32);
+    if (fill && (tick === 13 || tick === 15)) this._synthSnare(time, tick === 13 ? 0.28 : 0.42);
+
+    const degree = track.bass[tick];
+    if (degree !== null) {
+      // 0/1/2 = root/third/fifth, 3 = root an octave up. Major thirds stay major.
+      let freq = chord[degree % 3] * (degree >= 3 ? 1 : 0.5);
+      if (freq < 32) freq *= 2; // Keep A/Bb/B/G roots above inaudible sub-bass.
+      this._synthAnalogBass(time, freq, tick % 4 === 0 ? 0.95 : 0.72,
+        (breakdown ? 0 : 200) + this.intensity * 350, dt * 0.88);
+    }
+    // Change pad WITH its chord and release before the next bar, not across it.
+    if (tick === 0) {
+      this._synthPad(time, chord.map(f => f * 2), dt * 15.7, breakdown ? 0.24 : 0.28);
+    }
+    const phrase = (bar >= 12 && bar < 16) || bar >= 20 ? track.answer : track.melody;
+    const eventIndex = track.rhythm.indexOf(tick);
+    if (!breakdown && eventIndex !== -1) {
+      const next = track.rhythm[eventIndex + 1] ?? 16;
+      const duration = (next - tick) * dt * track.gate;
+      this._synthLead(time, this.notes[phrase[chordBar][eventIndex]], duration, 0.29, track);
+    }
+    // Sparse, quiet, consonant response instead of a competing high melody.
+    if ((breakdown || finale) && (tick === 6 || tick === 14)) {
+      this._synthPluck(time, chord[tick === 6 ? 2 : 1] * 4, breakdown ? 0.22 : 0.1);
+    }
+  }
+
+  // Preserved original four-bar score: pitches, rhythms, fills and voicing.
+  _scheduleOriginalCombatTrack(step, time) {
     const stepInBar = step % 16;
     const bar = Math.floor(step / 16);
 
@@ -458,6 +570,39 @@ class SynthMusicEngine {
   // SYNTHESIS ENGINES & VOICE GENERATORS
   // ==========================================
 
+  _startVoice(source, time) {
+    this.activeVoices.add(source);
+    source.onended = () => {
+      this.activeVoices.delete(source);
+      source.disconnect();
+    };
+    source.start(time);
+  }
+
+  _releaseVoices() {
+    if (!this.ctx || !this.masterGain) return;
+    const now = this.ctx.currentTime;
+    const gain = this.masterGain.gain;
+    gain.cancelScheduledValues(now);
+    gain.setValueAtTime(gain.value, now);
+    gain.linearRampToValueAtTime(0, now + 0.025);
+    for (const voice of this.activeVoices) {
+      try { voice.stop(now + 0.03); } catch (e) { /* Already ended. */ }
+    }
+    this.activeVoices.clear();
+  }
+
+  _noiseBuffer(duration) {
+    const size = Math.floor(this.ctx.sampleRate * duration);
+    if (!this.noiseBuffers.has(size)) {
+      const buffer = this.ctx.createBuffer(1, size, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < size; i++) data[i] = Math.random() * 2 - 1;
+      this.noiseBuffers.set(size, buffer);
+    }
+    return this.noiseBuffers.get(size);
+  }
+
   /**
    * Pumping Sidechain Compression envelope
    */
@@ -506,11 +651,11 @@ class SynthMusicEngine {
       clickOsc.connect(clickGain);
       clickGain.connect(this.directBus);
 
-      clickOsc.start(time);
+      this._startVoice(clickOsc, time);
       clickOsc.stop(time + 0.02);
     }
 
-    osc.start(time);
+    this._startVoice(osc, time);
     osc.stop(time + dur);
   }
 
@@ -521,12 +666,7 @@ class SynthMusicEngine {
     if (!this.ctx) return;
 
     // 1. Noise burst layer
-    const bufferSize = Math.floor(this.ctx.sampleRate * 0.2);
-    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
+    const buffer = this._noiseBuffer(0.2);
 
     const noise = this.ctx.createBufferSource();
     noise.buffer = buffer;
@@ -557,9 +697,9 @@ class SynthMusicEngine {
     toneOsc.connect(toneGain);
     toneGain.connect(this.directBus);
 
-    noise.start(time);
+    this._startVoice(noise, time);
     noise.stop(time + 0.2);
-    toneOsc.start(time);
+    this._startVoice(toneOsc, time);
     toneOsc.stop(time + 0.1);
   }
 
@@ -570,12 +710,7 @@ class SynthMusicEngine {
     if (!this.ctx) return;
 
     const dur = isOffbeat ? 0.065 : 0.04;
-    const bufferSize = Math.floor(this.ctx.sampleRate * dur);
-    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
+    const buffer = this._noiseBuffer(dur);
 
     const noise = this.ctx.createBufferSource();
     noise.buffer = buffer;
@@ -593,7 +728,7 @@ class SynthMusicEngine {
     filter.connect(gain);
     gain.connect(this.directBus);
 
-    noise.start(time);
+    this._startVoice(noise, time);
     noise.stop(time + dur);
   }
 
@@ -603,12 +738,7 @@ class SynthMusicEngine {
   _synthOpenHat(time, volume = 0.6) {
     if (!this.ctx) return;
     const dur = 0.28;
-    const bufferSize = Math.floor(this.ctx.sampleRate * dur);
-    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
+    const buffer = this._noiseBuffer(dur);
 
     const noise = this.ctx.createBufferSource();
     noise.buffer = buffer;
@@ -626,7 +756,7 @@ class SynthMusicEngine {
     gain.connect(this.directBus);
     gain.connect(this.reverbBus);
 
-    noise.start(time);
+    this._startVoice(noise, time);
     noise.stop(time + dur);
   }
 
@@ -666,8 +796,8 @@ class SynthMusicEngine {
     filter.connect(gain);
     gain.connect(this.duckingGain); // Route to ducking bus for sidechain compression!
 
-    osc1.start(time);
-    osc2.start(time);
+    this._startVoice(osc1, time);
+    this._startVoice(osc2, time);
     osc1.stop(time + noteLength);
     osc2.stop(time + noteLength);
   }
@@ -711,8 +841,8 @@ class SynthMusicEngine {
         gain.connect(this.duckingGain);
         gain.connect(this.reverbBus);
 
-        osc1.start(time);
-        osc2.start(time);
+        this._startVoice(osc1, time);
+        this._startVoice(osc2, time);
         osc1.stop(time + duration);
         osc2.stop(time + duration);
       } catch (e) {}
@@ -722,7 +852,7 @@ class SynthMusicEngine {
   /**
    * Piercing Retro Synth Lead with Pitch Vibrato & Glide
    */
-  _synthLead(time, freq, duration = 0.28, volume = 0.42) {
+  _synthLead(time, freq, duration = 0.28, volume = 0.42, voice = null) {
     if (!this.ctx || !freq) return;
 
     const osc = this.ctx.createOscillator();
@@ -732,7 +862,7 @@ class SynthMusicEngine {
     const filter = this.ctx.createBiquadFilter();
     const gain = this.ctx.createGain();
 
-    osc.type = 'square';
+    osc.type = voice ? voice.tone : 'square';
     osc.frequency.setValueAtTime(freq, time);
 
     subOsc.type = 'sawtooth';
@@ -742,15 +872,15 @@ class SynthMusicEngine {
     // LFO Vibrato (5.5 Hz)
     lfo.type = 'sine';
     lfo.frequency.setValueAtTime(5.5, time);
-    lfoGain.gain.setValueAtTime(7, time); // 7 cents vibrato
+    lfoGain.gain.setValueAtTime(voice ? 4 : 7, time);
     lfo.connect(lfoGain);
-    lfoGain.connect(osc.frequency);
-    lfoGain.connect(subOsc.frequency);
+    lfoGain.connect(voice ? osc.detune : osc.frequency);
+    lfoGain.connect(voice ? subOsc.detune : subOsc.frequency);
 
     filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(2800, time);
-    filter.frequency.exponentialRampToValueAtTime(1200, time + duration);
-    filter.Q.setValueAtTime(3.0, time);
+    filter.frequency.setValueAtTime(voice ? voice.cutoff : 2800, time);
+    filter.frequency.exponentialRampToValueAtTime(voice ? 900 : 1200, time + duration);
+    filter.Q.setValueAtTime(voice ? 0.8 : 3.0, time);
 
     gain.gain.setValueAtTime(0.001, time);
     gain.gain.linearRampToValueAtTime(volume, time + 0.015);
@@ -763,9 +893,9 @@ class SynthMusicEngine {
     gain.connect(this.directBus);
     gain.connect(this.reverbBus);
 
-    lfo.start(time);
-    osc.start(time);
-    subOsc.start(time);
+    this._startVoice(lfo, time);
+    this._startVoice(osc, time);
+    this._startVoice(subOsc, time);
     lfo.stop(time + duration);
     osc.stop(time + duration);
     subOsc.stop(time + duration);
@@ -796,7 +926,7 @@ class SynthMusicEngine {
     gain.connect(this.directBus);
     gain.connect(this.reverbBus);
 
-    osc.start(time);
+    this._startVoice(osc, time);
     osc.stop(time + 0.2);
   }
 
@@ -832,8 +962,8 @@ class SynthMusicEngine {
     filter.connect(gain);
     gain.connect(this.masterGain);
 
-    osc1.start(time);
-    osc2.start(time);
+    this._startVoice(osc1, time);
+    this._startVoice(osc2, time);
     osc1.stop(time + duration);
     osc2.stop(time + duration);
   }
@@ -843,12 +973,7 @@ class SynthMusicEngine {
    */
   _synthNoiseSweep(time, duration = 3.5) {
     if (!this.ctx) return;
-    const bufferSize = Math.floor(this.ctx.sampleRate * duration);
-    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
+    const buffer = this._noiseBuffer(duration);
 
     const noise = this.ctx.createBufferSource();
     noise.buffer = buffer;
@@ -867,7 +992,7 @@ class SynthMusicEngine {
     filter.connect(gain);
     gain.connect(this.masterGain);
 
-    noise.start(time);
+    this._startVoice(noise, time);
     noise.stop(time + duration);
   }
 }

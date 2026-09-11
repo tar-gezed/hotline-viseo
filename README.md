@@ -6,7 +6,7 @@
 [![Runtime: Browser / Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero%20Runtime-brightgreen.svg)](#)
 [![Hosting: GitHub Pages](https://img.shields.io/badge/Hosting-GitHub%20Pages%20Ready-blue.svg)](https://tar-gezed.github.io/hotline-viseo/)
 [![CI/CD: Deploy Pages](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml/badge.svg)](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml)
-[![Tests: 19 Node Suites Passing](https://img.shields.io/badge/Tests-19%20Passing-success.svg)](#)
+[![Tests: 20 Node Suites Passing](https://img.shields.io/badge/Tests-20%20Passing-success.svg)](#)
 
 ---
 
@@ -44,12 +44,33 @@ Le jeu est déployé et jouable publiquement en ligne sur GitHub Pages à l'adre
 
 Le déploiement est entièrement automatisé par GitHub Actions :
 - **Workflow :** `.github/workflows/deploy.yml` déclenché à chaque push sur la branche `main` (ou manuellement via *Actions*).
-- **Validation CI :** Exécute automatiquement la suite complète des 19 suites de régression (`npm test`) avant le packaging.
+- **Validation CI :** Exécute automatiquement la suite complète des 20 suites de régression (`npm test`) avant le packaging.
 - **Publication Pages :** Utilise les actions officielles `actions/configure-pages@v5`, `actions/upload-pages-artifact@v3` et `actions/deploy-pages@v4`.
 - **Compatibilité sous-dossier :** Tous les chemins de ressources (scripts, styles, cartes) sont relatifs (`maps/active.json`, `css/style.css`, etc.) pour fonctionner indifféremment à la racine ou sous le préfixe `/hotline-viseo/`. Le fichier `.nojekyll` est présent à la racine pour désactiver le traitement Jekyll.
 - **Configuration GitHub requise :** Dans le dépôt GitHub, sous **Settings > Pages > Build and deployment > Source**, sélectionner **GitHub Actions**.
 
 Pour tester le rendu sous le préfixe GitHub Pages en local : **`npm run preview:pages`**, puis ouvrir http://localhost:8081/hotline-viseo/.
+
+## Musique de combat
+
+La transition de fin de vague reste fluide sans arrêt supplémentaire de simulation : les textes lumineux sont mis en cache et les polices de victoire préparées dans le menu. Le [diagnostic de performances](docs/wave-transition-performance.md) détaille les mesures avec et sans musique et le scénario de vérification dans le navigateur.
+
+Le **morceau de combat original est conservé en première position**, avec sa partition, ses sons et ses fills. Cinq compositions supplémentaires le suivent dans la rotation ; leurs boucles font **24 mesures, moins de 49 secondes**.
+
+| Morceau | Harmonie | Tempo | Boucle |
+| --- | --- | --- | --- |
+| Original — Combat | Partition historique en ré mineur | 124 BPM | 7,7 s |
+| Neon Lockdown | Dm – F – C – Bb ; proche du thème original | 124 BPM | 46,5 s |
+| Chrome Pursuit | Am – F – G – Em ; motif pulsé | 130 BPM | 44,3 s |
+| Violet Afterburn | Dm – Bb – F – C ; phrases plus amples | 120 BPM | 48 s |
+| Redline Protocol | Em – C – Am – Bm ; motif court et percussif | 132 BPM | 43,6 s |
+| Last Elevator | Am – G – F – Em ; refrain ascendant puis descendant | 126 BPM | 45,7 s |
+
+Les nouveaux morceaux alternent huit mesures de thème, quatre de break basse/batterie, quatre de réponse et huit de reprise. Les mélodies sont écrites accord par accord, avec des notes d'accord sur les temps forts et des notes de passage dans la tonalité. La basse respecte les tierces majeures et mineures, les nappes changent avec l'accord, et les leads restent moins aigus et moins résonants que dans la première révision.
+
+Chaque nouvelle entrée en combat avance dans la rotation, y compris après une défaite. Une vague longue boucle son morceau ; les appels répétés pendant la même vague ne le relancent pas. Le tempo reste stable, tandis que l'adrénaline enrichit les percussions et ouvre la basse. Les thèmes de menu, d'intermission et de défaite ainsi que le mute et le volume sont conservés. Une marge de sortie réduit le risque de saturation des transitoires.
+
+`test_music.js` vérifie les six partitions et la conservation exacte des événements du morceau original, les notes fortes, les basses, la rotation et les commandes. Le [détail de la révision et des rendus audio](docs/music-direction.md) documente les références et l'outil d'export WAV, qui utilise le vrai moteur Web Audio sans ajouter de dépendance au jeu.
 
 ## Commandes & Contrôles
 
@@ -97,7 +118,7 @@ Les sprites de mobilier sont partagés entre le jeu et l'éditeur, mis en cache 
 
 ## Verification
 
-Exécuter l'ensemble des 19 suites de régression automatisées avec Node.js :
+Exécuter l'ensemble des 20 suites de régression automatisées avec Node.js :
 
 ```bash
 npm test

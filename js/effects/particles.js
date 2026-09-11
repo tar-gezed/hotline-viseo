@@ -442,6 +442,7 @@
       this.isAlive = true;
       this.isCombo = options.isCombo || false;
       this.rotation = options.rotation || rand(-0.08, 0.08);
+      this.textSprite = null;
     }
 
     update(dt) {
@@ -471,6 +472,35 @@
       ctx.rotate(this.rotation);
       ctx.scale(this.scale, this.scale);
 
+      // Rasterize the outline/glow once. Repainting blurred, scaled text every
+      // frame causes expensive canvas raster work during wave-clear popups.
+      if (!this.textSprite && typeof document !== 'undefined') {
+        const sprite = document.createElement('canvas');
+        const spriteCtx = sprite.getContext('2d');
+        if (spriteCtx) {
+          spriteCtx.font = `italic 900 ${this.fontSize}px "Impact", "Arial Black", sans-serif`;
+          const width = Math.ceil(spriteCtx.measureText(this.text).width + this.fontSize + 32);
+          const height = Math.ceil(this.fontSize * 2 + 32);
+          // Supersample for the initial 1.8x pop and camera zoom; local ownership
+          // lets the bitmap be collected together with this short-lived text.
+          sprite.width = width * 2;
+          sprite.height = height * 2;
+          spriteCtx.scale(2, 2);
+          spriteCtx.translate(width / 2, height / 2);
+          this._drawLabel(spriteCtx);
+          this.textSprite = { canvas: sprite, width, height };
+        }
+      }
+      if (this.textSprite) {
+        const { canvas, width, height } = this.textSprite;
+        ctx.drawImage(canvas, -width / 2, -height / 2, width, height);
+      } else {
+        this._drawLabel(ctx);
+      }
+      ctx.restore();
+    }
+
+    _drawLabel(ctx) {
       ctx.font = `italic 900 ${this.fontSize}px "Impact", "Arial Black", sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -487,8 +517,6 @@
       // Text fill
       ctx.fillStyle = this.color;
       ctx.fillText(this.text, 0, 0);
-
-      ctx.restore();
     }
   }
 

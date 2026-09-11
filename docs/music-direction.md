@@ -1,0 +1,27 @@
+# Combat music revision
+
+## Direction
+
+The first expansion had two compositional faults: fixed minor intervals were transposed onto major chords, and some pad durations crossed a chord change. High lead registers, strong filter resonance and competing counter-melodies made the result more tiring. Longer arrangements did not fix those problems.
+
+The original four-bar combat score is restored as the first track. Its pitches, rhythm, velocities, fills and intensity counter-melody are preserved. Two event fingerprints in `test_music.js`, captured from the original Git version, protect that restoration. The synth defaults used by the original remain unchanged; output headroom and playback lifecycle improvements apply to the engine as a whole. Combat tempo now remains stable.
+
+The five additional scores each run for 24 bars, around 44–48 seconds. They use the original's regular kick/snare foundation, rolling bass, minor-key harmony and repeating melodic hooks. Each has an explicit four-bar hook and four-bar answer, rather than a single minor shape transposed over every chord. The structure is eight bars of hook, four bars of bass-led break, four bars of answer and eight bars of fuller reprise.
+
+Bass notes select the actual root, third or fifth of the current chord. Lead notes on quarter-note beats are chord members; passing notes stay in the natural-minor key. New leads stay between Bb3 and F5, have lower filter resonance and use a small pitch modulation in cents rather than fixed-Hz wobble. Pads release before the next chord, and the secondary pluck leaves space around the main melody.
+
+## References consulted
+
+- [Ableton: chords, arpeggios and basslines](https://www.ableton.com/en/blog/beginners-guide-to-chords-bass-melodies/): building the layers from a shared scale and chord progression. Applied through explicit chord-compatible notes, not through Ableton dependencies.
+- [Ableton Learning Music](https://learningmusic.ableton.com/): combining short musical ideas and changing their arrangement over time.
+- [Carpenter Brut interview, Decibel (2017)](https://www.decibelmagazine.com/2017/02/21/neon-knights-q-a-with-carpenter-brut/): contrasts and adapting repeating game music to gameplay timing. These are broad compositional references; no released melody or recording is imported.
+
+## Validation and listening
+
+Run `npm test`. The music regression suite checks the original score, all six complete arrangements, strong-beat harmony, bass/chord compatibility, lead register, pad release, source lifecycle, rotation, mute/volume and background recovery. These are technical and harmonic checks, not a guarantee of artistic quality.
+
+For actual audio, run `node tools/render_music.cjs [output-directory]` using development tooling that supplies Playwright and Microsoft Edge. Playwright can be resolved through `NODE_PATH`; it is not a game dependency and is not part of the normal Node regression runner. The default destination is the OS temporary directory under `hotline-viseo-music`.
+
+The renderer uses the game's own synth in a browser `OfflineAudioContext` at 22,050 Hz stereo. It exports WAV previews and `report.json`, checks for non-finite samples, silence and samples outside the digital range, and includes two bars beyond each new loop boundary. The original preview repeats twice. These exports are listening/review artifacts; gameplay still synthesizes audio live at the device sample rate.
+
+The six default-level renders completed with zero out-of-range samples after the output-headroom adjustment. Noise generation is stochastic, so exact RMS and peak measurements vary between renders. Listen to the previews and to the game with weapon effects to judge melody, fatigue and mix; signal tests cannot judge those preferences.

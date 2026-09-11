@@ -231,4 +231,38 @@ visualRenderer.render(smokeCtx, { x: 0, y: 0, width: MapData.MAP_WIDTH, height: 
 assert(smokeCtx.fills.length > 50 && smokeCtx.strokes.length > 50,
   'real MapRenderer full pass must emit substantial floor, fixture and wall geometry');
 
+// Animated text must rasterize its expensive outline/glow only once, while
+// keeping per-frame movement, fade and expiry independent of the bitmap.
+{
+  const { FloatingText } = require('./js/effects/particles.js');
+  const oldDocument = global.document;
+  let canvases = 0, labels = 0, blits = 0;
+  const transforms = [];
+  const labelContext = {
+    scale() {}, translate() {}, measureText() { return { width: 400 }; },
+    strokeText() {}, fillText() { labels++; }
+  };
+  global.document = { createElement() { canvases++; return { getContext: () => labelContext }; } };
+  const target = {
+    save() {}, restore() {}, rotate() {}, scale() {},
+    translate(x, y) { transforms.push([x, y]); },
+    drawImage() { blits++; }
+  };
+  try {
+    const text = new FloatingText(100, 200, 'WAVE 1 COMPLETE! +1525', { fontSize: 28 });
+    for (let i = 0; i < 60; i++) { text.draw(target); text.update(1 / 60); }
+    assert.equal(labels, 1, 'glow/text must not be repainted every frame');
+    assert.equal(canvases, 1, 'one short-lived bitmap per announcement');
+    assert.equal(blits, 60);
+    assert.notDeepStrictEqual(transforms[0], transforms[59], 'cached text still moves');
+    assert(target.globalAlpha < 1, 'cached text still fades');
+    text.update(1);
+    text.draw(target);
+    assert.equal(blits, 60, 'expired text must not render');
+  } finally {
+    if (oldDocument === undefined) delete global.document;
+    else global.document = oldDocument;
+  }
+}
+
 console.log('VISUAL PIPELINE CONTRACT PASSED');
