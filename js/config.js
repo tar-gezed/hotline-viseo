@@ -55,7 +55,7 @@ const CONFIG = {
       perkDesc:'Exécutions 25 % plus rapides · capacité des armes à feu −25 %.',
       startDesc:'Magnum · 4 cartouches',color:'#d9ad62',
       perks:{executionTimeMult:.75,ammoCapacityMult:.75,startWeapon:'MAGNUM',startAmmo:4},
-      look:{coat:'#344c70',shade:'#22304a',accent:'#dbb66f',pants:'#28283e',hair:'#51352e',beard:'short',glasses:true,build:1,skin:'#dca67f'}
+      look:{coat:'#2b3f66',shade:'#18243c',accent:'#dca020',pants:'#28283e',hair:'#51352e',beard:'short',glasses:true,build:1,skin:'#dca67f'}
     },
     anne: {
       id:'anne',name:'ANNE',animal:'Panthère',role:'Commerciale',
@@ -71,7 +71,7 @@ const CONFIG = {
       perkDesc:'Délai entre les tirs −15 % · dispersion +25 %.',
       startDesc:'Uzi · 20 cartouches',color:'#75b8ae',
       perks:{gunCooldownMult:.85,spreadMult:1.25,startWeapon:'UZI',startAmmo:20},
-      look:{coat:'#447f71',shade:'#28534e',accent:'#e2bc80',pants:'#273344',hair:'#302b31',beard:'stubble',fade:true,build:.95,skin:'#cb956f'}
+      look:{coat:'#447f71',shade:'#28534e',accent:'#366d62',pants:'#273344',hair:'#302b31',beard:'stubble',fade:true,build:.95,skin:'#cb956f'}
     },
     arnaud: {
       id:'arnaud',name:'ARNAUD',animal:'Ours',role:'Manager',
@@ -79,7 +79,7 @@ const CONFIG = {
       perkDesc:'Impacts de porte létaux (lourds résistants) · déplacement −20 %.',
       startDesc:'Fusil à pompe · 6 cartouches',color:'#c18c74',
       perks:{doorLethal:true,speedMult:.8,startWeapon:'SHOTGUN',startAmmo:6},
-      look:{coat:'#eee9db',shade:'#aaa9b0',accent:'#d0cbd0',pants:'#302d40',hair:'#99928c',beard:'long',glasses:true,build:1.25,skin:'#d5a282'}
+      look:{coat:'#eee9db',shade:'#dedad0',accent:'#eee9db',pants:'#302d40',hair:'#99928c',beard:'long',glasses:true,build:1.25,skin:'#d5a282'}
     },
     jade: {
       id:'jade',name:'JADE',animal:'Cygne',role:'Recrutement',
@@ -87,7 +87,7 @@ const CONFIG = {
       perkDesc:'Fenêtre de combo +50 % · délai entre les tirs +15 %.',
       startDesc:'Pistolet silencieux · 12 cartouches',color:'#80d2bb',
       perks:{comboTimeMult:1.5,gunCooldownMult:1.15,startWeapon:'SILENCED_PISTOL',startAmmo:12},
-      look:{coat:'#348f80',shade:'#235850',accent:'#a4dfc4',pants:'#322b40',hair:'#402c32',longHair:true,dress:true,build:1.05,skin:'#e5b493'}
+      look:{coat:'#1e5247',shade:'#133830',accent:'#286c5e',pants:'#322b40',hair:'#362230',longHair:true,dress:true,build:1.05,skin:'#e5b493'}
     },
     pap: {
       id:'pap',name:'PAP',animal:'Grand-duc',role:'IT Support Manager',
@@ -95,7 +95,7 @@ const CONFIG = {
       perkDesc:'Points par élimination +50 % · déplacement −15 %.',
       startDesc:'Batte de baseball',color:'#dbd2b3',
       perks:{scoreMult:1.5,speedMult:.85,startWeapon:'BAT',startAmmo:0},
-      look:{coat:'#afa183',shade:'#726854',accent:'#e4d9bc',pants:'#40424d',hair:'#ece5d4',whiteHair:true,build:1,skin:'#d3a287'}
+      look:{coat:'#afa183',shade:'#726854',accent:'#e4d9bc',pants:'#40424d',hair:'#ece5d4',whiteHair:true,build:1.22,skin:'#d3a287'}
     },
     jc: {
       id:'jc',name:'JC',animal:'Cobra',role:'Chief Information Security Officer',

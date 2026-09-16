@@ -29,7 +29,7 @@
 
 # Running and inspecting the game
 
-Les sept personnages jouables sont désormais **Vincent, Anne, Lucas, Arnaud, Jade, PAP et JC**. Chaque carte du menu affiche son métier, son animal, ses bonus/malus et son équipement initial. Les armes de départ reviennent à chaque nouvelle partie. Le [détail des personnages](docs/character-direction.md) et le comparatif visuel `character_review.html` documentent leurs silhouettes, leurs règles et les références Hotline Miami.
+Les sept personnages jouables sont désormais **Vincent, Anne, Lucas, Arnaud, Jade, PAP et JC**. Chaque carte du menu affiche son métier, son animal, ses bonus/malus et son équipement initial. Les armes de départ reviennent à chaque nouvelle partie. Leurs portraits pixel art ainsi que leurs sprites en jeu en vue plongeante (marche, visée, exécution, mort) ont été intégralement refondus dans l'esprit authentique de *Hotline Miami*. Le [détail des personnages](docs/character-direction.md) et le comparatif visuel `character_review.html` documentent leurs silhouettes, leurs règles et les références Hotline Miami.
 
 Double-cliquer sur **Lancer-le-jeu.cmd** (Windows), ou lancer **`npm start`** dans ce dossier avec Node.js 18+ puis ouvrir http://localhost:8080. Aucune dépendance à installer (pour l'instant). Garder le serveur ouvert ; Ctrl+C l'arrête. Si le port est occupé : `npm start -- --port 8082`, puis http://localhost:8082.
 

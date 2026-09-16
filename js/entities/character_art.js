@@ -1407,8 +1407,1316 @@
     c.restore();
   }
 
+  function paintVincentTopDownHead(c, ch) {
+    const ink = '#130d1e';
+    const a = ch.look;
+    const skin = a.skin || '#dca67f';
+
+    // 1. Full Lion Mane — Base silhouette radiating outward and backward
+    poly(c, ink, [
+      [-14, 0], [-16, -4], [-18, -8], [-14, -12], [-16, -15], [-11, -17], [-5, -18], [1, -17], [7, -15],
+      [10, -11], [9, -7], [8, -3], [8, 3], [9, 7], [10, 11], [7, 15], [1, 17], [-5, 18], [-11, 17],
+      [-16, 15], [-14, 12], [-18, 8], [-16, 4]
+    ]);
+    poly(c, '#542c12', [
+      [-13, 0], [-15, -4], [-17, -7], [-13, -11], [-15, -14], [-10, -16], [-5, -17], [1, -16], [6, -14],
+      [9, -10], [8, -6], [7, -3], [7, 3], [8, 6], [9, 10], [6, 14], [1, 16], [-5, 17], [-10, 16],
+      [-15, 14], [-13, 11], [-17, 7], [-15, 4]
+    ]);
+
+    // Outer Tawny Mane Tuft Layers
+    poly(c, '#85491d', [
+      [-11, 0], [-14, -5], [-11, -10], [-13, -13], [-8, -14], [-2, -15], [4, -14], [7, -10],
+      [6, 0], [7, 10], [4, 14], [-2, 15], [-8, 14], [-13, 13], [-11, 10], [-14, 5]
+    ]);
+    poly(c, '#b16a20', [
+      [-9, 0], [-12, -4], [-10, -9], [-11, -12], [-6, -13], [-1, -14], [5, -12], [7, -8],
+      [5, 0], [7, 8], [5, 12], [-1, 14], [-6, 13], [-11, 12], [-10, 9], [-12, 4]
+    ]);
+
+    // Golden Spiky Tufts radiating on flanks
+    poly(c, '#cf8526', [[-14, -11], [-11, -14], [-9, -9]]);
+    poly(c, '#f3b43f', [[-13, -10], [-10, -13], [-8, -9]]);
+    poly(c, '#cf8526', [[-14, 11], [-11, 14], [-9, 9]]);
+    poly(c, '#f3b43f', [[-13, 10], [-10, 13], [-8, 9]]);
+    poly(c, '#f8c048', [[-5, -16], [-1, -14], [-6, -13]]);
+    poly(c, '#f8c048', [[-5, 16], [-1, 14], [-6, 13]]);
+    poly(c, '#e0982d', [[-16, -4], [-12, -2], [-15, 0]]);
+    poly(c, '#e0982d', [[-16, 4], [-12, 2], [-15, 0]]);
+
+    // 2. Crown Mane Coverage — Wild, serrated golden-tawny fur over the ENTIRE cranium
+    // Base skull in rich fur shadow
+    poly(c, '#85491d', [[-8, -7], [-1, -9], [5, -7], [7, 0], [5, 7], [-1, 9], [-8, 7], [-10, 0]]);
+    poly(c, '#b16a20', [[-7, -6], [0, -8], [4, -6], [6, 0], [4, 6], [0, 8], [-7, 6], [-9, 0]]);
+    
+    // Layered, Serrated Lion Mane Locks across the top of the head
+    poly(c, '#cf8526', [
+      [-9, 0], [-10, -4], [-7, -7], [-3, -6], [-1, -8], [2, -6], [4, -7], [5, -3],
+      [6, 0], [5, 3], [4, 7], [2, 6], [-1, 8], [-3, 6], [-7, 7], [-10, 4]
+    ]);
+    poly(c, '#e0982d', [
+      [-8, 0], [-8, -3], [-5, -5], [-2, -5], [0, -6], [3, -4], [4, 0], [3, 4], [0, 6], [-2, 5], [-5, 5], [-8, 3]
+    ]);
+
+    // Radiant Golden Mane Crest Tufts (Sagittal crest and forehead tufts)
+    poly(c, '#f3b43f', [[-8, -2], [-5, -4], [-2, -2], [0, -4], [3, -2], [4, 0], [3, 2], [0, 4], [-2, 2], [-5, 4], [-8, 2]]);
+    poly(c, '#f8c048', [[-6, 0], [-3, -2], [0, -3], [2, 0], [0, 3], [-3, 2]]);
+    // Diagonal tuft locks radiating toward brow
+    poly(c, '#f3b43f', [[-1, -6], [3, -5], [5, -2], [2, -3]]);
+    poly(c, '#f8c048', [[0, -5], [3, -4], [4, -2], [1, -3]]);
+    poly(c, '#f3b43f', [[-1, 6], [3, 5], [5, 2], [2, 3]]);
+    poly(c, '#f8c048', [[0, 5], [3, 4], [4, 2], [1, 3]]);
+
+    // 3. Rounded Lion Ears (Top/Sides of head)
+    // Left ear (y < 0)
+    poly(c, ink, [[-2, -12], [3, -14], [6, -10], [0, -8]]);
+    poly(c, '#85491d', [[-1, -11], [3, -13], [5, -10], [1, -9]]);
+    rect(c, '#fedb94', 1, -12, 2, 2);
+    // Right ear (y > 0)
+    poly(c, ink, [[-2, 12], [3, 14], [6, 10], [0, 8]]);
+    poly(c, '#85491d', [[-1, 11], [3, 13], [5, 10], [1, 9]]);
+    rect(c, '#fedb94', 1, 10, 2, 2);
+
+    // 4. Human Ears on Temples
+    // Left human ear
+    rect(c, ink, -1, -9, 3, 2.5);
+    rect(c, '#945f4a', -0.5, -8.5, 2, 1.5);
+    // Right human ear
+    rect(c, ink, -1, 6.5, 3, 2.5);
+    rect(c, skin, -0.5, 7, 2, 1.5);
+
+    // 5. Vincent's Trimmed Executive Beard (Jawline)
+    poly(c, ink, [[2, -6], [6, -6], [9, -4], [11, 0], [9, 4], [6, 6], [2, 6], [5, 3], [8, 0], [5, -3]]);
+    poly(c, '#422419', [[3, -5], [6, -5], [8, -3], [10, 0], [8, 3], [6, 5], [3, 5], [5, 2], [7, 0], [5, -2]]);
+    rect(c, '#5c3527', 5, -2, 3, 4);
+
+    // 6. Lion Muzzle & Cream Whisker Pads (Drawn UNDER sunglasses, flush and clean)
+    // Tawny muzzle bridge
+    poly(c, ink, [[4, -3], [11, -3], [12, 0], [11, 3], [4, 3]]);
+    poly(c, '#b36c20', [[4.5, -2.5], [10.5, -2.5], [11.5, 0], [10.5, 2.5], [4.5, 2.5]]);
+    rect(c, '#d99433', 6, -1.2, 4, 2.4);
+
+    // Cream whisker pads nestled cleanly at front of snout
+    poly(c, ink, [[7, -4.5], [11, -3.5], [12, 0], [11, 3.5], [7, 4.5], [8.5, 0]]);
+    poly(c, '#ebd096', [[7.5, -3.8], [10.5, -2.8], [11.5, 0], [10.5, 2.8], [7.5, 3.8], [8.5, 0]]);
+    // Dark nose tip
+    rect(c, ink, 10.5, -1.2, 1.8, 2.4);
+    // Vibrissae dots
+    rect(c, '#462618', 8.5, -2.2, 0.8, 0.8);
+    rect(c, '#462618', 8.5, 1.4, 0.8, 0.8);
+
+    // 7. Sleek 80s Aviator Sunglasses (Drawn ON TOP of snout — clean, bold, iconic)
+    // Left lens (y < 0)
+    rect(c, ink, 4.5, -7.5, 4.5, 6.2);
+    rect(c, '#081722', 5.2, -6.8, 3.2, 4.8);
+    rect(c, '#00f0ff', 5.5, -6.5, 1.8, 4.2);
+    rect(c, '#7cedff', 6.0, -5.5, 1.0, 2.8);
+    rect(c, '#ffffff', 5.5, -6.2, 0.8, 1.5);
+
+    // Right lens (y > 0)
+    rect(c, ink, 4.5, 1.3, 4.5, 6.2);
+    rect(c, '#081722', 5.2, 2.0, 3.2, 4.8);
+    rect(c, '#00f0ff', 5.5, 2.3, 1.8, 4.2);
+    rect(c, '#7cedff', 6.0, 2.7, 1.0, 2.8);
+    rect(c, '#ffffff', 5.5, 4.7, 0.8, 1.5);
+
+    // 80s Gold Double Bridge across the snout
+    rect(c, ink, 4.8, -1.5, 3.8, 3.0);
+    rect(c, '#dca020', 5.2, -1.3, 1.2, 2.6); // Top brow bar
+    rect(c, '#f5c64a', 6.8, -1.3, 1.2, 2.6); // Lower nose bridge bar
+
+    // Gold temple arms running from glasses frames to human ears
+    rect(c, '#dca020', -0.5, -8.0, 5.5, 1.2);
+    rect(c, '#dca020', -0.5, 6.8, 5.5, 1.2);
+  }
+
+  function paintVincentTopDownTorso(c, ch, isSwinging, progress) {
+    const ink = '#130d1e';
+
+    // 1. Tailored Mob-Boss Navy Suit Structure & Shoulder Seams
+    rect(c, '#18243c', -15, -10, 5, 20); // Back shadow
+    rect(c, '#3e5b8f', -7, -15, 14, 2);  // Left shoulder highlight seam
+    rect(c, '#1c2840', -7, 13, 14, 2);   // Right shoulder shadow seam
+
+    // 2. Folded Gold Silk Handkerchief (Visible on Left Breast beyond the mane)
+    rect(c, ink, 1, -14, 5, 2.5);
+    poly(c, '#d99820', [[2, -14], [3.5, -16.5], [5, -14]]);
+    poly(c, '#ffdb5c', [[3.5, -14], [5, -16], [6, -14]]);
+
+    // 3. Crisp White Shirt Collar Points (Peeking out under neck)
+    poly(c, ink, [[9, -4.5], [14, -5], [15, 0], [14, 5], [9, 4.5]]);
+    poly(c, '#f2edde', [[10, -4], [13.5, -4.5], [14.5, 0], [13.5, 4.5], [10, 4]]);
+
+    // 4. Flowing Gold Silk Tie extending forward under chin
+    poly(c, ink, [[10, -2.5], [17, -2], [18.5, 0], [17, 2], [10, 2.5]]);
+    poly(c, '#a67012', [[10.5, -2], [16.5, -1.5], [17.5, 0], [10.5, 0]]);
+    poly(c, '#dca020', [[10.5, 0], [17.5, 0], [16.5, 1.5], [10.5, 2]]);
+    // Satin highlight down tie center
+    rect(c, '#f5c64a', 11, -0.6, 6, 1.2);
+    rect(c, '#ffea8c', 13, -0.4, 3, 0.8);
+
+    // 5. Sleek Horizontal Silver Tie Clip
+    rect(c, ink, 13.5, -2.5, 1.6, 5);
+    rect(c, '#ffffff', 14, -2.0, 0.8, 4);
+  }
+
+  function paintAnneTopDownHead(c, ch) {
+    const ink = '#130d1e';
+    const a = ch.look;
+    const skin = a.skin || '#e2ad89';
+
+    // 1. Anne's Brunette Wavy Hair — Cascading across the back and over the shoulders
+    // Dark brown base silhouette
+    poly(c, ink, [
+      [-14, 0], [-16, -4], [-17, -8], [-14, -11], [-11, -12], [-6, -11], [-2, -10],
+      [2, -9], [6, -8], [7, -6], [7, 6], [6, 8], [2, 9], [-2, 10], [-6, 11],
+      [-11, 12], [-14, 11], [-17, 8], [-16, 4]
+    ]);
+    poly(c, '#181923', [
+      [-13, 0], [-15, -4], [-16, -7], [-13, -10], [-10, -11], [-5, -10], [-1, -9],
+      [3, -8], [5, -7], [6, -5], [6, 5], [5, 7], [3, 8], [-1, 9], [-5, 10],
+      [-10, 11], [-13, 10], [-16, 7], [-15, 4]
+    ]);
+
+    // Wavy brunette hair strands with rich texture and volume
+    poly(c, '#302832', [
+      [-12, 0], [-14, -3], [-14, -7], [-11, -9], [-7, -9], [-2, -8], [2, -7],
+      [4, -5], [4, 5], [2, 7], [-2, 8], [-7, 9], [-11, 9], [-14, 7], [-14, 3]
+    ]);
+    // Flowing wavy highlights matching portrait
+    poly(c, '#4a3848', [[-13, -6], [-9, -8], [-5, -7], [-9, -5]]);
+    poly(c, '#4a3848', [[-13, 6], [-9, 8], [-5, 7], [-9, 5]]);
+    poly(c, '#5c435a', [[-11, -4], [-7, -6], [-3, -5], [-7, -3]]);
+    poly(c, '#5c435a', [[-11, 4], [-7, 6], [-3, 5], [-7, 3]]);
+    poly(c, '#745672', [[-10, -5], [-7, -7], [-5, -5]]);
+    poly(c, '#745672', [[-10, 5], [-7, 7], [-5, 5]]);
+    // Hair strands flowing forward beside cheeks
+    poly(c, '#382a36', [[-2, -8], [2, -8], [5, -6], [2, -6]]);
+    poly(c, '#382a36', [[-2, 8], [2, 8], [5, 6], [2, 6]]);
+    poly(c, '#5c435a', [[0, -8], [3, -7], [1, -6]]);
+    poly(c, '#5c435a', [[0, 8], [3, 7], [1, 6]]);
+
+    // 2. Midnight Panther Cowl Base (Sleek violet/plum predator mask)
+    poly(c, ink, [[-6, -6], [0, -8], [5, -6], [8, 0], [5, 6], [0, 8], [-6, 6], [-8, 0]]);
+    poly(c, '#261933', [[-5, -5], [0, -7], [4, -5], [7, 0], [4, 5], [0, 7], [-5, 5], [-7, 0]]);
+    poly(c, '#3d2852', [[-4, -4], [1, -5], [4, -4], [6, 0], [4, 4], [1, 5], [-4, 4], [-5, 0]]);
+    // Satin crown highlight on purple cowl
+    poly(c, '#5a3b78', [[-3, -2], [0, -3], [3, -2], [4, 0], [3, 2], [0, 3], [-3, 2]]);
+    poly(c, '#78509e', [[-1, -1], [1, -2], [2, 0], [1, 2], [-1, 1]]);
+
+    // 3. Pointed Triangular Panther Ears (Angled back/outward)
+    // Left ear (y < 0)
+    poly(c, ink, [[-2, -7], [0, -12], [4, -13], [5, -8]]);
+    poly(c, '#3d2852', [[-1, -7.5], [0.5, -11.5], [3.5, -12], [4, -8]]);
+    poly(c, '#130d1e', [[0, -8], [1, -10.5], [2.5, -11], [2.5, -8]]); // Ear cavity
+    poly(c, '#68458c', [[1.5, -11.8], [3.5, -12], [3.8, -9]]); // Plum outer rim
+
+    // Right ear (y > 0)
+    poly(c, ink, [[-2, 7], [0, 12], [4, 13], [5, 8]]);
+    poly(c, '#3d2852', [[-1, 7.5], [0.5, 11.5], [3.5, 12], [4, 8]]);
+    poly(c, '#130d1e', [[0, 8], [1, 10.5], [2.5, 11], [2.5, 8]]); // Ear cavity
+    poly(c, '#68458c', [[1.5, 11.8], [3.5, 12], [3.8, 9]]); // Plum outer rim
+
+    // 4. Feminine Face & Mauve Panther Snout
+    // Snout bridge
+    poly(c, ink, [[4, -2.5], [8, -2], [9, 0], [8, 2], [4, 2.5]]);
+    poly(c, '#3d2852', [[4.5, -2], [7.5, -1.5], [8.5, 0], [7.5, 1.5], [4.5, 2]]);
+    // Mauve/pink feline nose
+    poly(c, '#a57691', [[7.5, -1.2], [9.2, 0], [7.5, 1.2]]);
+    rect(c, ink, 8.8, -0.6, 1.0, 1.2); // Nose tip
+    // Delicate chin & raspberry lips peeking under mask
+    poly(c, skin, [[7, -2], [9, 0], [7, 2]]);
+    rect(c, '#c74375', 7.8, -1.0, 1.0, 2.0); // Glossy lips
+    rect(c, '#e06596', 8.2, -0.5, 0.6, 1.0); // Lip gloss highlight
+
+    // 5. Glowing Feline Amber Eyes (Predator slit eyes with incandescent gleam)
+    // Left eye (y < 0)
+    poly(c, ink, [[3.5, -5.5], [7.2, -4.8], [7.2, -2.2], [3.5, -3.0]]);
+    poly(c, '#d35400', [[4, -5.0], [6.8, -4.5], [6.8, -2.5], [4, -3.2]]);
+    poly(c, '#f1c40f', [[4.2, -4.8], [6.5, -4.3], [6.5, -2.7], [4.2, -3.4]]);
+    poly(c, '#ffea60', [[4.5, -4.5], [6.2, -4.0], [6.2, -3.0], [4.5, -3.5]]);
+    // Black vertical slit pupil
+    rect(c, ink, 5.0, -4.0, 1.0, 1.8);
+    // Pure white specular gleam
+    rect(c, '#ffffff', 5.6, -3.7, 0.8, 0.8);
+
+    // Right eye (y > 0)
+    poly(c, ink, [[3.5, 5.5], [7.2, 4.8], [7.2, 2.2], [3.5, 3.0]]);
+    poly(c, '#d35400', [[4, 5.0], [6.8, 4.5], [6.8, 2.5], [4, 3.2]]);
+    poly(c, '#f1c40f', [[4.2, 4.8], [6.5, 4.3], [6.5, 2.7], [4.2, 3.4]]);
+    poly(c, '#ffea60', [[4.5, 4.5], [6.2, 4.0], [6.2, 3.0], [4.5, 3.5]]);
+    // Black vertical slit pupil
+    rect(c, ink, 5.0, 2.8, 1.0, 1.8);
+    // Pure white specular gleam
+    rect(c, '#ffffff', 5.6, 3.5, 0.8, 0.8);
+  }
+
+  function paintAnneTopDownTorso(c, ch, isSwinging, progress) {
+    const ink = '#130d1e';
+
+    // 1. Tailored Fuchsia Blazer Structure & Shoulder Seams
+    rect(c, '#682d54', -14, -8, 4, 16); // Back shadow
+    rect(c, '#c74b83', -6, -13, 12, 1.5); // Left shoulder highlight
+    rect(c, '#552244', -6, 11.5, 12, 1.5); // Right shoulder shadow
+
+    // Left lapel of fuchsia blazer
+    poly(c, ink, [[-1, -7], [6, -7], [12, -2.5], [6, -1], [1, -2.5]]);
+    poly(c, '#a83e6d', [[0, -6.5], [5.5, -6.5], [11, -2.5], [5.5, -1.2], [1.5, -2.5]]);
+    rect(c, '#c74b83', 2, -6.5, 3, 1.0);
+
+    // Right lapel of fuchsia blazer
+    poly(c, ink, [[-1, 7], [6, 7], [12, 2.5], [6, 1], [1, 2.5]]);
+    poly(c, '#882e56', [[0, 6.5], [5.5, 6.5], [11, 2.5], [5.5, 1.2], [1.5, 2.5]]);
+
+    // 2. Silver Tactical Combat Knife Clip on Left Lapel
+    rect(c, ink, 3, -8.5, 5, 2.0);
+    rect(c, '#d0d8e2', 3.5, -8.0, 4, 1.0);
+    rect(c, '#ffffff', 4.5, -8.0, 2, 0.6);
+
+    // 3. Pleated Cream Blouse V-Neck
+    poly(c, ink, [[8, -3.5], [13, -3.5], [15, 0], [13, 3.5], [8, 3.5]]);
+    poly(c, '#f2edde', [[8.5, -3.0], [12.5, -3.0], [14.2, 0], [12.5, 3.0], [8.5, 3.0]]);
+    // Blouse texture pleats
+    rect(c, '#ded7c4', 9.5, -2.0, 1.0, 4.0);
+    rect(c, '#ded7c4', 11.5, -1.5, 1.0, 3.0);
+
+    // 4. Glowing Gold Pendant / Chain in V-Neck
+    rect(c, '#dca020', 10, -1.0, 1.0, 2.0);
+    poly(c, '#ffd700', [[11, -1.2], [12.5, 0], [11, 1.2]]);
+    rect(c, '#ffffff', 11.5, -0.4, 0.8, 0.8);
+  }
+
+  function paintLucasTopDownHead(c, ch) {
+    c.save();
+    c.translate(-2.2, 0);
+    c.scale(1.12, 1.12);
+
+    const ink = '#130d1e';
+    const a = ch.look;
+    const skin = a.skin || '#cb956f';
+
+    // 1. Lucas's Neat Buzz Cut & Temple Fade (Compact, rounded, neat skull)
+    // Skull base contour
+    poly(c, ink, [[-8.2, 0], [-7.8, -2.8], [-6.2, -5.2], [-3.0, -6.2], [1.5, -6.2], [1.5, 6.2], [-3.0, 6.2], [-6.2, 5.2], [-7.8, 2.8]]);
+    poly(c, '#201820', [[-7.6, 0], [-7.2, -2.5], [-5.6, -4.8], [-2.6, -5.6], [1.0, -5.6], [1.0, 5.6], [-2.6, 5.6], [-5.6, 4.8], [-7.2, 2.5]]);
+
+    // Short hair texture on crown
+    poly(c, '#362933', [[-7.0, 0], [-6.4, -2.2], [-4.8, -4.0], [-1.8, -4.5], [0.5, -4.5], [0.5, 4.5], [-1.8, 4.5], [-4.8, 4.0], [-6.4, 2.2]]);
+
+    // High skin fade around lower back of skull and temples
+    poly(c, '#5c4342', [[-7.5, 0], [-7.0, -2.4], [-5.5, -4.2], [-3.5, -5.2], [-1.5, -5.2], [-3.5, -3.5], [-6.0, 0]]);
+    poly(c, '#5c4342', [[-7.5, 0], [-7.0, 2.4], [-5.5, 4.2], [-3.5, 5.2], [-1.5, 5.2], [-3.5, 3.5], [-6.0, 0]]);
+    // Nape skin visible at the base of the skull
+    rect(c, '#8f6859', -7.6, -2.0, 1.2, 4.0);
+    rect(c, skin, -6.8, -1.5, 1.0, 3.0);
+
+    // 2. Visible Human Ears on Temples
+    // Left human ear
+    rect(c, ink, -1.0, -7.8, 2.6, 1.8);
+    rect(c, skin, -0.6, -7.4, 1.8, 1.0);
+    // Right human ear
+    rect(c, ink, -1.0, 6.0, 2.6, 1.8);
+    rect(c, skin, -0.6, 6.4, 1.8, 1.0);
+
+    // 3. Groomed 3-Day Stubble along Jawline & Chin framing the mask
+    poly(c, ink, [[1.0, -5.5], [5.0, -5.0], [8.0, -3.0], [9.5, 0], [8.0, 3.0], [5.0, 5.0], [1.0, 5.5], [4.0, 2.5], [6.0, 0], [4.0, -2.5]]);
+    poly(c, '#4a3a40', [[1.8, -4.8], [5.0, -4.2], [7.5, -2.5], [8.8, 0], [7.5, 2.5], [5.0, 4.2], [1.8, 4.8], [4.0, 2.0], [5.5, 0], [4.0, -2.0]]);
+    rect(c, '#32262c', 5.5, -1.2, 2.5, 2.4);
+
+    // 4. Pointed Lateral Wolf Ears / Cheeks ("Pointu sur les côtés" — Flaring out to y = ±12.0)
+    // Left wolf ear (y < 0)
+    poly(c, ink, [[2.5, -6.5], [-5.2, -12.2], [-5.8, -10.5], [-4.0, -5.5], [0.5, -4.8]]);
+    poly(c, '#18212b', [[2.0, -6.2], [-4.8, -11.6], [-5.2, -10.2], [-3.6, -5.6], [0.0, -5.0]]); // Outer dark plane
+    poly(c, '#293744', [[1.0, -5.8], [-4.2, -11.0], [-4.6, -9.5], [-3.0, -5.4], [-0.5, -5.0]]); // Midtone slate facet
+    // Crisp highlight along the flared leading edge (makes the sharp lateral point pop!)
+    poly(c, '#6b8397', [[1.5, -6.0], [-4.5, -11.5], [-3.5, -9.5]]);
+    poly(c, '#9ab2c4', [[-1.5, -8.5], [-4.8, -11.6], [-3.8, -10.0]]);
+    // Deep dark inner ear cavity
+    poly(c, '#0e141a', [[-0.5, -5.6], [-3.2, -9.0], [-3.8, -7.5], [-1.8, -5.2]]);
+    // Inner silver fur tuft accent
+    poly(c, '#8ca6bd', [[-1.2, -5.5], [-2.8, -8.0], [-2.4, -6.5]]);
+
+    // Right wolf ear (y > 0)
+    poly(c, ink, [[2.5, 6.5], [-5.2, 12.2], [-5.8, 10.5], [-4.0, 5.5], [0.5, 4.8]]);
+    poly(c, '#18212b', [[2.0, 6.2], [-4.8, 11.6], [-5.2, 10.2], [-3.6, 5.6], [0.0, 5.0]]); // Outer dark plane
+    poly(c, '#293744', [[1.0, 5.8], [-4.2, 11.0], [-4.6, 9.5], [-3.0, 5.4], [-0.5, 5.0]]); // Midtone slate facet
+    // Crisp highlight along the flared leading edge
+    poly(c, '#6b8397', [[1.5, 6.0], [-4.5, 11.5], [-3.5, 9.5]]);
+    poly(c, '#9ab2c4', [[-1.5, 8.5], [-4.8, 11.6], [-3.8, 10.0]]);
+    // Deep dark inner ear cavity
+    poly(c, '#0e141a', [[-0.5, 5.6], [-3.2, 9.0], [-3.8, 7.5], [-1.8, 5.2]]);
+    // Inner silver fur tuft accent
+    poly(c, '#8ca6bd', [[-1.2, 5.5], [-2.8, 8.0], [-2.4, 6.5]]);
+
+    // 5. Dark Wolf Mask Body (Dark slate / charcoal geometry)
+    poly(c, ink, [[-4.5, -5.5], [0, -6.5], [3.8, -5.5], [5.2, 0], [3.8, 5.5], [0, 6.5], [-4.5, 5.5], [-5.5, 0]]);
+    poly(c, '#18212b', [[-4.0, -4.8], [0, -5.8], [3.4, -4.8], [4.6, 0], [3.4, 4.8], [0, 5.8], [-4.0, 4.8], [-4.8, 0]]);
+    // Forehead midtone facet
+    poly(c, '#293744', [[-3.0, -3.5], [0, -4.5], [2.8, -3.0], [3.8, 0], [2.8, 3.0], [0, 4.5], [-3.0, 3.5], [-3.6, 0]]);
+    // Brow ridge chevron
+    poly(c, '#435667', [[-1.5, -2.0], [1.0, -2.5], [2.8, 0], [1.0, 2.5], [-1.5, 2.0]]);
+
+    // 6. Aggressive Slit Eyes (Moved back onto brow planes & spaced comfortably apart)
+    // Left eye (y < 0): situated at x: 0.8-3.0, y: -5.6 to -3.8
+    poly(c, ink, [[0.5, -5.8], [3.2, -5.4], [3.0, -3.6], [0.5, -4.0]]);
+    poly(c, '#0b1016', [[0.8, -5.4], [2.8, -5.0], [2.6, -3.8], [0.8, -4.2]]);
+    rect(c, '#00f0ff', 1.0, -5.0, 1.8, 1.0);
+    rect(c, '#ffffff', 1.4, -4.7, 0.8, 0.6);
+
+    // Right eye (y > 0): situated at x: 0.8-3.0, y: 3.8 to 5.6
+    poly(c, ink, [[0.5, 5.8], [3.2, 5.4], [3.0, 3.6], [0.5, 4.0]]);
+    poly(c, '#0b1016', [[0.8, 5.4], [2.8, 5.0], [2.6, 3.8], [0.8, 4.2]]);
+    rect(c, '#00f0ff', 1.0, 4.0, 1.8, 1.0);
+    rect(c, '#ffffff', 1.4, 4.1, 0.8, 0.6);
+
+    // 7. Contrasting LIGHT Snout / Muzzle (Silver-white / light slate starting in front of eyes)
+    // Snout outer contour & side facets
+    poly(c, ink, [[3.2, -3.0], [11.0, -2.0], [12.4, 0], [11.0, 2.0], [3.2, 3.0], [4.2, 0]]);
+    poly(c, '#6b8397', [[3.6, -2.6], [10.5, -1.8], [12.0, 0], [10.5, 1.8], [3.6, 2.6], [4.6, 0]]);
+    // Upper snout bridge (bright silver)
+    poly(c, '#8ca6bd', [[3.8, -1.8], [10.0, -1.2], [11.4, 0], [10.0, 1.2], [3.8, 1.8], [4.8, 0]]);
+    // Center ridge highlight
+    poly(c, '#dce7ee', [[4.2, -0.8], [9.5, -0.6], [10.8, 0], [9.5, 0.6], [4.2, 0.8]]);
+    rect(c, '#ffffff', 5.0, -0.3, 3.8, 0.6);
+
+    // Geometric dark nose pad at tip
+    poly(c, ink, [[10.2, -1.2], [12.4, 0], [10.2, 1.2]]);
+    poly(c, '#141c22', [[10.5, -0.8], [12.0, 0], [10.5, 0.8]]);
+
+    c.restore();
+  }
+
+  function paintLucasTopDownTorso(c, ch, isSwinging, progress) {
+    const ink = '#130d1e';
+
+    // 1. Athletic Teal Suit Jacket Structure (Entire back in clean teal fabric)
+    rect(c, '#447f71', -14, -10, 16, 20); // Solid teal blazer covering whole back
+    rect(c, '#28534e', -14, -9, 5, 18);   // Darker lower back shadow seam
+    rect(c, '#366d62', -9, -8, 9, 16);    // Rich teal fabric midtone
+    rect(c, '#5ba593', -6, -14, 13, 2);   // Left shoulder seam highlight
+    rect(c, '#1f3e3a', -6, 12, 13, 2);    // Right shoulder shadow
+
+    // Left lapel of teal jacket
+    poly(c, ink, [[-1, -7.5], [6, -7.5], [12, -2.8], [6, -1.2], [1, -2.8]]);
+    poly(c, '#447f71', [[0, -7], [5.5, -7], [11, -2.8], [5.5, -1.5], [1.5, -2.8]]);
+    rect(c, '#5ba593', 2, -7, 3, 1.0);
+
+    // Right lapel of teal jacket
+    poly(c, ink, [[-1, 7.5], [6, 7.5], [12, 2.8], [6, 1.2], [1, 2.8]]);
+    poly(c, '#336257', [[0, 7], [5.5, 7], [11, 2.8], [5.5, 1.5], [1.5, 2.8]]);
+
+    // 2. Folded Gold Silk Pocket Square (Left breast pocket)
+    rect(c, ink, 2, -12, 4.5, 2.2);
+    poly(c, '#d99820', [[2.8, -12], [4.2, -14.5], [5.5, -12]]);
+    poly(c, '#ffdb5c', [[4.2, -12], [5.8, -14], [6.2, -12]]);
+
+    // 3. Crisp White Shirt Collar in V
+    poly(c, ink, [[8, -3.8], [13.5, -4], [15, 0], [13.5, 4], [8, 3.8]]);
+    poly(c, '#f2edde', [[8.5, -3.2], [13, -3.5], [14.2, 0], [13, 3.5], [8.5, 3.2]]);
+
+    // 4. Fine Gold Silk Tie extending forward
+    poly(c, ink, [[9, -2.2], [16, -1.8], [17.5, 0], [16, 1.8], [9, 2.2]]);
+    poly(c, '#a67012', [[9.5, -1.8], [15.5, -1.2], [16.5, 0], [9.5, 0]]);
+    poly(c, '#dca020', [[9.5, 0], [16.5, 0], [15.5, 1.2], [9.5, 1.8]]);
+    // Satin gleam down center
+    rect(c, '#f5c64a', 10.5, -0.5, 5.5, 1.0);
+    rect(c, '#ffea8c', 12, -0.3, 3, 0.6);
+  }
+
+  function paintArnaudTopDownHead(c, ch) {
+    c.save();
+    c.translate(-1.0, 0);
+    c.scale(1.15, 1.15);
+
+    const ink = '#120e18';
+    const a = ch.look;
+    const skin = a.skin || '#d5a282';
+
+    // 1. Brushed-up Salt-and-Pepper Hair on Nape & Crown
+    poly(c, ink, [[-9.5, 0], [-9.0, -3.5], [-7.5, -6.5], [-4.5, -7.5], [1.0, -7.5], [1.0, 7.5], [-4.5, 7.5], [-7.5, 6.5], [-9.0, 3.5]]);
+    poly(c, '#22232c', [[-9.0, 0], [-8.5, -3.2], [-7.0, -6.0], [-4.0, -7.0], [0.5, -7.0], [0.5, 7.0], [-4.0, 7.0], [-7.0, 6.0], [-8.5, 3.2]]);
+    // Textured salt-and-pepper strands brushed back
+    poly(c, '#4a4d5d', [[-8.2, 0], [-7.5, -2.8], [-5.5, -5.2], [-2.0, -5.8], [0.5, -5.8], [0.5, 5.8], [-2.0, 5.8], [-5.5, 5.2], [-7.5, 2.8]]);
+    // Distinctive frosted silver-white crest along sagittal line
+    poly(c, '#b0b3c2', [[-8.8, 0], [-7.2, -2.2], [-2.5, -2.2], [0.0, 0], [-2.5, 2.2], [-7.2, 2.2]]);
+    poly(c, '#ffffff', [[-8.0, 0], [-5.8, -1.2], [-1.8, -1.2], [-0.5, 0], [-1.8, 1.2], [-5.8, 1.2]]);
+
+    // 2. Anatomical Human Ears on Temples
+    // Left ear
+    rect(c, ink, -1.2, -8.8, 3.0, 2.2);
+    rect(c, skin, -0.8, -8.4, 2.2, 1.4);
+    rect(c, '#945f4a', -0.4, -8.0, 1.0, 1.0);
+    // Right ear
+    rect(c, ink, -1.2, 6.6, 3.0, 2.2);
+    rect(c, skin, -0.8, 7.0, 2.2, 1.4);
+    rect(c, '#945f4a', -0.4, 7.0, 1.0, 1.0);
+    // Salt-and-pepper sideburns
+    rect(c, '#32333b', -1.2, -6.8, 2.2, 1.2);
+    rect(c, '#32333b', -1.2, 5.6, 2.2, 1.2);
+
+    // 3. Massive Connected Salt-and-Pepper Beard framing lower face
+    poly(c, ink, [[0.5, -6.0], [4.5, -6.2], [7.5, -4.5], [10.5, 0], [7.5, 4.5], [4.5, 6.2], [0.5, 6.0], [3.5, 3.0], [5.0, 0], [3.5, -3.0]]);
+    poly(c, '#22232c', [[1.2, -5.4], [4.5, -5.5], [7.0, -4.0], [9.8, 0], [7.0, 4.0], [4.5, 5.5], [1.2, 5.4], [3.5, 2.5], [4.8, 0], [3.5, -2.5]]);
+    poly(c, '#4a4d5d', [[2.5, -4.8], [5.0, -4.5], [7.2, -2.8], [9.2, 0], [7.2, 2.8], [5.0, 4.5], [2.5, 4.8], [4.0, 2.0], [5.2, 0], [4.0, -2.0]]);
+    // Signature Frosted Silver Chin & Whiskers
+    poly(c, '#9ea1b5', [[4.5, -2.5], [7.5, -2.0], [9.5, 0], [7.5, 2.0], [4.5, 2.5], [5.5, 0]]);
+    poly(c, '#ffffff', [[6.0, -1.2], [9.2, 0], [6.0, 1.2], [6.5, 0]]);
+
+    // 4. Grizzly Bear Mask Body (Broad rounded head in rich grizzly fur)
+    poly(c, ink, [[-5.5, -6.5], [0.0, -7.8], [5.0, -6.5], [7.2, 0], [5.0, 6.5], [0.0, 7.8], [-5.5, 6.5], [-7.0, 0]]);
+    poly(c, '#422417', [[-5.0, -5.8], [0.0, -7.0], [4.5, -5.8], [6.5, 0], [4.5, 5.8], [0.0, 7.0], [-5.0, 5.8], [-6.2, 0]]);
+    poly(c, '#73442c', [[-3.5, -4.5], [0.5, -5.5], [4.5, -4.0], [5.5, 0], [4.5, 4.0], [0.5, 5.5], [-3.5, 4.5], [-4.5, 0]]);
+    poly(c, '#965a3a', [[-1.5, 0], [2.0, -3.0], [4.5, 0], [2.0, 3.0]]);
+    rect(c, '#ba754e', 0.5, -1.5, 3.5, 3.0);
+
+    // 5. Rounded Cupped Grizzly Bear Ears (Distinctive hemispherical bear ears)
+    // Left ear (y < 0)
+    poly(c, ink, [[-0.2, -6.5], [-1.2, -11.8], [-4.8, -12.5], [-7.2, -9.0], [-5.0, -6.0]]);
+    poly(c, '#61361e', [[-0.6, -6.8], [-1.5, -11.2], [-4.5, -11.8], [-6.6, -8.8], [-4.6, -6.2]]);
+    poly(c, '#180c06', [[-1.2, -7.5], [-2.0, -10.5], [-4.0, -10.8], [-5.5, -8.8], [-3.8, -7.0]]);
+    poly(c, '#8a4e2e', [[-1.8, -8.0], [-2.5, -9.8], [-3.6, -9.8], [-4.5, -8.2]]);
+    poly(c, '#ba754e', [[-1.2, -11.2], [-3.2, -12.0], [-4.5, -11.8]]);
+
+    // Right ear (y > 0)
+    poly(c, ink, [[-0.2, 6.5], [-1.2, 11.8], [-4.8, 12.5], [-7.2, 9.0], [-5.0, 6.0]]);
+    poly(c, '#784a32', [[-0.6, 6.8], [-1.5, 11.2], [-4.5, 11.8], [-6.6, 8.8], [-4.6, 6.2]]);
+    poly(c, '#cfa075', [[-1.2, 11.2], [-3.2, 12.0], [-4.8, 11.8]]);
+    poly(c, '#241008', [[-1.2, 7.5], [-2.0, 10.5], [-4.0, 10.8], [-5.5, 8.8], [-3.8, 7.0]]);
+    poly(c, '#ba8058', [[-1.8, 8.0], [-2.5, 9.8], [-3.6, 9.8], [-4.5, 8.2]]);
+
+    // 6. Broad Rounded Bear Snout & Nose Pad (Extending forward in front of eye level)
+    // Honey-tan snout base
+    poly(c, ink, [[2.5, -3.8], [8.2, -3.0], [11.2, 0], [8.2, 3.0], [2.5, 3.8]]);
+    poly(c, '#8a5c3e', [[3.0, -3.2], [7.8, -2.5], [10.6, 0], [7.8, 2.5], [3.0, 3.2]]);
+    poly(c, '#c4906a', [[3.5, -2.0], [7.2, -1.6], [9.8, 0], [7.2, 1.6], [3.5, 2.0]]);
+    poly(c, '#dfab85', [[4.0, -0.9], [6.8, -0.8], [8.6, 0], [6.8, 0.8], [4.0, 0.9]]);
+
+    // Rounded Black Bear Nose Pad at front tip
+    poly(c, ink, [[8.8, -1.8], [11.4, 0], [8.8, 1.8]]);
+    poly(c, '#1c171e', [[9.0, -1.4], [11.0, 0], [9.0, 1.4]]);
+    rect(c, '#524957', 9.4, -0.5, 1.0, 1.0);
+
+    // 7. Bold Black Rectangular Glasses (Close-set, distinctly rectangular, symmetrical cyan reflection)
+    // Thin acetate bridge bar over root of nose (thin 1.6px gap between lenses)
+    rect(c, ink, 2.6, -1.0, 1.6, 2.0);
+    rect(c, '#24202d', 2.9, -0.7, 1.0, 1.4);
+
+    // Left Lens Frame (Intermediate sweet spot: rich tinted teal lens with retro sheen)
+    rect(c, ink, 1.8, -6.0, 3.6, 5.2);
+    rect(c, '#12242c', 2.3, -5.4, 2.6, 4.0);
+    rect(c, '#21505e', 2.5, -5.0, 2.0, 3.2);
+    rect(c, '#367c8c', 2.8, -4.6, 1.4, 2.4);
+    rect(c, '#52a8b8', 3.0, -4.2, 1.0, 1.6);
+    rect(c, '#92dbe6', 3.2, -3.8, 0.6, 0.9);
+
+    // Right Lens Frame (Symmetrical intermediate reflection)
+    rect(c, ink, 1.8, 0.8, 3.6, 5.2);
+    rect(c, '#12242c', 2.3, 1.4, 2.6, 4.0);
+    rect(c, '#21505e', 2.5, 1.8, 2.0, 3.2);
+    rect(c, '#367c8c', 2.8, 2.2, 1.4, 2.4);
+    rect(c, '#52a8b8', 3.0, 2.6, 1.0, 1.6);
+    rect(c, '#92dbe6', 3.2, 2.9, 0.6, 0.9);
+
+    // Temple arms running back to human ears
+    rect(c, ink, -1.0, -6.2, 2.8, 1.0);
+    rect(c, ink, -1.0, 5.2, 2.8, 1.0);
+
+    c.restore();
+  }
+
+  function paintArnaudTopDownTorso(c, ch, isSwinging, progress) {
+    const ink = '#120e18';
+
+    // 1. Crisp Casual White Shirt Structure (Solid cream fabric covering entire back)
+    rect(c, '#eee9db', -14, -12, 17, 24); // Solid light cream shirt covering whole back
+    rect(c, '#d8d4c8', -14, -10, 4, 20);  // Subtle soft shadow fold at base
+    rect(c, '#ede9e2', -9, -9, 10, 18);   // Clean shirt midtone
+    rect(c, '#ffffff', -4, -13, 11, 2);   // Right shoulder highlight
+
+    // 2. Open-Collar V-Neck with Exposed Chest Skin
+    poly(c, ink, [[7, -3.5], [13, -3.8], [14.5, 0], [13, 3.8], [7, 3.5]]);
+    poly(c, '#cf9173', [[7.5, -3.0], [12.5, -3.2], [13.8, 0], [12.5, 3.2], [7.5, 3.0]]);
+    rect(c, '#9a644e', 8.0, -2.0, 2.0, 4.0); // Neck shadow
+    rect(c, '#eabda1', 11.0, -1.0, 2.0, 2.0); // Chest highlight
+
+    // Left Collar Flap
+    poly(c, ink, [[6, -7], [12, -7], [13.5, -3.2], [8, -3.2]]);
+    poly(c, '#b2b5c6', [[6.5, -6.5], [11.5, -6.5], [13.0, -3.5], [8.5, -3.5]]);
+
+    // Right Collar Flap
+    poly(c, ink, [[6, 7], [12, 7], [13.5, 3.2], [8, 3.2]]);
+    poly(c, '#ffffff', [[6.5, 6.5], [11.5, 6.5], [13.0, 3.5], [8.5, 3.5]]);
+
+    // 3. Button Placket & Pearlescent Buttons
+    rect(c, ink, 8.5, -1.2, 8.5, 2.4);
+    rect(c, '#dfdbd3', 9.0, -0.8, 7.5, 1.6);
+    rect(c, ink, 11.0, -0.6, 1.4, 1.2);
+    rect(c, '#ffffff', 11.2, -0.4, 1.0, 0.8);
+    rect(c, ink, 14.5, -0.6, 1.4, 1.2);
+    rect(c, '#ffffff', 14.7, -0.4, 1.0, 0.8);
+
+    // 4. Left Breast Pocket with Blue Ballpoint Pen (Properly positioned on left chest)
+    rect(c, ink, 2.0, -8.5, 6.0, 3.2);
+    rect(c, '#dfdbd3', 2.5, -8.0, 5.0, 2.2);
+    rect(c, '#c8c4b8', 2.5, -6.2, 5.0, 0.8);
+    // Vivid blue ballpoint pen
+    rect(c, ink, 3.2, -9.5, 2.2, 4.0);
+    rect(c, '#1a5fb4', 3.6, -9.2, 1.4, 3.4);
+    rect(c, '#ffffff', 4.0, -9.0, 0.6, 1.4);
+  }
+
+  function paintJadeTopDownHead(c, ch) {
+    c.save();
+    c.translate(-0.8, 0);
+    c.scale(1.10, 1.10);
+
+    const ink = '#110e16';
+    const a = ch.look;
+    const skin = a.skin || '#e5b493';
+
+    // 1. Long, Sleek Brunette Hair (Top-down skull mass, increased by 7% as requested)
+    // Tapered rearmost silhouette (-14.1 max, flowing smoothly over upper back)
+    poly(c, ink, [
+      [-14.1, 0], [-14.3, -1.9], [-13.1, -3.9], [-10.5, -6.0], [-6.6, -8.4], [-1.1, -9.2],
+      [3.4, -8.6], [6.6, -6.4], [7.7, -3.4], [7.7, 3.4], [6.6, 6.4], [3.4, 8.6],
+      [-1.1, 9.2], [-6.6, 8.4], [-10.5, 6.0], [-13.1, 3.9], [-14.3, 1.9]
+    ]);
+
+    // Deep espresso mass
+    poly(c, '#1e141c', [
+      [-13.5, 0], [-13.7, -1.6], [-12.4, -3.4], [-9.9, -5.3], [-6.2, -7.7], [-0.6, -8.3],
+      [3.0, -7.7], [5.9, -5.8], [7.0, -3.0], [7.0, 3.0], [5.9, 5.8], [3.0, 7.7],
+      [-0.6, 8.3], [-6.2, 7.7], [-9.9, 5.3], [-12.4, 3.4], [-13.7, 1.6]
+    ]);
+
+    // Silky dark chocolate midtone
+    poly(c, '#33202d', [
+      [-12.8, 0], [-13.0, -1.4], [-11.8, -3.0], [-9.2, -4.7], [-5.6, -7.0], [0.0, -7.5],
+      [2.4, -7.0], [5.1, -4.9], [6.2, -2.4], [6.2, 2.4], [5.1, 4.9], [2.4, 7.0],
+      [0.0, 7.5], [-5.6, 7.0], [-9.2, 4.7], [-11.8, 3.0], [-13.0, 1.4]
+    ]);
+
+    // Straight, silky lengthwise brunette sheen bands (natural top-down flow along spine)
+    poly(c, '#4a2d40', [[-12.8, -1.3], [-12.8, -2.7], [-8.0, -4.5], [-2.1, -5.4], [-8.0, -3.2]]);
+    poly(c, '#4a2d40', [[-12.8, 1.3], [-12.8, 2.7], [-8.0, 4.5], [-2.1, 5.4], [-8.0, 3.2]]);
+    poly(c, '#5e3952', [[-12.0, -1.6], [-9.1, -3.4], [-3.2, -3.9], [-7.5, -2.1]]);
+    poly(c, '#5e3952', [[-12.0, 1.6], [-9.1, 3.4], [-3.2, 3.9], [-7.5, 2.1]]);
+    poly(c, '#744766', [[-11.1, -1.1], [-7.3, -1.9], [-3.2, -1.9], [-6.2, -1.1]]);
+    poly(c, '#744766', [[-11.1, 1.1], [-7.3, 1.9], [-3.2, 1.9], [-6.2, 1.1]]);
+
+    // Sleek strands beside cheeks
+    poly(c, '#33202d', [[-0.5, -8.8], [3.2, -8.6], [5.9, -6.6], [2.7, -6.6]]);
+    poly(c, '#33202d', [[-0.5, 8.8], [3.2, 8.6], [5.9, 6.6], [2.7, 6.6]]);
+    poly(c, '#5e3952', [[1.1, -8.1], [4.3, -7.7], [2.1, -7.0]]);
+    poly(c, '#5e3952', [[1.1, 8.1], [4.3, 7.7], [2.1, 7.0]]);
+
+    // Delicate pearl drop earring on left ear / temple (y < 0)
+    rect(c, ink, 2.0, -9.6, 1.6, 2.0);
+    rect(c, '#c0d2e4', 2.3, -9.3, 1.0, 1.2);
+    rect(c, '#ffffff', 2.5, -8.8, 1.4, 1.4);
+
+    // 2. Delicate Feminine Face Contour & Lips
+    poly(c, ink, [[-4.0, -5.5], [2.0, -6.5], [6.5, -4.5], [8.5, 0], [6.5, 4.5], [2.0, 6.5], [-4.0, 5.5], [-6.0, 0]]);
+    poly(c, skin, [[-3.5, -5.0], [1.5, -5.8], [6.0, -4.0], [7.8, 0], [6.0, 4.0], [1.5, 5.8], [-3.5, 5.0], [-5.2, 0]]);
+    // Soft rosy cheek glow
+    rect(c, '#ea9f90', 2.0, -4.8, 2.2, 1.6);
+    rect(c, '#f7bcae', 2.0, 3.2, 2.2, 1.6);
+    // Glossy raspberry pink lips visible under beak
+    rect(c, ink, 6.2, -1.5, 1.8, 3.0);
+    rect(c, '#d9647d', 6.5, -1.2, 1.2, 2.4);
+    rect(c, '#fca2b5', 6.8, -0.6, 0.8, 1.2);
+
+    // 3. Sculpted Ivory Swan Cowl / Mask (100% unobstructed, foreground)
+    // Rear indented crown / crest scallops
+    poly(c, ink, [
+      [-6.5, 0], [-5.0, -2.8], [-7.2, -5.2], [-3.2, -6.8], [2.5, -6.8], [7.0, -4.0], [8.5, 0],
+      [7.0, 4.0], [2.5, 6.8], [-3.2, 6.8], [-7.2, 5.2], [-5.0, 2.8]
+    ]);
+    // Shaded ivory base
+    poly(c, '#9aa6b8', [
+      [-5.8, 0], [-4.4, -2.5], [-6.4, -4.6], [-2.6, -6.0], [2.2, -6.0], [6.2, -3.5], [7.6, 0],
+      [6.2, 3.5], [2.2, 6.0], [-2.6, 6.0], [-6.4, 4.6], [-4.4, 2.5]
+    ]);
+    // Soft silver-white plumage layer
+    poly(c, '#cbd5e1', [
+      [-4.8, 0], [-3.6, -2.0], [-5.2, -3.8], [-1.8, -5.0], [2.0, -5.0], [5.5, -2.8], [6.8, 0],
+      [5.5, 2.8], [2.0, 5.0], [-1.8, 5.0], [-5.2, 3.8], [-3.6, 2.0]
+    ]);
+    // Bright ivory crown plumage
+    poly(c, '#e5ebf2', [
+      [-3.8, 0], [-2.6, -1.5], [-4.0, -2.8], [-1.0, -3.8], [1.8, -4.0], [4.5, -2.0], [5.8, 0],
+      [4.5, 2.0], [1.8, 4.0], [-1.0, 3.8], [-4.0, 2.8], [-2.6, 1.5]
+    ]);
+    // Pure white feather crest glint
+    poly(c, '#ffffff', [[-2.8, 0], [-0.5, -2.4], [2.5, -2.6], [4.2, 0], [2.5, 2.6], [-0.5, 2.4]]);
+    rect(c, '#ffffff', 0.5, -1.2, 2.8, 2.4);
+
+    // 4. Mute Swan Black Velvet Facial Markings & Basal Knob (Caroncule)
+    // Black velvet mask expanding from brow down around eyes to base of beak
+    poly(c, ink, [
+      [1.0, 0], [2.2, -2.8], [4.0, -4.8], [6.8, -3.8], [7.5, -1.8], [7.8, 0],
+      [7.5, 1.8], [6.8, 3.8], [4.0, 4.8], [2.2, 2.8]
+    ]);
+    poly(c, '#1c1c24', [
+      [1.5, 0], [2.6, -2.4], [4.2, -4.2], [6.4, -3.4], [7.0, -1.5], [7.2, 0],
+      [7.0, 1.5], [6.4, 3.4], [4.2, 4.2], [2.6, 2.4]
+    ]);
+
+    // Prominent Black Basal Knob (Caroncule) at root of beak
+    poly(c, ink, [[4.8, -2.0], [7.6, -1.6], [8.2, 0], [7.6, 1.6], [4.8, 2.0], [5.5, 0]]);
+    poly(c, '#0d0d12', [[5.2, -1.6], [7.3, -1.3], [7.8, 0], [7.3, 1.3], [5.2, 1.6], [5.8, 0]]);
+    rect(c, '#3a3848', 5.8, -0.8, 1.5, 1.6); // 3D velvety specular sheen on knob
+
+    // 5. Piercing Cyan Neon Eyes (Hotline Miami synthwave slit eyes)
+    // Left eye (y < 0)
+    poly(c, ink, [[2.8, -4.6], [5.8, -4.0], [5.6, -2.2], [2.8, -2.8]]);
+    poly(c, '#092428', [[3.2, -4.2], [5.4, -3.6], [5.2, -2.5], [3.2, -3.0]]);
+    poly(c, '#00e5ff', [[3.5, -3.9], [5.2, -3.4], [5.0, -2.7], [3.5, -3.1]]);
+    rect(c, '#36e8ce', 4.0, -3.6, 1.2, 0.8);
+    rect(c, '#ffffff', 4.5, -3.4, 0.8, 0.7);
+
+    // Right eye (y > 0)
+    poly(c, ink, [[2.8, 4.6], [5.8, 4.0], [5.6, 2.2], [2.8, 2.8]]);
+    poly(c, '#092428', [[3.2, 4.2], [5.4, 3.6], [5.2, 2.5], [3.2, 3.0]]);
+    poly(c, '#00e5ff', [[3.5, 3.9], [5.2, 3.4], [5.0, 2.7], [3.5, 3.1]]);
+    rect(c, '#36e8ce', 4.0, 2.8, 1.2, 0.8);
+    rect(c, '#ffffff', 4.5, 2.7, 0.8, 0.7);
+
+    // 6. Graceful Amber Beak with Dark Tip
+    // Beak extends forward gracefully with unmistakable swan tapering
+    poly(c, ink, [[6.8, -2.4], [11.8, -1.6], [13.8, 0], [11.8, 1.6], [6.8, 2.4]]);
+    poly(c, '#b85a14', [[7.2, -2.0], [11.5, -1.3], [13.4, 0], [11.5, 1.3], [7.2, 2.0]]);
+    poly(c, '#f07d1a', [[7.5, -1.6], [11.2, -1.0], [13.0, 0], [11.2, 1.0], [7.5, 1.6]]);
+    poly(c, '#ffa333', [[7.8, -1.1], [11.0, -0.6], [12.4, 0], [11.0, 0.6], [7.8, 1.1]]);
+    rect(c, '#ffe49e', 8.2, -0.5, 3.4, 1.0); // Golden dorsal ridge highlight
+
+    // Black beak tip (nail) & nostril slits
+    poly(c, ink, [[12.0, -0.9], [13.8, 0], [12.0, 0.9]]);
+    poly(c, '#1c171e', [[12.2, -0.6], [13.4, 0], [12.2, 0.6]]);
+    rect(c, ink, 8.2, -1.5, 0.9, 0.7); // Left nostril slit
+    rect(c, ink, 8.2, 0.8, 0.9, 0.7);  // Right nostril slit
+
+    c.restore();
+  }
+
+  function paintJadeTopDownTorso(c, ch, isSwinging, progress) {
+    const ink = '#110e16';
+
+    // 1. Skirt Hem Shadow & Organic Flowing Drapery (The unified dress body is already drawn)
+    // Soft shadow contour along the curved bottom hem
+    poly(c, '#12332b', [
+      [-21.0, 0], [-20.5, -5.0], [-18.5, -10.0], [-17.0, -9.5], [-19.2, -4.5], [-19.8, 0],
+      [-19.2, 4.5], [-17.0, 9.5], [-18.5, 10.0], [-20.5, 5.0]
+    ]);
+
+    // Natural diagonal wrap folds radiating across the skirt from waist sash to hem
+    poly(c, '#143830', [[-6.5, -10.0], [-12.5, -6.5], [-19.5, -3.5], [-17.5, -1.0], [-11.5, -4.0]]);
+    poly(c, '#286c5e', [[-7.5, -7.0], [-13.5, -2.5], [-19.5, 2.5], [-17.0, 3.5], [-12.0, 0.0]]);
+    poly(c, '#368b78', [[-8.5, -5.0], [-13.5, -1.5], [-18.0, 2.0], [-16.0, 2.5], [-11.5, -0.5]]); // Silk sheen fold
+    // Soft secondary drape fold on right hip
+    poly(c, '#143830', [[-10.0, 8.0], [-16.5, 7.5], [-19.0, 8.5], [-12.5, 11.5]]);
+    poly(c, '#286c5e', [[-11.0, 7.0], [-16.0, 6.5], [-14.5, 9.0]]);
+
+    // Soft shoulder highlights
+    poly(c, '#286c5e', [[-3.0, -14.5], [4.0, -14.5], [7.0, -12.5], [1.0, -12.5]]);
+    poly(c, '#12332b', [[-3.0, 14.5], [4.0, 14.5], [7.0, 12.5], [1.0, 12.5]]);
+
+    // 2. Soft Wrap Waist Cinch (Seamless organic fabric drape, NO harsh black bar, strictly inside body)
+    poly(c, '#143830', [[-7.5, -10.0], [-5.8, -10.0], [-4.2, 7.0], [-5.8, 7.0]]);
+    poly(c, '#236355', [[-7.0, -9.5], [-6.0, -9.5], [-4.6, 6.0], [-5.6, 6.0]]);
+
+    // 3. Subtle Plumetis Micro-Dots across back & shoulders
+    rect(c, '#38917e', -12.0, -4.5, 1.0, 1.0);
+    rect(c, '#38917e', -14.0, 4.0, 1.0, 1.0);
+    rect(c, '#38917e', -1.0, -6.5, 1.0, 1.0);
+    rect(c, '#38917e', 0.5, 6.5, 1.0, 1.0);
+    rect(c, '#38917e', -4.0, 3.5, 1.0, 1.0);
+    rect(c, '#38917e', -4.5, -4.5, 1.0, 1.0);
+
+    // 4. Elegant Crossover Wrap Neckline (Cache-cœur)
+    // Left crossover panel (underneath)
+    poly(c, ink, [[0, -7.0], [6.5, -7.0], [13.0, -2.5], [7.0, -1.0], [1.0, -2.5]]);
+    poly(c, '#18473c', [[0.5, -6.5], [6.0, -6.5], [12.2, -2.5], [6.5, -1.2], [1.5, -2.5]]);
+
+    // Right crossover panel (wrapping diagonally over left)
+    poly(c, ink, [[-2.5, 7.5], [6.0, 7.5], [14.0, 1.5], [9.5, -4.0], [4.5, 0], [-1.5, 3.5]]);
+    poly(c, '#266b5c', [[-2.0, 7.0], [5.5, 7.0], [13.2, 1.5], [9.0, -3.5], [4.2, 0.2], [-1.0, 3.5]]);
+    poly(c, '#38917e', [[1.5, 6.0], [6.0, 6.0], [11.5, 1.2], [7.0, -2.0]]); // Silk sheen fold
+
+    // 5. Feminine Exposed Décolleté & Neck (Soft warm skin)
+    poly(c, ink, [[7.5, -3.5], [13.0, -3.0], [15.0, 0], [13.0, 3.0], [7.5, 3.5]]);
+    poly(c, '#cb967d', [[8.0, -3.0], [12.2, -2.5], [14.0, 0], [12.2, 2.5], [8.0, 3.0]]);
+    poly(c, '#e5b399', [[8.5, -2.5], [12.0, -2.0], [13.8, 0], [12.0, 2.0], [8.5, 2.5]]);
+    poly(c, '#fad7c4', [[9.0, -1.5], [12.0, -1.0], [13.5, 0], [12.0, 1.0], [9.0, 1.5]]);
+
+    // 6. Platinum Chain & Sculpted Silver Heart Pendant
+    rect(c, '#8a9bb0', 8.5, -2.2, 1.0, 0.8);
+    rect(c, '#a2b4ca', 9.5, -1.8, 1.0, 0.8);
+    rect(c, '#8a9bb0', 10.5, -1.2, 1.0, 0.8);
+    rect(c, '#8a9bb0', 8.5, 1.4, 1.0, 0.8);
+    rect(c, '#a2b4ca', 9.5, 1.0, 1.0, 0.8);
+    rect(c, '#8a9bb0', 10.5, 0.4, 1.0, 0.8);
+
+    // Sculpted Silver Heart Pendant
+    poly(c, ink, [
+      [10.8, -1.6], [12.2, -1.6], [13.2, 0], [12.2, 1.6], [10.8, 1.6], [11.4, 0]
+    ]);
+    poly(c, '#d8e5f2', [
+      [11.0, -1.3], [12.0, -1.3], [12.8, 0], [12.0, 1.3], [11.0, 1.3], [11.5, 0]
+    ]);
+    poly(c, '#9fb0c4', [[11.0, -1.2], [11.5, 0], [12.6, 0], [11.8, -1.0]]);
+  }
+
+  function paintPapTopDownHead(c, ch) {
+    c.save();
+    c.translate(-1.0, 0);
+    c.scale(1.15, 1.15);
+
+    const ink = '#110e16';
+    const a = ch.look;
+    const skin = a.skin || '#d3a287';
+
+    // 1. Rear Silver Hair Fringe (Horseshoe haircut around nape & temples)
+    // Dark silver backing shadow
+    poly(c, ink, [
+      [-10.0, 0], [-10.2, -2.8], [-9.5, -5.8], [-7.2, -8.2], [-3.2, -9.0], [0.8, -8.6],
+      [3.0, -7.2], [3.8, -5.0], [3.0, 0], [3.8, 5.0], [3.0, 7.2], [0.8, 8.6],
+      [-3.2, 9.0], [-7.2, 8.2], [-9.5, 5.8], [-10.2, 2.8]
+    ]);
+    poly(c, '#726d64', [
+      [-9.4, 0], [-9.6, -2.5], [-8.8, -5.2], [-6.6, -7.5], [-3.0, -8.2], [0.6, -8.0],
+      [2.6, -6.8], [3.2, -4.6], [2.6, 0], [3.2, 4.6], [2.6, 6.8], [0.6, 8.0],
+      [-3.0, 8.2], [-6.6, 7.5], [-8.8, 5.2], [-9.6, 2.5]
+    ]);
+    // Soft silver hair volume
+    poly(c, '#b5afa4', [
+      [-9.0, 0], [-9.2, -2.2], [-8.4, -4.6], [-6.2, -6.8], [-2.6, -7.5], [0.4, -7.4],
+      [2.2, -6.2], [2.8, -4.0], [2.2, 0], [2.8, 4.0], [2.2, 6.2], [0.4, 7.4],
+      [-2.6, 7.5], [-6.2, 6.8], [-8.4, 4.6], [-9.2, 2.2]
+    ]);
+    // Frosted silver highlights
+    poly(c, '#ded9ce', [[-8.6, -1.0], [-8.0, -3.2], [-5.6, -5.6], [-2.4, -6.4], [-5.2, -4.2], [-7.8, -1.5]]);
+    poly(c, '#ded9ce', [[-8.6, 1.0], [-8.0, 3.2], [-5.6, 5.6], [-2.4, 6.4], [-5.2, 4.2], [-7.8, 1.5]]);
+    poly(c, '#f6f3ed', [[-8.2, -2.0], [-5.8, -4.8], [-2.8, -5.6]]);
+    poly(c, '#f6f3ed', [[-8.2, 2.0], [-5.8, 4.8], [-2.8, 5.6]]);
+
+    // 2. Anatomical Senior Ears on Temples
+    // Left ear (y < 0)
+    poly(c, ink, [[-1.5, -7.8], [1.5, -8.0], [2.2, -10.0], [-0.2, -10.5], [-1.8, -9.2]]);
+    poly(c, skin, [[-1.0, -8.2], [1.1, -8.3], [1.8, -9.6], [0.0, -9.9], [-1.3, -8.8]]);
+    rect(c, '#8a523e', -0.3, -9.2, 1.2, 1.0);
+    rect(c, '#f1c2a8', 0.6, -8.8, 0.8, 0.8);
+
+    // Right ear (y > 0)
+    poly(c, ink, [[-1.5, 7.8], [1.5, 8.0], [2.2, 10.0], [-0.2, 10.5], [-1.8, 9.2]]);
+    poly(c, skin, [[-1.0, 8.2], [1.1, 8.3], [1.8, 9.6], [0.0, 9.9], [-1.3, 8.8]]);
+    rect(c, '#8a523e', -0.3, 8.2, 1.2, 1.0);
+    rect(c, '#f1c2a8', 0.6, 8.0, 0.8, 0.8);
+
+    // 3. Smooth Balding Scalp (Dome at posterior cranium, mask rides over front)
+    poly(c, ink, [[-7.6, 0], [-7.0, -3.0], [-4.8, -5.2], [-2.2, -5.5], [-1.2, -3.2], [-1.0, 0], [-1.2, 3.2], [-2.2, 5.5], [-4.8, 5.2], [-7.0, 3.0]]);
+    poly(c, skin, [[-7.0, 0], [-6.4, -2.6], [-4.4, -4.6], [-2.0, -4.8], [-1.0, -2.8], [-0.8, 0], [-1.0, 2.8], [-2.0, 4.8], [-4.4, 4.6], [-6.4, 2.6]]);
+    poly(c, '#e2ad91', [[-5.8, 0], [-5.0, -2.0], [-3.2, -3.6], [-1.5, -3.0], [-1.2, 0], [-1.5, 3.0], [-3.2, 3.6], [-5.0, 2.0]]);
+    poly(c, '#f1c2a8', [[-4.5, 0], [-3.8, -1.6], [-2.2, -1.8], [-1.6, 0], [-2.2, 1.8], [-3.8, 1.6]]);
+    poly(c, '#fae2d5', [[-3.5, 0], [-2.8, -1.0], [-2.0, 0], [-2.8, 1.0]]);
+
+    // 4. Grand-duc Owl Mask Shell (Riding high over frontal cranium, deep and substantial)
+    // Starts at x = -3.2 on the forehead, wrapping down across the face
+    poly(c, ink, [
+      [-3.2, 0], [-2.6, -3.6], [-1.2, -6.6], [3.2, -6.6], [6.6, -4.0], [7.6, 0],
+      [6.6, 4.0], [3.2, 6.6], [-1.2, 6.6], [-2.6, 3.6]
+    ]);
+    poly(c, '#24170e', [
+      [-2.8, 0], [-2.2, -3.2], [-0.8, -6.0], [3.0, -6.0], [6.0, -3.6], [7.0, 0],
+      [6.0, 3.6], [3.0, 6.0], [-0.8, 6.0], [-2.2, 3.2]
+    ]);
+    poly(c, '#462e1c', [
+      [-2.2, 0], [-1.6, -2.6], [-0.4, -5.2], [2.6, -5.2], [5.2, -3.0], [6.2, 0],
+      [5.2, 3.0], [2.6, 5.2], [-0.4, 5.2], [-1.6, 2.6]
+    ]);
+    // Feathered plumage volume on forehead mask
+    poly(c, '#6b472c', [
+      [-1.8, 0], [-1.2, -2.0], [0.0, -4.2], [2.2, -4.2], [4.4, -2.2], [5.2, 0],
+      [4.4, 2.2], [2.2, 4.2], [0.0, 4.2], [-1.2, 2.0]
+    ]);
+
+    // 5. Heavy, Bold Raptor Brow Crests ("Sourcils" — +25% Thicker & Prominent)
+    // Left Brow Crest (y < 0)
+    poly(c, ink, [
+      [2.4, 0], [1.5, -2.5], [0.2, -5.2], [-1.5, -7.5], [-3.2, -7.8],
+      [-2.8, -6.0], [-1.2, -4.2], [0.5, -2.2], [1.2, 0]
+    ]);
+    poly(c, '#140c07', [
+      [2.2, 0], [1.3, -2.4], [0.0, -5.0], [-1.4, -7.2], [-2.8, -7.4],
+      [-2.4, -6.0], [-1.0, -4.2], [0.5, -2.0], [1.2, 0]
+    ]);
+    poly(c, '#422817', [
+      [1.8, 0], [1.0, -2.2], [-0.2, -4.6], [-1.2, -6.6], [-2.2, -6.8],
+      [-1.8, -5.6], [-0.8, -4.0], [0.4, -1.8], [1.0, 0]
+    ]);
+    poly(c, '#7e502e', [
+      [1.4, 0], [0.8, -1.8], [-0.3, -4.0], [-1.0, -5.8], [-1.6, -6.0],
+      [-1.2, -5.0], [-0.5, -3.6], [0.3, -1.5], [0.8, 0]
+    ]);
+    // Bright golden-tawny brow edge highlight (+25% visibility)
+    poly(c, '#d49e62', [[1.2, -0.4], [0.6, -2.0], [-0.4, -4.2], [-1.2, -5.8], [-0.8, -4.6], [0.2, -2.2], [0.8, -0.4]]);
+    poly(c, '#f2caa0', [[0.8, -1.0], [0.2, -2.4], [-0.5, -4.4], [-0.2, -3.0], [0.4, -1.2]]);
+
+    // Right Brow Crest (y > 0)
+    poly(c, ink, [
+      [2.4, 0], [1.5, 2.5], [0.2, 5.2], [-1.5, 7.5], [-3.2, 7.8],
+      [-2.8, 6.0], [-1.2, 4.2], [0.5, 2.2], [1.2, 0]
+    ]);
+    poly(c, '#140c07', [
+      [2.2, 0], [1.3, 2.4], [0.0, 5.0], [-1.4, 7.2], [-2.8, 7.4],
+      [-2.4, 6.0], [-1.0, 4.2], [0.5, 2.0], [1.2, 0]
+    ]);
+    poly(c, '#422817', [
+      [1.8, 0], [1.0, 2.2], [-0.2, 4.6], [-1.2, 6.6], [-2.2, 6.8],
+      [-1.8, 5.6], [-0.8, 4.0], [0.4, 1.8], [1.0, 0]
+    ]);
+    poly(c, '#7e502e', [
+      [1.4, 0], [0.8, 1.8], [-0.3, 4.0], [-1.0, 5.8], [-1.6, 6.0],
+      [-1.2, 5.0], [-0.5, 3.6], [0.3, 1.5], [0.8, 0]
+    ]);
+    // Bright golden-tawny brow edge highlight
+    poly(c, '#d49e62', [[1.2, 0.4], [0.6, 2.0], [-0.4, 4.2], [-1.2, 5.8], [-0.8, 4.6], [0.2, 2.2], [0.8, 0.4]]);
+    poly(c, '#f2caa0', [[0.8, 1.0], [0.2, 2.4], [-0.5, 4.4], [-0.2, 3.0], [0.4, 1.2]]);
+
+    // 6. Grand-duc Aigrettes (Tufts continuing back from brow crest — +25% Thicker & Bolder)
+    // Left Aigrette (y < 0)
+    poly(c, ink, [
+      [0.8, -4.0], [-1.0, -6.2], [-3.2, -8.6], [-5.2, -10.5], [-5.5, -9.0],
+      [-3.8, -7.2], [-2.2, -5.6], [-0.4, -3.8]
+    ]);
+    poly(c, '#120b07', [
+      [0.5, -4.1], [-1.0, -6.3], [-3.0, -8.5], [-4.8, -10.0], [-5.0, -9.0],
+      [-3.5, -7.2], [-2.0, -5.6], [-0.5, -4.0]
+    ]);
+    poly(c, '#4a2f1c', [[-0.4, -4.8], [-1.8, -6.8], [-3.6, -8.8], [-2.8, -7.0], [-1.4, -5.4]]);
+    poly(c, '#885a36', [[-1.0, -5.4], [-2.2, -7.2], [-3.2, -8.4], [-2.2, -6.8]]);
+    // Tawny gold barb highlights
+    poly(c, '#d19e68', [[-1.8, -6.8], [-3.8, -9.2], [-3.0, -7.8]]);
+    poly(c, '#f2caa0', [[-2.6, -7.8], [-3.6, -9.2], [-3.2, -8.6]]);
+
+    // Right Aigrette (y > 0)
+    poly(c, ink, [
+      [0.8, 4.0], [-1.0, 6.2], [-3.2, 8.6], [-5.2, 10.5], [-5.5, 9.0],
+      [-3.8, 7.2], [-2.2, 5.6], [-0.4, 3.8]
+    ]);
+    poly(c, '#120b07', [
+      [0.5, 4.1], [-1.0, 6.3], [-3.0, 8.5], [-4.8, 10.0], [-5.0, 9.0],
+      [-3.5, 7.2], [-2.0, 5.6], [-0.5, 4.0]
+    ]);
+    poly(c, '#4a2f1c', [[-0.4, 4.8], [-1.8, 6.8], [-3.6, 8.8], [-2.8, 7.0], [-1.4, 5.4]]);
+    poly(c, '#885a36', [[-1.0, 5.4], [-2.2, 7.2], [-3.2, 8.4], [-2.2, 6.8]]);
+    // Tawny gold barb highlights
+    poly(c, '#d19e68', [[-1.8, 6.8], [-3.8, 9.2], [-3.0, 7.8]]);
+    poly(c, '#f2caa0', [[-2.6, 7.8], [-3.6, 9.2], [-3.2, 8.6]]);
+
+    // 7. Facial Discs & Orbital Sockets (Top-Down Foreshortening)
+    // Left Disc (y < 0)
+    poly(c, ink, [[1.2, -1.6], [1.8, -5.8], [5.4, -5.6], [6.4, -1.6], [4.2, -0.8]]);
+    poly(c, '#2b1b11', [[1.5, -1.8], [2.1, -5.4], [5.0, -5.2], [6.0, -1.8], [4.1, -1.0]]);
+    poly(c, '#6b472c', [[1.9, -2.1], [2.5, -4.8], [4.6, -4.6], [5.4, -2.0], [3.9, -1.3]]);
+    poly(c, '#b07f50', [[2.3, -2.4], [2.8, -4.2], [4.2, -4.0], [4.8, -2.3], [3.7, -1.6]]);
+
+    // Right Disc (y > 0)
+    poly(c, ink, [[1.2, 1.6], [1.8, 5.8], [5.4, 5.6], [6.4, 1.6], [4.2, 0.8]]);
+    poly(c, '#2b1b11', [[1.5, 1.8], [2.1, 5.4], [5.0, 5.2], [6.0, 1.8], [4.1, 1.0]]);
+    poly(c, '#6b472c', [[1.9, 2.1], [2.5, 4.8], [4.6, 4.6], [5.4, 2.0], [3.9, 1.3]]);
+    poly(c, '#b07f50', [[2.3, 2.4], [2.8, 4.2], [4.2, 4.0], [4.8, 2.3], [3.7, 1.6]]);
+
+    // 8. Top-Down Forward-Gazing Raptor Eyes (Slender transverse rectangles in perspective)
+    // Left eye (y < 0) — Narrow in X (depth 1.2), wide in Y (width 3.2):
+    poly(c, '#0d0705', [[3.0, -5.3], [4.4, -5.1], [4.4, -1.9], [3.0, -2.1]]);
+    // Amber-red outer iris band
+    poly(c, '#b34700', [[3.2, -5.0], [4.2, -4.9], [4.2, -2.1], [3.2, -2.2]]);
+    // Glowing orange-amber iris
+    poly(c, '#ff7a00', [[3.3, -4.8], [4.1, -4.7], [4.1, -2.3], [3.3, -2.4]]);
+    // Radiant gold inner iris
+    poly(c, '#ffd034', [[3.4, -4.6], [4.0, -4.5], [4.0, -2.5], [3.4, -2.6]]);
+    // Black predatory pupil slit (forward-gazing vertical slit cutting across transverse eye)
+    rect(c, '#000000', 3.1, -3.8, 1.2, 0.9);
+    // Crisp specular catchlight on forward rim
+    rect(c, '#ffffff', 3.8, -4.6, 0.5, 0.6);
+
+    // Right eye (y > 0) — Narrow in X (depth 1.2), wide in Y (width 3.2):
+    poly(c, '#0d0705', [[3.0, 2.1], [4.4, 1.9], [4.4, 5.1], [3.0, 5.3]]);
+    // Amber-red outer iris band
+    poly(c, '#b34700', [[3.2, 2.2], [4.2, 2.1], [4.2, 4.9], [3.2, 5.0]]);
+    // Glowing orange-amber iris
+    poly(c, '#ff7a00', [[3.3, 2.4], [4.1, 2.3], [4.1, 4.7], [3.3, 4.8]]);
+    // Radiant gold inner iris
+    poly(c, '#ffd034', [[3.4, 2.6], [4.0, 2.5], [4.0, 4.5], [3.4, 4.6]]);
+    // Black predatory pupil slit
+    rect(c, '#000000', 3.1, 2.9, 1.2, 0.9);
+    // Crisp specular catchlight on forward rim
+    rect(c, '#ffffff', 3.8, 4.0, 0.5, 0.6);
+
+    // 9. Hooked Raptor Beak (Projecting forward between the brow chevrons)
+    poly(c, ink, [[2.2, -1.8], [5.5, -1.6], [7.6, 0], [5.5, 1.6], [2.2, 1.8], [3.0, 0]]);
+    poly(c, '#1f1a26', [[2.6, -1.4], [5.2, -1.2], [7.2, 0], [3.0, 0]]);
+    poly(c, '#362f40', [[3.0, 0], [7.2, 0], [5.2, 1.2], [2.6, 1.4]]);
+    // Dorsal keel highlight
+    poly(c, '#685d77', [[3.2, -0.5], [6.6, 0], [3.2, 0.5]]);
+    rect(c, '#988ca8', 4.2, -0.3, 2.2, 0.6);
+    // Dark nostrils
+    rect(c, ink, 3.6, -1.1, 0.8, 0.5);
+    rect(c, ink, 3.6, 0.6, 0.8, 0.5);
+
+    c.restore();
+  }
+
+  function paintPapTopDownTorso(c, ch, isSwinging, progress) {
+    const ink = '#110e16';
+
+    // 1. Greige Polo Piqué Shirt (Mastic chiné #afa183 — Full solid back)
+    rect(c, '#a89a7f', -14, -11, 16, 22); // Solid greige cotton base covering full back
+    rect(c, '#887b64', -14, -9, 4, 18);   // Soft lower back drape fold
+    rect(c, '#b2a488', -10, -9, 11, 18);  // Clean greige mastic midtone
+    // Shoulder seams
+    rect(c, '#c9bc9e', -5, -13.5, 12, 1.8); // Left shoulder highlight
+    rect(c, '#706450', -5, 11.7, 12, 1.8);  // Right shoulder shadow
+    // Subtle piqué micro-stitches
+    rect(c, '#988970', -9, -4, 1.0, 1.0);
+    rect(c, '#988970', -7, 4, 1.0, 1.0);
+    rect(c, '#988970', -2, -6, 1.0, 1.0);
+    rect(c, '#988970', 2, 5, 1.0, 1.0);
+
+    // 2. Exposed Senior Neck & Throat Opening
+    poly(c, ink, [[6.0, -4.0], [13.0, -3.5], [15.5, 0], [13.0, 3.5], [6.0, 4.0]]);
+    poly(c, '#ba7258', [[6.6, -3.4], [12.2, -2.8], [14.6, 0], [12.2, 2.8], [6.6, 3.4]]);
+    poly(c, '#d3a287', [[7.2, -2.6], [11.6, -2.2], [13.8, 0], [11.6, 2.2], [7.2, 2.6]]);
+
+    // 3. Elegant Contrast Beige Polo Collar (#ede3cb / #ded3b8)
+    // Left collar leaf (curving around left neck and pointing forward over chest)
+    poly(c, ink, [[2.0, -7.5], [9.0, -7.5], [15.5, -2.8], [9.5, -1.0], [3.5, -3.2]]);
+    poly(c, '#bdae93', [[2.5, -7.0], [8.5, -7.0], [14.6, -2.8], [9.0, -1.2], [4.0, -2.8]]);
+    poly(c, '#ded3b8', [[3.0, -6.5], [8.0, -6.5], [14.0, -3.0], [8.6, -1.5], [4.5, -2.4]]);
+    poly(c, '#f5efe0', [[4.0, -6.0], [7.2, -6.0], [13.0, -3.2], [8.2, -1.8]]); // Silk luster
+
+    // Right collar leaf (curving around right neck and pointing forward over chest)
+    poly(c, ink, [[2.0, 7.5], [9.0, 7.5], [15.5, 2.8], [9.5, 1.0], [3.5, 3.2]]);
+    poly(c, '#9a8b72', [[2.5, 7.0], [8.5, 7.0], [14.6, 2.8], [9.0, 1.2], [4.0, 2.8]]);
+    poly(c, '#c4b59a', [[3.0, 6.5], [8.0, 6.5], [14.0, 3.0], [8.6, 1.5], [4.5, 2.4]]);
+    poly(c, '#ded3b8', [[4.0, 6.0], [7.2, 6.0], [13.0, 3.0], [8.2, 1.8]]);
+
+    // 4. Vertical Button Placket (Patte de boutonnage nacrée visible in front)
+    rect(c, ink, 8.5, -1.6, 8.5, 3.2);
+    rect(c, '#887962', 9.0, -1.3, 7.5, 2.6);
+    rect(c, '#b2a388', 9.5, -1.0, 6.5, 2.0);
+
+    // Pearl Buttons (2 buttons with dark stitch center)
+    // Button 1 (top):
+    rect(c, ink, 11.0, -1.0, 2.0, 2.0);
+    rect(c, '#f8f4ec', 11.3, -0.7, 1.4, 1.4);
+    rect(c, '#625544', 11.8, -0.2, 0.4, 0.4); // Thread stitch
+
+    // Button 2 (lower, proudly visible in front):
+    rect(c, ink, 14.5, -1.0, 2.0, 2.0);
+    rect(c, '#f8f4ec', 14.8, -0.7, 1.4, 1.4);
+    rect(c, '#625544', 15.3, -0.2, 0.4, 0.4); // Thread stitch
+  }
+
+  function paintJcTopDownHead(c, ch) {
+    c.save();
+    c.translate(-0.5, 0);
+    c.scale(1.12, 1.12);
+
+    const ink = '#110e16';
+    const a = ch.look;
+    const skin = a.skin || '#d49b7d';
+
+    // =========================================================================
+    // 1. UNIFIED KING COBRA HOOD MANTLE (SUR LES CÔTÉS ET L'ARRIÈRE DU CRÂNE)
+    // Continuous dorsal hood flaring from nape (x = -7.8) wide out to y = ±14.5
+    // at ear level (x = -0.8) and tapering forward to cheeks (x = +4.5, y = ±6.5).
+    // =========================================================================
+
+    // Continuous Outer Hood Contour
+    poly(c, ink, [
+      [-7.8, 0], [-7.5, -3.2], [-6.2, -7.0], [-3.8, -11.8], [-0.8, -14.5], [2.2, -13.5],
+      [4.5, -9.8], [4.8, -6.5], [2.8, -4.8], [0.5, -4.6], [-2.5, -4.2], [-5.0, -2.5],
+      [-5.0, 2.5], [-2.5, 4.2], [0.5, 4.6], [2.8, 4.8], [4.8, 6.5], [4.5, 9.8],
+      [2.2, 13.5], [-0.8, 14.5], [-3.8, 11.8], [-6.2, 7.0], [-7.5, 3.2]
+    ]);
+    poly(c, '#1b2931', [
+      [-7.4, 0], [-7.0, -3.0], [-5.8, -6.6], [-3.5, -11.2], [-0.6, -13.8], [2.0, -12.8],
+      [4.0, -9.4], [4.2, -6.5], [2.5, -5.0], [0.3, -4.8], [-2.3, -4.4], [-4.6, -2.5],
+      [-4.6, 2.5], [-2.3, 4.4], [0.3, 4.8], [2.5, 5.0], [4.2, 6.5], [4.0, 9.4],
+      [2.0, 12.8], [-0.6, 13.8], [-3.5, 11.2], [-5.8, 6.6], [-7.0, 3.0]
+    ]);
+    poly(c, '#283c47', [
+      [-6.8, 0], [-6.4, -2.8], [-5.2, -6.0], [-3.0, -10.5], [-0.4, -13.0], [1.8, -12.0],
+      [3.6, -9.0], [3.8, -6.5], [2.2, -5.2], [0.0, -5.0], [-2.0, -4.6], [-4.0, -2.5],
+      [-4.0, 2.5], [-2.0, 4.6], [0.0, 5.0], [2.2, 5.2], [3.8, 6.5], [3.6, 9.0],
+      [1.8, 12.0], [-0.4, 13.0], [-3.0, 10.5], [-5.2, 6.0], [-6.4, 2.8]
+    ]);
+
+    // Flared Leading Edge Highlights on Hood Wings
+    poly(c, '#3d5968', [
+      [-4.5, -8.8], [-2.8, -12.0], [-0.4, -13.5], [1.8, -12.6], [3.4, -9.6]
+    ]);
+    poly(c, '#4f7285', [
+      [-2.5, -11.5], [-0.4, -13.0], [1.5, -12.2]
+    ]);
+    poly(c, '#3d5968', [
+      [-4.5, 8.8], [-2.8, 12.0], [-0.4, 13.5], [1.8, 12.6], [3.4, 9.6]
+    ]);
+    poly(c, '#4f7285', [
+      [-2.5, 11.5], [-0.4, 13.0], [1.5, 12.2]
+    ]);
+
+    // Golden-Ochre Interior Warning Flap — Left Wing (y < 0)
+    poly(c, ink, [
+      [-3.8, -6.5], [-2.2, -10.5], [0.5, -11.8], [2.6, -9.5], [3.0, -6.5], [1.2, -5.4], [-1.5, -5.4]
+    ]);
+    poly(c, '#805313', [
+      [-3.4, -6.6], [-2.0, -10.0], [0.4, -11.2], [2.2, -9.2], [2.6, -6.6], [1.0, -5.6], [-1.2, -5.6]
+    ]);
+    poly(c, '#c48923', [
+      [-2.8, -7.0], [-1.6, -9.5], [0.2, -10.5], [1.8, -8.6], [2.2, -6.8], [0.8, -6.0], [-1.0, -6.0]
+    ]);
+    poly(c, '#fad05c', [
+      [-2.0, -7.5], [-1.0, -9.0], [0.2, -9.6], [1.2, -8.2], [1.4, -7.0]
+    ]);
+    // 3 Crisp, distinct dark venom ribs across left flap
+    poly(c, ink, [[-2.4, -7.2], [-1.2, -10.2], [-0.4, -10.0], [-1.6, -7.0]]);
+    poly(c, ink, [[-0.2, -6.5], [0.5, -10.8], [1.3, -10.5], [0.6, -6.2]]);
+    poly(c, ink, [[1.6, -6.0], [2.1, -8.8], [2.8, -8.4], [2.3, -5.7]]);
+
+    // Golden-Ochre Interior Warning Flap — Right Wing (y > 0)
+    poly(c, ink, [
+      [-3.8, 6.5], [-2.2, 10.5], [0.5, 11.8], [2.6, 9.5], [3.0, 6.5], [1.2, 5.4], [-1.5, 5.4]
+    ]);
+    poly(c, '#805313', [
+      [-3.4, 6.6], [-2.0, 10.0], [0.4, 11.2], [2.2, 9.2], [2.6, 6.6], [1.0, 5.6], [-1.2, 5.6]
+    ]);
+    poly(c, '#c48923', [
+      [-2.8, 7.0], [-1.6, 9.5], [0.2, 10.5], [1.8, 8.6], [2.2, 6.8], [0.8, 6.0], [-1.0, 6.0]
+    ]);
+    poly(c, '#fad05c', [
+      [-2.0, 7.5], [-1.0, 9.0], [0.2, 9.6], [1.2, 8.2], [1.4, 7.0]
+    ]);
+    // 3 Crisp dark venom ribs across right flap
+    poly(c, ink, [[-2.4, 7.2], [-1.2, 10.2], [-0.4, 10.0], [-1.6, 7.0]]);
+    poly(c, ink, [[-0.2, 6.5], [0.5, 10.8], [1.3, 10.5], [0.6, 6.2]]);
+    poly(c, ink, [[1.6, 6.0], [2.1, 8.8], [2.8, 8.4], [2.3, 5.7]]);
+
+    // =========================================================================
+    // 2. ATHLETIC BALD CRANIUM (Dorsal Posterior Skull Dome)
+    // Sits naturally cradled within the dark hood mantle
+    // =========================================================================
+    poly(c, ink, [
+      [-6.8, 0], [-6.4, -2.5], [-5.0, -4.6], [-2.5, -5.2], [0.5, -4.5],
+      [1.4, 0], [0.5, 4.5], [-2.5, 5.2], [-5.0, 4.6], [-6.4, 2.5]
+    ]);
+    poly(c, '#ba7456', [
+      [-6.2, 0], [-5.8, -2.1], [-4.6, -4.0], [-2.2, -4.6], [0.2, -3.8],
+      [1.0, 0], [0.2, 3.8], [-2.2, 4.6], [-4.6, 4.0], [-5.8, 2.1]
+    ]);
+    poly(c, skin, [
+      [-5.6, 0], [-5.2, -1.7], [-4.0, -3.4], [-1.8, -4.0], [0.0, -3.2],
+      [0.6, 0], [0.0, 3.2], [-1.8, 4.0], [-4.0, 3.4], [-5.2, 1.7]
+    ]);
+    // Tanned scalp highlights & athletic specular sheen
+    poly(c, '#e6a485', [[-4.5, 0], [-3.8, -1.4], [-2.0, -2.5], [-0.5, -2.0], [0.0, 0], [-0.5, 2.0], [-2.0, 2.5], [-3.8, 1.4]]);
+    poly(c, '#f5c6ab', [[-3.5, 0], [-2.8, -0.9], [-1.4, -1.1], [-0.8, 0], [-1.4, 1.1], [-2.8, 0.9]]);
+    rect(c, '#ffdfcc', -2.5, -0.7, 2.0, 1.4);
+    rect(c, '#ffffff', -2.0, -0.4, 1.0, 0.8);
+
+    // =========================================================================
+    // 3. HUMAN EARS (Visible on temples between cranium and hood)
+    // =========================================================================
+    // Left ear (y < 0)
+    poly(c, ink, [[-1.2, -5.2], [1.0, -5.0], [1.6, -6.8], [-0.4, -7.2], [-1.4, -6.2]]);
+    poly(c, skin, [[-0.8, -5.4], [0.6, -5.2], [1.2, -6.5], [-0.2, -6.8], [-1.0, -6.0]]);
+    rect(c, '#7f4430', -0.2, -6.4, 0.8, 0.9);
+    // Right ear (y > 0)
+    poly(c, ink, [[-1.2, 5.2], [1.0, 5.0], [1.6, 6.8], [-0.4, 7.2], [-1.4, 6.2]]);
+    poly(c, skin, [[-0.8, 5.4], [0.6, 5.2], [1.2, 6.5], [-0.2, 6.8], [-1.0, 6.0]]);
+    rect(c, '#b67256', -0.2, 5.5, 0.8, 0.9);
+
+    // =========================================================================
+    // 4. COBRA SNOUT & DORSAL KEEL (TRUE TOP-DOWN REPTILIAN HEAD)
+    // Extending forward from forehead (x = 0) to snout tip (x = 7.6)
+    // =========================================================================
+    poly(c, ink, [
+      [-0.4, 0], [0.8, -3.2], [2.8, -4.6], [5.6, -3.2], [7.5, -1.6], [8.0, 0],
+      [7.5, 1.6], [5.6, 3.2], [2.8, 4.6], [0.8, 3.2]
+    ]);
+    poly(c, '#1b2931', [
+      [0.0, 0], [1.2, -2.8], [3.0, -4.0], [5.4, -2.8], [7.0, -1.3], [7.5, 0],
+      [7.0, 1.3], [5.4, 2.8], [3.0, 4.0], [1.2, 2.8]
+    ]);
+    poly(c, '#2d424e', [
+      [0.6, 0], [1.8, -2.2], [3.4, -3.2], [5.2, -2.0], [6.6, -0.9], [7.0, 0],
+      [6.6, 0.9], [5.2, 2.0], [3.4, 3.2], [1.8, 2.2]
+    ]);
+    // Dorsal keel ridge highlight
+    poly(c, '#415e6e', [
+      [1.2, 0], [2.4, -1.4], [4.5, -1.2], [6.2, 0],
+      [4.5, 1.2], [2.4, 1.4]
+    ]);
+    poly(c, '#5c849c', [[1.8, 0], [3.2, -0.8], [5.5, 0], [3.2, 0.8]]);
+    rect(c, '#98bfd4', 2.8, -0.4, 2.4, 0.8);
+    // Dark nostril pits at front tip
+    rect(c, ink, 6.2, -1.0, 0.8, 0.5);
+    rect(c, ink, 6.2, 0.5, 0.8, 0.5);
+
+    // =========================================================================
+    // 5. PREDATORY SLIT EYES (LATERAL SLITS IN TOP-DOWN PERSPECTIVE)
+    // Slender transverse perspective slits, looking forward and out
+    // =========================================================================
+    // Left eye (y < 0) — set at x: 2.2 to 3.8 (depth 1.6), y: -4.5 to -2.3 (width 2.2)
+    poly(c, ink, [[2.2, -4.5], [3.8, -3.9], [3.6, -2.3], [2.2, -2.7]]);
+    poly(c, '#141d24', [[2.4, -4.2], [3.6, -3.7], [3.4, -2.5], [2.4, -2.9]]);
+    poly(c, '#ffffff', [[2.6, -4.0], [3.5, -3.5], [3.3, -2.6], [2.6, -3.0]]);
+    // Black vertical pupil slit looking forward (+X)
+    poly(c, ink, [[2.7, -3.5], [3.4, -3.2], [3.3, -2.8], [2.7, -3.0]]);
+
+    // Right eye (y > 0) — set at x: 2.2 to 3.8 (depth 1.6), y: 2.3 to 4.5 (width 2.2)
+    poly(c, ink, [[2.2, 4.5], [3.8, 3.9], [3.6, 2.3], [2.2, 2.7]]);
+    poly(c, '#141d24', [[2.4, 4.2], [3.6, 3.7], [3.4, 2.5], [2.4, 2.9]]);
+    poly(c, '#ffffff', [[2.6, 4.0], [3.5, 3.5], [3.3, 2.6], [2.6, 3.0]]);
+    // Black vertical pupil slit
+    poly(c, ink, [[2.7, 3.5], [3.4, 3.2], [3.3, 2.8], [2.7, 3.0]]);
+
+    // =========================================================================
+    // 6. FANGS, FORKED TONGUE & LOWER JAW (TOP-DOWN VIEW)
+    // Razor fangs and pink forked tongue projecting FORWARD from under snout
+    // =========================================================================
+    // Dark throat recess under snout rim
+    poly(c, ink, [[6.0, -2.0], [7.8, -1.4], [8.2, 0], [7.8, 1.4], [6.0, 2.0], [6.6, 0]]);
+    poly(c, '#3a111a', [[6.4, -1.6], [7.5, -1.0], [7.8, 0], [7.5, 1.0], [6.4, 1.6], [6.8, 0]]);
+
+    // Two Lethal Curved White Fangs projecting forward on sides of snout
+    // Left fang (y < 0)
+    poly(c, ink, [[6.3, -2.1], [8.7, -1.6], [7.3, -1.0]]);
+    poly(c, '#ffffff', [[6.6, -1.8], [8.5, -1.5], [7.5, -1.1]]);
+    // Right fang (y > 0)
+    poly(c, ink, [[6.3, 2.1], [8.7, 1.6], [7.3, 1.0]]);
+    poly(c, '#ffffff', [[6.6, 1.8], [8.5, 1.5], [7.5, 1.1]]);
+
+    // Pink Forked Tongue darting forward along midline (+X)
+    poly(c, ink, [[6.8, -0.6], [8.8, -0.5], [10.4, -1.3], [9.5, -0.3], [9.5, 0.3], [10.4, 1.3], [8.8, 0.5], [6.8, 0.6]]);
+    poly(c, '#d46888', [[7.2, -0.4], [8.8, -0.3], [10.0, -1.0], [9.3, -0.2], [9.3, 0.2], [10.0, 1.0], [8.8, 0.3], [7.2, 0.4]]);
+    poly(c, '#ffa8c2', [[7.6, -0.2], [8.8, -0.1], [9.6, -0.7], [9.1, 0], [9.6, 0.7], [8.8, 0.1], [7.6, 0.2]]);
+
+    // Resolute Human Lower Lip & Square Chin subtly visible underneath
+    poly(c, ink, [[5.0, -1.5], [6.4, -1.2], [7.0, 0], [6.4, 1.2], [5.0, 1.5]]);
+    poly(c, skin, [[5.2, -1.2], [6.2, -0.9], [6.6, 0], [6.2, 0.9], [5.2, 1.2]]);
+    rect(c, '#9e464c', 5.4, -0.7, 0.8, 1.4);
+
+    c.restore();
+  }
+
+  function paintJcTopDownTorso(c, ch, isSwinging, progress) {
+    const ink = '#110e16';
+
+    // 1. Classic Navy Blue Polo Shirt (Solid dark navy piqué back)
+    rect(c, '#1b263b', -14, -11, 16, 22); // Solid navy base covering entire back
+    rect(c, '#101724', -14, -9, 4, 18);   // Dark lower back shadow crease
+    rect(c, '#23314d', -10, -9, 11, 18);  // Midtone navy piqué fabric
+    // Shoulder seams
+    rect(c, '#384f7c', -5, -13.5, 12, 1.8); // Left shoulder highlight
+    rect(c, '#131b29', -5, 11.7, 12, 1.8);  // Right shoulder shadow
+    // Piqué micro-stitches
+    rect(c, '#2f4368', -9, -4, 1.0, 1.0);
+    rect(c, '#2f4368', -7, 4, 1.0, 1.0);
+    rect(c, '#2f4368', -2, -6, 1.0, 1.0);
+    rect(c, '#2f4368', 2, 5, 1.0, 1.0);
+
+    // 2. Open Athletic V-Neck with Tanned Skin
+    poly(c, ink, [[6.0, -4.0], [13.0, -3.5], [15.2, 0], [13.0, 3.5], [6.0, 4.0]]);
+    poly(c, '#b87258', [[6.6, -3.4], [12.2, -2.8], [14.4, 0], [12.2, 2.8], [6.6, 3.4]]);
+    poly(c, '#d49b7d', [[7.2, -2.6], [11.6, -2.2], [13.6, 0], [11.6, 2.2], [7.2, 2.6]]);
+
+    // 3. Classic Navy Polo Collar
+    // Left collar leaf (curving around neck and pointing forward over chest)
+    poly(c, ink, [[2.0, -7.5], [8.5, -7.5], [15.2, -2.8], [9.5, -1.0], [3.5, -3.2]]);
+    poly(c, '#192233', [[2.5, -7.0], [8.0, -7.0], [14.4, -2.8], [9.0, -1.2], [4.0, -2.8]]);
+    poly(c, '#2e4166', [[3.0, -6.5], [7.5, -6.5], [13.8, -3.0], [8.6, -1.5], [4.5, -2.4]]);
+    poly(c, '#4a69a3', [[4.0, -6.0], [7.0, -6.0], [12.8, -3.2], [8.2, -1.8]]); // Silk luster
+
+    // Right collar leaf (curving around neck and pointing forward over chest)
+    poly(c, ink, [[2.0, 7.5], [8.5, 7.5], [15.2, 2.8], [9.5, 1.0], [3.5, 3.2]]);
+    poly(c, '#141b29', [[2.5, 7.0], [8.0, 7.0], [14.4, 2.8], [9.0, 1.2], [4.0, 2.8]]);
+    poly(c, '#243452', [[3.0, 6.5], [7.5, 6.5], [13.8, 3.0], [8.6, 1.5], [4.5, 2.4]]);
+    poly(c, '#2e4166', [[4.0, 6.0], [7.0, 6.0], [12.8, 3.0], [8.2, 1.8]]);
+
+    // 4. Vertical Button Placket
+    rect(c, ink, 8.5, -1.6, 8.5, 3.2);
+    rect(c, '#192233', 9.0, -1.3, 7.5, 2.6);
+    rect(c, '#2e4166', 9.5, -1.0, 6.5, 2.0);
+
+    // Pearlescent White/Blue Buttons
+    // Button 1 (top):
+    rect(c, ink, 11.0, -1.0, 2.0, 2.0);
+    rect(c, '#dce5f5', 11.3, -0.7, 1.4, 1.4);
+    rect(c, '#192233', 11.8, -0.2, 0.4, 0.4);
+
+    // Button 2 (lower):
+    rect(c, ink, 14.5, -1.0, 2.0, 2.0);
+    rect(c, '#dce5f5', 14.8, -0.7, 1.4, 1.4);
+    rect(c, '#192233', 15.3, -0.2, 0.4, 0.4);
+  }
+
+  function torsoDetails(c, ch, isSwinging = false, progress = 0) {
+    if (!ch) {
+      rect(c, '#251b29', 0, -7, 13, 14);
+      return;
+    }
+    if (ch.id === 'vincent') {
+      paintVincentTopDownTorso(c, ch, isSwinging, progress);
+    } else if (ch.id === 'anne') {
+      paintAnneTopDownTorso(c, ch, isSwinging, progress);
+    } else if (ch.id === 'lucas') {
+      paintLucasTopDownTorso(c, ch, isSwinging, progress);
+    } else if (ch.id === 'arnaud') {
+      paintArnaudTopDownTorso(c, ch, isSwinging, progress);
+    } else if (ch.id === 'jade') {
+      paintJadeTopDownTorso(c, ch, isSwinging, progress);
+    } else if (ch.id === 'pap') {
+      paintPapTopDownTorso(c, ch, isSwinging, progress);
+    } else if (ch.id === 'jc') {
+      paintJcTopDownTorso(c, ch, isSwinging, progress);
+    } else {
+      rect(c, '#251b29', 0, -7, 13, 14);
+    }
+  }
+
   function head(c,ch){
     const a=ch.look,id=ch.id;
+    if (id === 'vincent') {
+      paintVincentTopDownHead(c, ch);
+      return;
+    }
+    if (id === 'anne') {
+      paintAnneTopDownHead(c, ch);
+      return;
+    }
+    if (id === 'lucas') {
+      paintLucasTopDownHead(c, ch);
+      return;
+    }
+    if (id === 'arnaud') {
+      paintArnaudTopDownHead(c, ch);
+      return;
+    }
+    if (id === 'jade') {
+      paintJadeTopDownHead(c, ch);
+      return;
+    }
+    if (id === 'pap') {
+      paintPapTopDownHead(c, ch);
+      return;
+    }
+    if (id === 'jc') {
+      paintJcTopDownHead(c, ch);
+      return;
+    }
     // Aim points right. Hair/beard and animal geometry differ independently.
     if(a.longHair)poly(c,a.hair,[[-12,-11],[1,-10],[7,-6],[7,6],[1,10],[-12,11],[-17,6],[-17,-6]]);
     if(a.curls){
@@ -1421,10 +2729,7 @@
     poly(c,skin,[[-6,-5],[3,-7],[7,-4],[9,0],[7,4],[3,7],[-6,5],[-8,0]]);
     if(a.hair&&!a.longHair&&!a.curls)rect(c,a.hair,-7,-6,7,12);
     if(a.bald){rect(c,'#ecc09c',-5,-4,6,8);rect(c,light,-4,-3,2,4);}
-    if(id==='vincent'){
-      poly(c,'#91603c',[[-5,-9],[3,-11],[9,-7],[7,-4],[7,4],[9,7],[3,11],[-5,9],[-8,0]]);
-      rect(c,'#d9ad62',0,-7,7,14);poly(c,'#e8c47b',[[5,-4],[12,-2],[12,2],[5,4]]);
-    }else if(id==='anne'){
+    if(id==='anne'){
       poly(c,'#50425f',[[-3,-7],[-5,-13],[2,-9],[7,-6],[10,0],[7,6],[2,9],[-5,13],[-3,7]]);
       rect(c,'#e5c36e',5,-6,3,2);rect(c,'#e5c36e',5,4,3,2);rect(c,'#a57691',9,-1,3,2);
     }else if(id==='lucas'){
@@ -1454,6 +2759,6 @@
     if(!bitmap){bitmap=document.createElement('canvas');bitmap.width=bitmap.height=64;paintPortrait(bitmap.getContext('2d'),ch,32,32,1);portraits.set(ch.id,bitmap);}
     c.save();c.imageSmoothingEnabled=false;c.drawImage(bitmap,x-32*scale,y-32*scale,64*scale,64*scale);c.restore();
   }
-  root.CharacterArt={portrait,head};
+  root.CharacterArt={portrait,head,torsoDetails};
   if(typeof module!=='undefined')module.exports=root.CharacterArt;
 })(typeof window!=='undefined'?window:globalThis);

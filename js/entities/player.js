@@ -914,12 +914,6 @@
             ctx.save();
             const look=this.character?.look;
             if(look)ctx.scale(1,look.build);
-            if(look?.dress){
-                ctx.fillStyle='#211a2d';ctx.beginPath();ctx.moveTo(5,-11);ctx.lineTo(-23,-20);ctx.lineTo(-23,20);ctx.lineTo(5,11);ctx.closePath();ctx.fill();
-                ctx.fillStyle=look.coat;ctx.beginPath();ctx.moveTo(3,-9);ctx.lineTo(-21,-17);ctx.lineTo(-21,17);ctx.lineTo(3,9);ctx.closePath();ctx.fill();
-                ctx.fillStyle=look.shade;ctx.fillRect(-20,-12,3,24);ctx.fillStyle=look.accent;ctx.fillRect(-12,-13,2,26);
-            }
-
             let torsoTwist = 0;
             // Keep the head forward and the hands outside the jacket footprint;
             // this is what makes a tiny top-down actor read as a person rather
@@ -979,12 +973,32 @@
             ctx.lineJoin = 'miter';
             ctx.fillStyle = look?.coat || '#986048';
             ctx.beginPath();
-            ctx.moveTo(-16,-11); ctx.lineTo(-8,-16); ctx.lineTo(9,-16);
-            ctx.lineTo(14,-9); ctx.lineTo(14,9); ctx.lineTo(9,16);
-            ctx.lineTo(-8,16); ctx.lineTo(-16,11); ctx.closePath();
+            if (look?.dress) {
+                // Unified dress silhouette: bodice curves naturally into rounded wrap skirt over thighs
+                ctx.moveTo(-22, 0);
+                ctx.lineTo(-21.5, -6);
+                ctx.lineTo(-19.5, -11.5);
+                ctx.lineTo(-15.5, -15);
+                ctx.lineTo(-9, -16);
+                ctx.lineTo(9, -16);
+                ctx.lineTo(14, -9);
+                ctx.lineTo(14, 9);
+                ctx.lineTo(9, 16);
+                ctx.lineTo(-9, 16);
+                ctx.lineTo(-15.5, 15);
+                ctx.lineTo(-19.5, 11.5);
+                ctx.lineTo(-21.5, 6);
+                ctx.closePath();
+            } else {
+                ctx.moveTo(-16,-11); ctx.lineTo(-8,-16); ctx.lineTo(9,-16);
+                ctx.lineTo(14,-9); ctx.lineTo(14,9); ctx.lineTo(9,16);
+                ctx.lineTo(-8,16); ctx.lineTo(-16,11); ctx.closePath();
+            }
             ctx.fill(); ctx.stroke();
-            ctx.fillStyle = look?.shade || '#653c40'; ctx.fillRect(-14,-9,5,18);
-            ctx.fillStyle = look?.accent || '#c48a5c'; ctx.fillRect(-7,-10,9,20);
+            if (!look?.dress && (!this.character || typeof CharacterArt?.torsoDetails !== 'function')) {
+                ctx.fillStyle = look?.shade || '#653c40'; ctx.fillRect(-14,-9,5,18);
+                ctx.fillStyle = look?.accent || '#c48a5c'; ctx.fillRect(-7,-10,9,20);
+            }
             // Cream sleeves are narrow connected limbs, not oversized squares.
             ctx.lineCap = 'square';
             for (const [sx,sy,hx,hy] of [
@@ -994,11 +1008,15 @@
                 ctx.strokeStyle = '#1c1325'; ctx.lineWidth = 10;
                 ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(hx-3,hy); ctx.stroke();
                 ctx.strokeStyle = look?.coat || '#d8ceb2'; ctx.lineWidth = 6; ctx.stroke();
-                ctx.fillStyle = '#e6b28b'; ctx.fillRect(hx-2,hy-3,6,6);
+                ctx.fillStyle = look?.skin || '#e6b28b'; ctx.fillRect(hx-2,hy-3,6,6);
                 ctx.strokeStyle = '#1c1325'; ctx.lineWidth = 2;
                 ctx.strokeRect(hx-2,hy-3,6,6);
             }
-            ctx.fillStyle = '#251b29'; ctx.fillRect(0,-7,13,14);
+            if (this.character && CharacterArt && typeof CharacterArt.torsoDetails === 'function') {
+                CharacterArt.torsoDetails(ctx, this.character, isSwinging, progress);
+            } else {
+                ctx.fillStyle = '#251b29'; ctx.fillRect(0,-7,13,14);
+            }
 
             ctx.restore();
         }
