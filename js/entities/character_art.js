@@ -1201,33 +1201,8 @@
     poly(c, colLight, [[3, 8.2], [4.5, 8.2], [7.5, 10.5], [5.5, 13.5], [1.5, 11]]);
     rect(c, colHigh, 3.5, 8.5, 3, 1.8);
 
-    // 4. Compact Bald Cranium Dome (Top at y = -18, perfectly proportioned)
-    const topY = -18;
-    poly(c, ink, [
-      [-9.5, -8], [-9.5, -13], [-7.5, topY + 2.5], [-4, topY + 0.5], [0, topY],
-      [4, topY + 0.5], [7.5, topY + 2.5], [9.5, -13], [9.5, -8]
-    ]);
-    poly(c, '#c47d60', [
-      [-8.5, -8], [-8.5, -12.5], [-6.5, topY + 3.2], [-3.2, topY + 1.2], [0, topY + 0.8], [0, -8]
-    ]);
-    poly(c, '#ad674b', [
-      [-8, -12], [-5.5, topY + 3.8], [-2.5, topY + 1.8], [0, topY + 1.5], [0, topY + 4.5], [-5.5, -9.5]
-    ]);
-    poly(c, '#e6a485', [
-      [0, topY + 0.8], [3.2, topY + 1.2], [6.5, topY + 3.2], [8.5, -12.5], [8.5, -8], [0, -8]
-    ]);
-    poly(c, '#f5c6ab', [
-      [0.5, topY + 1.5], [3, topY + 1.8], [5.8, topY + 3.8], [7.5, -12], [7, -9], [3, -11], [0.5, -12]
-    ]);
-    rect(c, '#ffdfcc', 1.2, topY + 2, 2.8, 1);
-    rect(c, '#ffffff', 1.8, topY + 2.2, 1.2, 0.6);
-
-    // Forehead skin down to mask brow
-    poly(c, '#c47d60', [[-8.5, -8], [0, -8], [0, -6], [-8.5, -6]]);
-    poly(c, '#e6a485', [[0, -8], [8.5, -8], [8.5, -6], [0, -6]]);
-    rect(c, '#f5c6ab', 1, -7.5, 4, 1.2);
-
-    // 5. Tall King Cobra Diamond Hood Mantle (Towers high to y = -17.5, flaring wide to x = +-21.5)
+    // 4. Tall King Cobra Diamond Hood Mantle BACKDROP (Towers high to y = -17.5, flaring wide to x = +-21.5)
+    // Drawn BEFORE the head so JC's bald head and ears are proudly visible in foreground!
     poly(c, ink, [
       [-9, -17.5], [-15, -13], [-21, -4], [-21.5, 1.5], [-18, 7.5], [-12.5, 10.5], [-7, 9],
       [7, 9], [12.5, 10.5], [18, 7.5], [21.5, 1.5], [21, -4], [15, -13], [9, -17.5]
@@ -1240,7 +1215,7 @@
       [0, -16.5], [0, 8.2], [7, 8.2], [11.8, 9.5], [17, 7], [20.2, 1.5], [19.8, -3.5], [14, -12], [8.5, -16.5]
     ]);
 
-    // Tall Golden-Ochre Flaps with 4 Venom Ribs
+    // Tall Golden-Ochre Warning Flaps with 4 Venom Ribs
     poly(c, P.ochreDark, [
       [-11.5, -11], [-16.5, -5], [-17.5, 1.5], [-14.5, 6.5], [-11, 6.5]
     ]);
@@ -1266,15 +1241,41 @@
     rect(c, ink, 11, 1.5, 7.5, 1.4);
     rect(c, ink, 11, 4.8, 5.0, 1.4);
 
-    // 6. Anatomical Human Ears nestled cleanly at temple margin (y in [-7.5, -0.5])
-    poly(c, ink, [[-9.5, -7.5], [-12.5, -6.5], [-12.5, -1.5], [-9.5, -0.5]]);
-    poly(c, '#b67256', [[-9.5, -6.8], [-11.8, -6], [-11.8, -2.2], [-9.5, -1.2]]);
-    rect(c, '#7f4430', -11.2, -5, 1, 2.5);
+    // 5. Compact Athletic Bald Cranium Dome (Top at y = -18, perfectly proportioned)
+    const topY = -18;
+    poly(c, ink, [
+      [-9.5, -8], [-9.5, -13], [-7.5, topY + 2.5], [-4, topY + 0.5], [0, topY],
+      [4, topY + 0.5], [7.5, topY + 2.5], [9.5, -13], [9.5, -8]
+    ]);
+    poly(c, '#c47d60', [
+      [-8.5, -8], [-8.5, -12.5], [-6.5, topY + 3.2], [-3.2, topY + 1.2], [0, topY + 0.8], [0, -8]
+    ]);
+    poly(c, '#ad674b', [
+      [-8, -12], [-5.5, topY + 3.8], [-2.5, topY + 1.8], [0, topY + 1.5], [0, topY + 4.5], [-5.5, -9.5]
+    ]);
+    poly(c, '#e6a485', [
+      [0, topY + 0.8], [3.2, topY + 1.2], [6.5, topY + 3.2], [8.5, -12.5], [8.5, -8], [0, -8]
+    ]);
+    poly(c, '#f5c6ab', [
+      [0.5, topY + 1.5], [3, topY + 1.8], [5.8, topY + 3.8], [7.5, -12], [7, -9], [3, -11], [0.5, -12]
+    ]);
+    rect(c, '#ffdfcc', 1.2, topY + 2, 2.8, 1);
+    rect(c, '#ffffff', 1.8, topY + 2.2, 1.2, 0.6);
 
-    poly(c, ink, [[9.5, -7.5], [12.5, -6.5], [12.5, -1.5], [9.5, -0.5]]);
-    poly(c, '#e39f80', [[9.5, -6.8], [11.8, -6], [11.8, -2.2], [9.5, -1.2]]);
-    rect(c, '#b67256', 10.2, -5, 1, 2.5);
-    rect(c, '#f9d8c6', 11.2, -6.2, 0.8, 3);
+    // Forehead skin down to mask brow
+    poly(c, '#c47d60', [[-8.5, -8], [0, -8], [0, -6], [-8.5, -6]]);
+    poly(c, '#e6a485', [[0, -8], [8.5, -8], [8.5, -6], [0, -6]]);
+    rect(c, '#f5c6ab', 1, -7.5, 4, 1.2);
+
+    // 6. Anatomical Human Ears nestled snugly against skull (y in [-7.0, -1.0], x = +-10.8)
+    poly(c, ink, [[-9.5, -7.0], [-10.8, -6.0], [-10.8, -2.0], [-9.5, -1.0]]);
+    poly(c, '#b67256', [[-9.5, -6.4], [-10.3, -5.6], [-10.3, -2.4], [-9.5, -1.4]]);
+    rect(c, '#7f4430', -10.1, -4.5, 0.6, 1.8);
+
+    poly(c, ink, [[9.5, -7.0], [10.8, -6.0], [10.8, -2.0], [9.5, -1.0]]);
+    poly(c, '#e39f80', [[9.5, -6.4], [10.3, -5.6], [10.3, -2.4], [9.5, -1.4]]);
+    rect(c, '#b67256', 9.5, -4.5, 0.6, 1.8);
+    rect(c, '#f9d8c6', 10.0, -5.5, 0.6, 2.0);
 
     // 7. Firm Square Human Chin below the jaws (y in [4.5, 8.0])
     const chinY = 8.0;
@@ -1316,20 +1317,18 @@
     rect(c, ink, -1.8, -1.6, 1.3, 1.3);
     rect(c, ink, 0.5, -1.6, 1.3, 1.3);
 
-    // 10. Perfectly Symmetrical Electric Synthwave Cyan Eyes (Scanline Resistant)
+    // 10. Perfectly Symmetrical Predator Eyes (Matches top right of docs/compare_jc.png & User Image 2)
     [-1, 1].forEach(sign => {
       if (sign === -1) {
         poly(c, ink, [[-7.2, -7.0], [-2.0, -5.4], [-2.6, -2.4], [-7.8, -4.0]]);
-        poly(c, '#098499', [[-6.6, -6.4], [-2.4, -5.0], [-3.0, -2.8], [-7.0, -4.2]]);
-        poly(c, '#3ff0d2', [[-6.2, -6.0], [-2.7, -4.6], [-3.3, -3.2], [-6.5, -4.2]]);
-        rect(c, '#ffffff', -5.8, -5.4, 1.6, 1.5);
-        rect(c, ink, -4.6, -5.8, 1.6, 2.8);
+        poly(c, '#ffffff', [[-6.6, -6.2], [-2.4, -4.8], [-3.0, -2.8], [-7.0, -4.2]]);
+        rect(c, ink, -4.8, -5.8, 1.6, 2.8);
+        rect(c, '#dcf4ff', -6.0, -5.4, 1.2, 1.2);
       } else {
         poly(c, ink, [[2.0, -5.4], [7.2, -7.0], [7.8, -4.0], [2.6, -2.4]]);
-        poly(c, '#098499', [[2.4, -5.0], [6.6, -6.4], [7.0, -4.2], [3.0, -2.8]]);
-        poly(c, '#3ff0d2', [[2.7, -4.6], [6.2, -6.0], [6.5, -4.2], [3.3, -3.2]]);
-        rect(c, '#ffffff', 4.2, -5.4, 1.6, 1.5);
-        rect(c, ink, 3.0, -5.8, 1.6, 2.8);
+        poly(c, '#ffffff', [[2.4, -4.8], [6.6, -6.2], [7.0, -4.2], [3.0, -2.8]]);
+        rect(c, ink, 3.2, -5.8, 1.6, 2.8);
+        rect(c, '#dcf4ff', 4.8, -5.4, 1.2, 1.2);
       }
     });
 
