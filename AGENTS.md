@@ -47,3 +47,11 @@ All automated Node.js regression suites must pass with 0 errors before staging o
 npm test
 # Equivalent to: node tools/test.cjs
 ```
+
+## 4. UI Integration References
+
+The dedicated title, character, controls, audio, credits, tools and pause screens
+share `UITheme` and `CanvasMenu`; see [menu direction](docs/menu-direction.md)
+for state routing, input handling, audio policy and browser validation commands.
+The regression runner currently includes 21 suites. Browser acceptance checks
+are optional development tools and add no production dependencies.

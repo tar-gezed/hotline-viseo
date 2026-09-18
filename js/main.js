@@ -52,19 +52,27 @@
 
   // UI & Menus
   let maskMenu = null;
+  let titleMenu, controlsMenu, audioMenu, toolsMenu, creditsMenu, pauseMenu, audioSettings;
+  let audioReturnState;
+  let resumeState;
   let hud = null;
   let scoreScreen = null;
 
   // Game State Machine
   const STATES = {
+    MENU_TITLE: 'MENU_TITLE',
+    MENU_CREDITS: 'MENU_CREDITS',
     MENU_MASK: 'MENU_MASK',
+    MENU_CONTROLS: 'MENU_CONTROLS',
+    MENU_AUDIO: 'MENU_AUDIO',
+    MENU_TOOLS: 'MENU_TOOLS',
     PLAYING: 'PLAYING',
     INTERMISSION: 'INTERMISSION',
     DEAD: 'DEAD',
     GAME_OVER: 'GAME_OVER',
     PAUSED: 'PAUSED'
   };
-  let gameState = STATES.MENU_MASK;
+  let gameState = STATES.MENU_TITLE;
   let selectedMaskId = 'vincent';
   let waitingForAttackRelease = false;
   let deathTimer = 0;
@@ -105,11 +113,15 @@
 
     // Initialize Audio
     const SynthClass = window.SynthMusic || window.SynthMusicEngine || (typeof SynthMusicEngine !== 'undefined' ? SynthMusicEngine : null);
-    synthMusic = new SynthClass();
+    synthMusic = window.synthMusic || new SynthClass();
     const SfxClass = window.SoundEffects || window.SoundEffectsEngine || (typeof SoundEffectsEngine !== 'undefined' ? SoundEffectsEngine : null);
-    soundFX = new SfxClass();
+    // Entity modules capture this singleton at script load; UI and gameplay must
+    // use the same gain node so the SFX preference applies to every sound.
+    soundFX = window.soundFX || new SfxClass();
     window.synthMusic = synthMusic;
     window.soundFX = soundFX;
+    window.soundFx = soundFX;
+    window.AudioManager = soundFX;
     window.soundEffects = soundFX;
     window.audioManager = {
       playGunshot: (type, x, y) => soundFX.playGunshot(type, x, y),
@@ -171,6 +183,27 @@
     // Initialize UI
     const MaskMenuClass = window.MaskMenu || (typeof MaskMenu !== 'undefined' ? MaskMenu : null);
     maskMenu = new MaskMenuClass();
+    let settingsStorage;
+    try { settingsStorage = window.localStorage; } catch (_) { /* Session-only settings. */ }
+    audioSettings = new window.AudioSettings(synthMusic, soundFX, settingsStorage);
+    const backToTitle = () => enterMenu(STATES.MENU_TITLE);
+    maskMenu.onBack = () => { selectedMaskId = maskMenu.selectedMaskId; backToTitle(); };
+    titleMenu = new window.TitleMenu({
+      start: () => enterMenu(STATES.MENU_MASK),
+      controls: () => enterMenu(STATES.MENU_CONTROLS),
+      audio: () => openAudio(STATES.MENU_TITLE),
+      tools: () => enterMenu(STATES.MENU_TOOLS),
+      credits: () => enterMenu(STATES.MENU_CREDITS)
+    });
+    creditsMenu = new window.CreditsMenu(backToTitle);
+    controlsMenu = new window.ControlsMenu(backToTitle);
+    toolsMenu = new window.ToolsMenu(backToTitle);
+    audioMenu = new window.AudioMenu(audioSettings, () => enterMenu(audioReturnState));
+    pauseMenu = new window.PauseMenu({
+      resume: resumeGame,
+      audio: () => openAudio(STATES.PAUSED),
+      restart: () => { pauseMenu.hide(); startNewGame(selectedMaskId); }
+    });
     const HudClass = window.GameHUD || (typeof GameHUD !== 'undefined' ? GameHUD : null);
     hud = new HudClass();
     // Resolve the victory fonts/glyphs in the menu, not on the first wave's
@@ -201,8 +234,7 @@
 
     scoreScreen.onChangeMask = () => {
       scoreScreen.hide();
-      gameState = STATES.MENU_MASK;
-      maskMenu.show(selectedMaskId);
+      enterMenu(STATES.MENU_MASK);
     };
 
     // Initialize Wave Spawner
@@ -228,12 +260,49 @@
       }
     };
 
-    // Show initial mask select menu
-    gameState = STATES.MENU_MASK;
-    maskMenu.show(selectedMaskId);
+    // A distinct title is the normal entry point, including map previews.
+    enterMenu(STATES.MENU_TITLE);
 
     // Start Animation Loop
     requestAnimationFrame(gameLoop);
+  }
+
+  function activeMenu() {
+    return ({
+      [STATES.MENU_TITLE]: titleMenu, [STATES.MENU_MASK]: maskMenu,
+      [STATES.MENU_CONTROLS]: controlsMenu, [STATES.MENU_AUDIO]: audioMenu,
+      [STATES.MENU_CREDITS]: creditsMenu,
+      [STATES.MENU_TOOLS]: toolsMenu, [STATES.PAUSED]: pauseMenu
+    })[gameState];
+  }
+
+  function enterMenu(state) {
+    activeMenu()?.hide();
+    gameState = state;
+    const menu = activeMenu();
+    if (state === STATES.MENU_MASK) menu.show(selectedMaskId);
+    else menu?.show();
+    if (state === STATES.MENU_TITLE || state === STATES.MENU_MASK) {
+      audioSettings.apply();
+      synthMusic.play('menu');
+    }
+  }
+
+  function openAudio(from) {
+    audioReturnState = from;
+    enterMenu(STATES.MENU_AUDIO);
+  }
+
+  function pauseGame() {
+    resumeState = gameState;
+    pauseMenu.selectedIndex = 0;
+    enterMenu(STATES.PAUSED);
+  }
+
+  function resumeGame() {
+    pauseMenu.hide();
+    gameState = resumeState || STATES.PLAYING;
+    waitingForAttackRelease = true;
   }
 
   function resizeCanvas() {
@@ -270,9 +339,25 @@
   }
 
   function unlockAudio() {
-    if (synthMusic && !synthMusic.isInitialized) synthMusic.init();
-    if (soundFX && !soundFX.isInitialized) soundFX.init();
+    // Also retain gestures received while the selected map is still loading.
+    const music = synthMusic || window.synthMusic;
+    const effects = soundFX || window.soundFX;
+    if (music && !music.isInitialized) music.init();
+    if (effects && !effects.isInitialized) effects.init();
+    for (const engine of [music, effects]) {
+      if (engine?.ctx?.state === 'suspended' || engine?.ctx?.state === 'interrupted') {
+        engine.ctx.resume().catch(() => { /* Retry on the next trusted interaction. */ });
+      }
+    }
   }
+
+  // Touch activation occurs on release; no menu selection is required to unlock audio.
+  window.addEventListener('pointerup', unlockAudio);
+  window.addEventListener('touchend', unlockAudio, { passive: true });
+  window.addEventListener('focus', unlockAudio);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) unlockAudio();
+  });
 
   // ---------------------------------------------------------------------------
   // Wave Spawner Hooks
@@ -347,6 +432,7 @@
   // Start New Game Run
   // ---------------------------------------------------------------------------
   function startNewGame(maskInput) {
+    audioSettings.apply();
     const maskId = typeof maskInput === 'object' && maskInput ? (maskInput.id || 'vincent') : (maskInput || 'vincent');
     selectedMaskId = maskId;
     deathTimer = 0;
@@ -460,18 +546,13 @@
       e.preventDefault();
       if (!e.repeat) {
         if (gameState === STATES.PLAYING || gameState === STATES.INTERMISSION) {
-          gameState = STATES.PAUSED;
-          if (synthMusic) synthMusic.setMasterVolume(0.2);
+          pauseGame();
         }
         window.open('map_editor.html', '_blank', 'noopener');
       }
       return;
     }
     unlockAudio();
-    if (gameState === STATES.MENU_MASK && maskMenu) {
-      maskMenu.handleKeyDown(e);
-      return;
-    }
     if (gameState === STATES.GAME_OVER && scoreScreen) {
       scoreScreen.handleKeyDown(e);
     }
@@ -479,10 +560,6 @@
 
   window.addEventListener('mousedown', (e) => {
     unlockAudio();
-    if (gameState === STATES.MENU_MASK && maskMenu) {
-      maskMenu.handleClick(e.clientX, e.clientY, canvas.width, canvas.height);
-      return;
-    }
     if (gameState === STATES.GAME_OVER && scoreScreen) {
       scoreScreen.handleClick(e.clientX, e.clientY, canvas.width, canvas.height);
     }
@@ -490,9 +567,6 @@
 
   window.addEventListener('contextmenu', (e) => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault();
-  });
-  window.addEventListener('mousemove', (e) => {
-    if (gameState === STATES.MENU_MASK && maskMenu) maskMenu.handleMouseMove(e.clientX, e.clientY, canvas.width, canvas.height);
   });
 
   function handlePlayerAttack() {
@@ -707,27 +781,12 @@
   // ---------------------------------------------------------------------------
   // Instructions Overlay Synchronization (Gamepad vs Keyboard Mode)
   // ---------------------------------------------------------------------------
-  let lastOverlayMode = null;
   function updateInstructionsOverlay() {
+    // Controls and development links live in their own menus now.
     const mapLink = document.getElementById('mapMenuLink');
-    if (mapLink) mapLink.style.display = (gameState === STATES.MENU_MASK || gameState === STATES.PAUSED) ? '' : 'none';
+    if (mapLink) mapLink.style.display = 'none';
     const overlay = document.getElementById('instructions-overlay');
-    if (!overlay) return;
-    const mode = (input && input.isGamepadMode) ? 'gamepad' : 'keyboard';
-    if (mode === lastOverlayMode) return;
-    lastOverlayMode = mode;
-
-    if (mode === 'gamepad') {
-      overlay.innerHTML = `
-        <div><span class="key">L-STICK</span> MOVE &nbsp;|&nbsp; <span class="key">R-STICK</span> 360° AIM &nbsp;|&nbsp; <span class="key">RT</span> ATTACK &nbsp;|&nbsp; <span class="key">LT / RB / X</span> PICK UP / THROW &nbsp;|&nbsp; <span class="key">Y</span> EXECUTE</div>
-        <div><span class="key">LB</span> LOOK AHEAD &nbsp;|&nbsp; <span class="key">SELECT / BACK</span> RESTART &nbsp;|&nbsp; <span class="key">START</span> PAUSE &nbsp;|&nbsp; <span class="key">DPAD / STICK</span> MENUS</div>
-      `;
-    } else {
-      overlay.innerHTML = `
-        <div><span class="key">WASD / ZQSD</span> MOVE &nbsp;|&nbsp; <span class="key">MOUSE</span> AIM &nbsp;|&nbsp; <span class="key">L-CLICK</span> ATTACK &nbsp;|&nbsp; <span class="key">R-CLICK / E</span> PICK UP / THROW &nbsp;|&nbsp; <span class="key">SPACE</span> EXECUTE</div>
-        <div><span class="key">SHIFT</span> LOOK AHEAD &nbsp;|&nbsp; <span class="key">R</span> INSTANT RESTART &nbsp;|&nbsp; <span class="key">ESC/P</span> PAUSE &nbsp;|&nbsp; <span class="key">C</span> SCANLINES &nbsp;|&nbsp; <span class="key">M</span> MUTE</div>
-      `;
-    }
+    if (overlay) overlay.classList.add('gameplay-hidden');
   }
 
   // ---------------------------------------------------------------------------
@@ -742,7 +801,7 @@
 
     input.update(realDt, player);
     updateInstructionsOverlay();
-    if ((input.isGamepadMode || input.isMouseDown) && (!synthMusic || !synthMusic.isInitialized)) unlockAudio();
+    if ((input.isGamepadMode || input.isMouseDown) && (!synthMusic?.isInitialized || synthMusic?.ctx?.state === 'suspended')) unlockAudio();
 
     let dt = realDt;
     if (hitStopTimer > 0) {
@@ -752,37 +811,25 @@
 
     if (input.isPauseJustPressed()) {
       if (gameState === STATES.PLAYING || gameState === STATES.INTERMISSION) {
-        gameState = STATES.PAUSED;
-        if (synthMusic) synthMusic.setMasterVolume(0.2);
-        input.clearFrameTriggers();
-        return;
+        pauseGame(); input.clearFrameTriggers(); return;
       } else if (gameState === STATES.PAUSED) {
-        gameState = STATES.PLAYING;
-        if (synthMusic) synthMusic.setMasterVolume(0.7);
-        input.clearFrameTriggers();
-        return;
+        resumeGame(); input.clearFrameTriggers(); return;
       }
     }
 
-    if (gameState === STATES.PAUSED) {
-      if (input.isMenuCancelJustPressed()) {
-        gameState = STATES.PLAYING;
-        if (synthMusic) synthMusic.setMasterVolume(0.7);
-      } else if (input.isRestartJustPressed()) {
-        if (synthMusic) synthMusic.setMasterVolume(0.7);
-        startNewGame(selectedMaskId);
-      } else if (input.isJustPressed('KeyM') || (input.gamepad && input.gamepad.connected && input.gamepad.justPressed.buttonX)) {
-        if (synthMusic) synthMusic.toggleMute();
+    const menu = activeMenu();
+    if (menu) {
+      if (gameState === STATES.PAUSED && input.isRestartJustPressed()) {
+        pauseMenu.hide(); startNewGame(selectedMaskId);
+      } else {
+        if (gameState === STATES.PAUSED && (input.isJustPressed('KeyM') || input.gamepad?.justPressed.buttonX)) audioSettings.set('muted', !audioSettings.values.muted);
+        menu.update(realDt, input, canvas.width, canvas.height);
+        const current = activeMenu();
+        if (current) {
+          if (gameState === STATES.PAUSED) renderGameWorld(0);
+          current.render(ctx, canvas.width, canvas.height, input);
+        }
       }
-      renderGameWorld(0);
-      renderPauseOverlay();
-      input.clearFrameTriggers();
-      return;
-    }
-
-    if (gameState === STATES.MENU_MASK) {
-      maskMenu.update(realDt, input);
-      maskMenu.render(ctx, canvas.width, canvas.height);
       input.clearFrameTriggers();
       return;
     }
@@ -1251,7 +1298,7 @@
     triggerHitStop(0.075);
     addTrauma(1.0);
     postProcessor.screenFlash('#ff003c', 0.22);
-    if (synthMusic && typeof synthMusic.setMasterVolume === 'function') synthMusic.setMasterVolume(0.32);
+    if (synthMusic && typeof synthMusic.setMasterVolume === 'function') synthMusic.setMasterVolume(audioSettings.values.music * (0.32 / 0.7));
   }
 
   function showScoreScreen() {
@@ -1427,37 +1474,6 @@
     module.exports = { renderWorldLayers, updateMapRenderer, canReachTarget };
   }
 
-
-  function renderPauseOverlay() {
-    ctx.fillStyle = 'rgba(11, 8, 19, 0.85)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.save();
-    ctx.fillStyle = '#ff007f';
-    ctx.font = '900 48px monospace';
-    ctx.textAlign = 'center';
-    ctx.shadowColor = '#ff007f';
-    ctx.shadowBlur = 18;
-    ctx.fillText('--- PAUSED ---', canvas.width * 0.5, canvas.height * 0.42);
-
-    const isGamepad = input && input.isGamepadMode;
-
-    ctx.fillStyle = '#00f3ff';
-    ctx.font = '700 18px monospace';
-    ctx.shadowColor = '#00f3ff';
-    ctx.shadowBlur = 8;
-
-    if (isGamepad) {
-      ctx.fillText('[START] OR [B] RESUME GAME', canvas.width * 0.5, canvas.height * 0.52);
-      ctx.fillText('[SELECT] RESTART RUN', canvas.width * 0.5, canvas.height * 0.58);
-      ctx.fillText('[X] TOGGLE MUSIC MUTE', canvas.width * 0.5, canvas.height * 0.64);
-    } else {
-      ctx.fillText('PRESS [ESC] OR [P] TO RESUME', canvas.width * 0.5, canvas.height * 0.52);
-      ctx.fillText('PRESS [R] TO RESTART RUN', canvas.width * 0.5, canvas.height * 0.58);
-      ctx.fillText('PRESS [M] TO TOGGLE MUSIC', canvas.width * 0.5, canvas.height * 0.64);
-    }
-    ctx.restore();
-  }
 
   // ---------------------------------------------------------------------------
   // Boot & Start

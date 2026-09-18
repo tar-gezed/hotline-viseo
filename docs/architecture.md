@@ -18,7 +18,7 @@ graph TD
 
     subgraph "Core Orchestration (js/main.js)"
         LOOP[Game Loop<br/>requestAnimationFrame]
-        FSM[Game State Machine<br/>MENU / PLAYING / DEAD / SCORE]
+        FSM[Game State Machine<br/>MENU_TITLE / MENU_MASK / PLAYING / DEAD / SCORE]
         LOOP --> FSM
     end
 
@@ -58,7 +58,7 @@ graph TD
     end
 
     subgraph "UI & Retro HUD (js/ui/)"
-        MENU[Mask Selection Menu]
+        MENU[Title / Characters / Controls / Audio / Credits / Tools / Pause]
         HUD[Neon HUD & Combos]
         SCR[Score Screen & Leaderboard]
     end
@@ -91,7 +91,12 @@ graph TD
 ### 2.1 Game Loop & State Machine (`js/main.js`)
 The master coordinator runs on standard `requestAnimationFrame` with delta-time clamping:
 - **State Machine States:**
+  - `MENU_TITLE`: Normal entry point; identity, four primary choices and bottom-right credits.
+  - `MENU_CREDITS`: Dedicated Canvas role grid credited entirely to Targezed; back to title.
   - `MENU_MASK`: Character and animal mask selection screen.
+  - `MENU_CONTROLS`: Keyboard/mouse and controller diagrams.
+  - `MENU_AUDIO`: Persistent volume settings; returns to title or the frozen pause state.
+  - `MENU_TOOLS`: Links to existing map selection and editor.
   - `PLAYING`: Core real-time combat and wave survival.
   - `INTERMISSION`: Brief cooldown between waves for repositioning and telegraphed spawns.
   - `DEAD`: Slow-motion death sequence with camera zoom and score access.
@@ -149,7 +154,11 @@ Floating labels rasterize their outline/glow once per instance and animate the r
 - **Post-Processor (`postprocess.js`):** Canvas post-processing pipeline emulating 80s cathode-ray tube (CRT) monitors with scanlines, chromatic aberration, curvature, and bloom.
 
 ### 2.7 UI & Scoring (`js/ui/`)
-- **Mask Menu (`mask_menu.js`):** Interactive character selection carousel featuring 7 custom VISEO portraits, stat readouts, and weapon loadouts.
+- **Canvas menus (`ui_theme.js`):** Shared palette, hard text shadows, procedural city background and uniform 1280×720 safe-area transform. `CanvasMenu` polls keyboard, gamepad and mouse once per frame, using the same coordinates for painting and hit-testing. State changes consume the current input frame.
+- **Title (`title_menu.js`):** Dedicated launch state, logo settles in 480 ms, options enter in less than 500 ms; animated skyline fills wider or taller viewports.
+- **Credits (`credits_menu.js`):** Bottom-right title entry, fifteen roles attributed to Targezed, shared three-column layout and standard return navigation.
+- **Characters (`mask_menu.js`):** One featured portrait and seven names; existing character data and loadouts, session selection preserved on return.
+- **Controls / audio / tools / pause:** Dedicated components. Audio settings clamp and validate persisted values, fall back to session memory when storage is unavailable, and use the same music/SFX singletons captured by entity modules. Death ducking scales the saved music volume; new runs and menus restore it. Pause remembers PLAYING versus INTERMISSION. See [menu direction](menu-direction.md).
 - **HUD (`hud.js`):** Retro arcade HUD displaying real-time combo multipliers, active weapon ammo, wave countdowns, and floating combat score text.
 - **Score Screen (`score_screen.js`):** Post-run breakdown grading performance from D to S (Apex Psychopath), calculating bonuses for weapon variety, bold combos, carnage, and clear time, with a local V2 leaderboard.
 
@@ -171,7 +180,7 @@ Floating labels rasterize their outline/glow once per instance and animate the r
 
 ## 4. Testing & Verification Framework
 
-The codebase includes 20 automated regression test suites executed via Node.js (`npm test` / `node tools/test.cjs`):
+The codebase includes 21 automated regression test suites executed via Node.js (`npm test` / `node tools/test.cjs`):
 - `test_arcade_waves.js`: Wave progression, enemy ingress routes, and boundary safety.
 - `test_character_gait.js`: Procedural leg movement, strafing gait, and torso orientation.
 - `test_character_roster.js`: Stats, starting loadouts, perks, and ammo caps for all 7 characters.
@@ -186,6 +195,7 @@ The codebase includes 20 automated regression test suites executed via Node.js (
 - `test_interaction_guards.js`: Obstacle interaction safety and actor spacing.
 - `test_map_files.js`: JSON schema compatibility (v1/v2) and active map isolation.
 - `test_map_plan.js`: Architectural accuracy against reference office blueprints.
+- `test_menu_navigation.js`: Real InputManager keyboard/gamepad edges, selection/back paths, uniform viewport hit-testing and robust audio persistence. Optional `tools/validate_menus.cjs` exercises the browser state machine and exports four-resolution captures.
 - `test_music.js`: Original combat score fingerprint preservation, 6-track harmonic compatibility, note registers, voice release lifecycles, and audio volume/mute controls.
 - `test_player_reach.js`: Melee swing arcs and frame-rate-independent weapon throws.
 - `test_rotated_furniture.js`: OBB collision detection for rotated desks and furniture.
@@ -199,7 +209,7 @@ The codebase includes 20 automated regression test suites executed via Node.js (
 
 The repository is configured for automated deployment to GitHub Pages via GitHub Actions:
 - **Workflow (`.github/workflows/deploy.yml`):** Automatically triggered on every push to the `main` branch or manual dispatch.
-- **Automated Validation:** Runs `npm test` across all 20 test suites prior to artifact creation.
+- **Automated Validation:** Runs `npm test` across all 21 test suites prior to artifact creation.
 - **Zero-Build Packaging:** Uploads static web assets directly (`index.html`, `css/`, `js/`, `maps/`, asset images) using `actions/upload-pages-artifact@v3`.
 - **Atomic Deployment:** Deploys via `actions/deploy-pages@v4` with GitHub Pages environment tracking.
 - **Static Hosting Guarantees:** Includes `.nojekyll` to bypass Jekyll filters, and strict relative URI resolution ensuring flawless execution under subpaths such as `https://tar-gezed.github.io/hotline-viseo/`.

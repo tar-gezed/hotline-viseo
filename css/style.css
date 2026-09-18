@@ -3,7 +3,7 @@
    css/style.css
    ============================================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Permanent+Marker&family=VT323&family=Orbitron:wght@900&display=swap');
+/* Canvas UI uses local font fallbacks; launch must not wait for a font CDN. */
 
 :root {
   --neon-pink: #ff007f;

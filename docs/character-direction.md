@@ -47,5 +47,10 @@ Quatrième passe (Refonte Intégrale des Sprites In-Game en Vue du Dessus) :
 
 Le test de sélection a aussi découvert un tir involontaire en validant le menu avec Entrée. Le jeu attend désormais le relâchement de l'entrée d'attaque avant d'autoriser le premier tir. Les cartouches annoncées restent donc intactes au départ. La limite de munitions est appliquée aux ramassages et aux réapprovisionnements, et le HUD affiche la capacité du personnage.
 
-Validation : `test_character_roster.js` vérifie les sept équipements, vitesses, cadences, dispersions réelles des projectiles, capacités, restauration au redémarrage, points, fenêtres de combo, durée d'exécution et impacts d'Arnaud. `docs/test_character_roster.cjs` sélectionne les sept cartes du menu et vérifie leurs armes et munitions dans la boucle réelle du jeu, sans erreur JavaScript. Les captures incluent les sept menus et les sept apparitions en jeu, ainsi que la planche avec références. La qualité artistique reste une appréciation ; ces tests ne prétendent pas démontrer une égalité avec l'art original ni remplacer l'équilibrage par des parties prolongées.
+Validation : `test_character_roster.js` vérifie les sept équipements, vitesses, cadences, dispersions réelles des projectiles, capacités, restauration au redémarrage, points, fenêtres de combo, durée d'exécution et impacts d'Arnaud. `docs/test_character_roster.cjs` ouvre le titre puis sélectionne les sept personnages du menu et vérifie leurs armes et munitions dans la boucle réelle du jeu, sans erreur JavaScript. Les captures incluent les sept menus et les sept apparitions en jeu, ainsi que la planche avec références. La qualité artistique reste une appréciation ; ces tests ne prétendent pas démontrer une égalité avec l'art original ni remplacer l'équilibrage par des parties prolongées.
 
+
+
+## Sélection après l’écran titre
+
+`MENU_TITLE` porte désormais l’identité du jeu. `MENU_MASK` affiche un seul grand portrait `CharacterArt`, la liste des sept noms et les attributs du personnage actif. Les raccourcis 1–7, la navigation clavier/manette et le clic utilisent les mêmes données `CONFIG.MASKS`. Échap/B ou RETOUR revient au titre sans recréer l’application et conserve le personnage sélectionné pour la session. Les caractéristiques et les sprites en jeu ne changent pas. Voir [direction des menus](menu-direction.md).

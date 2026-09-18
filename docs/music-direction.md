@@ -25,3 +25,10 @@ For actual audio, run `node tools/render_music.cjs [output-directory]` using dev
 The renderer uses the game's own synth in a browser `OfflineAudioContext` at 22,050 Hz stereo. It exports WAV previews and `report.json`, checks for non-finite samples, silence and samples outside the digital range, and includes two bars beyond each new loop boundary. The original preview repeats twice. These exports are listening/review artifacts; gameplay still synthesizes audio live at the device sample rate.
 
 The six default-level renders completed with zero out-of-range samples after the output-headroom adjustment. Noise generation is stochastic, so exact RMS and peak measurements vary between renders. Listen to the previews and to the game with weapon effects to judge melody, fatigue and mix; signal tests cannot judge those preferences.
+
+
+## Menu volume controls
+
+The title and pause audio screens share `AudioSettings` in `js/ui/audio_menu.js`: music and SFX are independent, clamped to 0–100%, and saved with the music mute preference in `hotline-viseo-audio-v1`. Storage failures leave working session controls. `main.js` reuses the exported engine singletons so captured entity references and UI sounds follow the same SFX gain. Pausing no longer overwrites the chosen music volume; death ducking is proportional to it and a new run restores it. Returning among title, controls and characters does not restart the current menu track. The compositions and gameplay timing are unchanged.
+
+Startup attempts playback immediately while respecting browser autoplay restrictions. Keyboard, background clicks, touch release and foreground recovery resume suspended contexts; early gestures during map loading use the exported singleton. Resume rejections are handled without an unhandled promise rejection. `tools/validate_audio_startup.cjs` measures actual output under permitted and blocked autoplay policies, including the persisted mute case; see [menu validation](menu-direction.md) for its development-only runtime setup.

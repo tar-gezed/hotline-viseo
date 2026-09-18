@@ -1,5 +1,7 @@
 # Vérification finale — 11 septembre 2026
 
+Mise à jour d’intégration du 18 septembre 2026 : depuis les scores, le changement de personnage ouvre toujours la sélection, puis RETOUR mène au nouvel écran titre. Le test navigateur des menus couvre ce parcours et la restauration du volume après la mort. Les résultats ci-dessous décrivent la campagne historique du 11 septembre ; la suite actuelle comprend 21 tests. Voir [validation des menus](menu-direction.md).
+
 ## Portes difficiles à pousser et impacts
 
 La poussée est calculée avant que les collisions voisines n'annulent la vitesse du personnage. Sa réponse a été accélérée, tout en restant liée au temps écoulé. Le battant conserve sa géométrie de collision réelle lorsqu'il est ouvert.

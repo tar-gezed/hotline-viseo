@@ -6,7 +6,7 @@
 [![Runtime: Browser / Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero%20Runtime-brightgreen.svg)](#)
 [![Hosting: GitHub Pages](https://img.shields.io/badge/Hosting-GitHub%20Pages%20Ready-blue.svg)](https://tar-gezed.github.io/hotline-viseo/)
 [![CI/CD: Deploy Pages](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml/badge.svg)](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml)
-[![Tests: 20 Node Suites Passing](https://img.shields.io/badge/Tests-20%20Passing-success.svg)](#)
+[![Tests: 21 Node Suites Passing](https://img.shields.io/badge/Tests-21%20Passing-success.svg)](#)
 
 ---
 
@@ -29,13 +29,25 @@
 
 # Running and inspecting the game
 
-Les sept personnages jouables sont désormais **Vincent, Anne, Lucas, Arnaud, Jade, PAP et JC**. Chaque carte du menu affiche son métier, son animal, ses bonus/malus et son équipement initial. Les armes de départ reviennent à chaque nouvelle partie. Leurs portraits pixel art ainsi que leurs sprites en jeu en vue plongeante (marche, visée, exécution, mort) ont été intégralement refondus dans l'esprit authentique de *Hotline Miami*. Le [détail des personnages](docs/character-direction.md) et le comparatif visuel `character_review.html` documentent leurs silhouettes, leurs règles et les références Hotline Miami.
+Les sept personnages jouables sont désormais **Vincent, Anne, Lucas, Arnaud, Jade, PAP et JC**. La sélection dédiée affiche un grand portrait actif, son métier, son animal, ses bonus/malus et son équipement initial. Les armes de départ reviennent à chaque nouvelle partie. Leurs portraits pixel art ainsi que leurs sprites en jeu en vue plongeante (marche, visée, exécution, mort) ont été intégralement refondus dans l'esprit authentique de *Hotline Miami*. Le [détail des personnages](docs/character-direction.md) et le comparatif visuel `character_review.html` documentent leurs silhouettes, leurs règles et les références Hotline Miami.
 
 Double-cliquer sur **Lancer-le-jeu.cmd** (Windows), ou lancer **`npm start`** dans ce dossier avec Node.js 18+ puis ouvrir http://localhost:8080. Aucune dépendance à installer (pour l'instant). Garder le serveur ouvert ; Ctrl+C l'arrête. Si le port est occupé : `npm start -- --port 8082`, puis http://localhost:8082.
 
 Ne pas ouvrir `index.html` en `file://` : le navigateur interdit la lecture automatique de `maps/active.json`. Le serveur local sert simplement les fichiers, sans modifier la carte. Alternative : `python -m http.server 8080`.
 
 Les brouillons et cartes importées dans le navigateur dépendent de l'origine (protocole, hôte et port). Pour récupérer un travail réalisé sous une autre adresse, importer son JSON dans l'éditeur. Conserver une copie des exports.
+
+## Écran titre et menus
+
+Le lancement ouvre **HOTLINE VISEO** : logo animé, silhouettes de bâtiments en parallaxe et quatre choix principaux. **COMMENCER MA JOURNÉE** mène à la sélection des sept personnages ; **CONTRÔLES** sépare clavier/souris et manette ; **AUDIO** règle musique et effets ; **TOOLS / MAPS** donne accès aux cartes et à l’éditeur existants. **CRÉDITS**, en bas à droite, présente quinze postes tous attribués à **Targezed**.
+
+La musique démarre au chargement si le navigateur autorise l’autoplay. Sinon, une touche, un clic n’importe où dans la page ou un toucher déverrouille le son, sans devoir choisir une option ; les réglages de volume et de mute sont conservés.
+
+Flèches ou WASD/ZQSD, croix directionnelle ou stick gauche pour choisir ; Entrée/Espace ou A/× pour valider ; Échap/Retour arrière ou B/○ pour revenir. La souris sélectionne au survol et valide au clic. Les chiffres 1–7 sélectionnent un personnage. Le retour au titre garde ce choix en mémoire pendant la session.
+
+Les deux volumes et le mute musique sont sauvegardés dans `hotline-viseo-audio-v1` lorsque le navigateur autorise le stockage. **Pause → AUDIO** utilise les mêmes réglages ; revenir à la pause puis reprendre conserve la partie et la phase de vague. Les flèches gauche/droite règlent par pas de 5 %, les pistes acceptent clic et glisser. Le thème de menu et le déverrouillage audio restent ceux du jeu.
+
+La [direction et validation des menus](docs/menu-direction.md) documente les composants Canvas, les références et les captures aux formats 1280×720, 1440×900, 1920×1080 et 3440×1440.
 
 ## GitHub Pages & Déploiement Automatique
 
@@ -44,7 +56,7 @@ Le jeu est déployé et jouable publiquement en ligne sur GitHub Pages à l'adre
 
 Le déploiement est entièrement automatisé par GitHub Actions :
 - **Workflow :** `.github/workflows/deploy.yml` déclenché à chaque push sur la branche `main` (ou manuellement via *Actions*).
-- **Validation CI :** Exécute automatiquement la suite complète des 20 suites de régression (`npm test`) avant le packaging.
+- **Validation CI :** Exécute automatiquement la suite complète des 21 suites de régression (`npm test`) avant le packaging.
 - **Publication Pages :** Utilise les actions officielles `actions/configure-pages@v5`, `actions/upload-pages-artifact@v3` et `actions/deploy-pages@v4`.
 - **Compatibilité sous-dossier :** Tous les chemins de ressources (scripts, styles, cartes) sont relatifs (`maps/active.json`, `css/style.css`, etc.) pour fonctionner indifféremment à la racine ou sous le préfixe `/hotline-viseo/`. Le fichier `.nojekyll` est présent à la racine pour désactiver le traitement Jekyll.
 - **Configuration GitHub requise :** Dans le dépôt GitHub, sous **Settings > Pages > Build and deployment > Source**, sélectionner **GitHub Actions**.
@@ -96,7 +108,7 @@ Undo/redo, local draft save/restore, and JSON import/export are available. Valid
 Ton ancien JSON est compatible. Deux parcours directs :
 
 1. Dans `map_editor.html`, **Importer JSON**, puis **Jouer cette carte**. Un brouillon local valide est restauré à l'ouverture de l'éditeur.
-2. Dans `maps.html` (bouton **CARTES / IMPORTER** du jeu), sélectionner le JSON puis **Jouer la carte importée**. Cette carte est conservée séparément du brouillon dans ce navigateur.
+2. Dans `maps.html` (menu titre **TOOLS / MAPS → CHOISIR / IMPORTER UNE CARTE**), sélectionner le JSON puis **Jouer la carte importée**. Cette carte est conservée séparément du brouillon dans ce navigateur.
 
 Pour charger une carte automatiquement depuis un dossier : **Exporter la carte** télécharge `active.json`. Déplacer ce fichier dans **`D:\Downloads\hotline-viseo\maps\active.json`**, puis recharger le jeu. Il n'y a aucun fichier JavaScript à modifier. Si le navigateur ajoute un suffixe au nom téléchargé, le renommer `active.json`.
 
@@ -118,7 +130,7 @@ Les sprites de mobilier sont partagés entre le jeu et l'éditeur, mis en cache 
 
 ## Verification
 
-Exécuter l'ensemble des 20 suites de régression automatisées avec Node.js :
+Exécuter l'ensemble des 21 suites de régression automatisées avec Node.js :
 
 ```bash
 npm test

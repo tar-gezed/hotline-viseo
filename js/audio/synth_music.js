@@ -101,7 +101,7 @@ class SynthMusicEngine {
   init() {
     if (this.isInitialized && this.ctx) {
       if (this.ctx.state === 'suspended') {
-        this.ctx.resume();
+        this.ctx.resume()?.catch(() => { /* Browser policy: retry on user activation. */ });
       }
       return;
     }
@@ -171,7 +171,7 @@ class SynthMusicEngine {
       if (document.hidden && this.ctx && this.ctx.state === 'running') {
         // keep context going or pause gracefully
       } else if (!document.hidden && this.ctx && this.ctx.state === 'suspended' && this.isPlaying) {
-        this.ctx.resume();
+        this.ctx.resume()?.catch(() => { /* Browser policy: retry on user activation. */ });
       }
     });
   }
@@ -204,7 +204,7 @@ class SynthMusicEngine {
       this.init();
     }
     if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+      this.ctx.resume()?.catch(() => { /* Browser policy: retry on user activation. */ });
     }
 
     if (!this.ctx) return;

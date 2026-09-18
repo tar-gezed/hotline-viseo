@@ -20,7 +20,7 @@ class SoundEffectsEngine {
   init() {
     if (this.isInitialized && this.ctx) {
       if (this.ctx.state === 'suspended') {
-        this.ctx.resume();
+        this.ctx.resume()?.catch(() => { /* Browser policy: retry on user activation. */ });
       }
       return;
     }
@@ -60,7 +60,7 @@ class SoundEffectsEngine {
       this.init();
     }
     if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+      this.ctx.resume()?.catch(() => { /* Browser policy: retry on user activation. */ });
     }
     return !!this.ctx;
   }

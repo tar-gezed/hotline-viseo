@@ -1,5 +1,7 @@
 # Portes : diagnostic et corrections
 
+Mise à jour d’intégration du 18 septembre 2026 : l’écran **CONTRÔLES** documente Espace et △/Y pour l’action exécution/porte. La refonte des menus ne modifie pas les règles physiques décrites dans cette revue ; leurs régressions font partie des 21 suites actuelles. Voir [direction des menus](menu-direction.md).
+
 La vitesse angulaire seule armait les dégâts : les poussées normales accumulaient du couple et un rebond pouvait toucher plusieurs fois. La course relançait aussi automatiquement un coup à chaque frame près d'une porte. Enfin, les ennemis assommés glissaient sans collision avec le décor ; ils restaient vivants et comptaient donc toujours dans la vague, même lorsqu'ils paraissaient morts ou devenaient inaccessibles.
 
 La poussée est désormais distincte du combat, limitée et amortie selon le temps écoulé. Elle intervient avant que la collision annule la vitesse de déplacement. Seul un coup volontaire arme brièvement le balayage ; une cible ne peut être frappée qu'une fois par coup. Le coup exige un mouvement réel de la porte vers la cible. Les rebonds dangereux et les coups automatiques pendant la course sont supprimés. Les requêtes de collision utilisées pour vérifier une carte ne modifient plus les portes et n'infligent aucun dégât.

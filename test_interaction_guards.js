@@ -4,7 +4,7 @@ const vm = require('vm');
 const Physics = require('./js/engine/physics.js');
 const { Door } = require('./js/map/doors.js');
 const stub = { getContext: () => ({}) };
-const env = { Physics, document: {readyState:'loading',getElementById:()=>stub,createElement:()=>stub}, window:{addEventListener(){}},performance:{now:()=>0},module:{exports:{}} };
+const env = { Physics, document: {readyState:'loading',addEventListener(){},getElementById:()=>stub,createElement:()=>stub}, window:{addEventListener(){}},performance:{now:()=>0},module:{exports:{}} };
 vm.runInNewContext(fs.readFileSync('./js/main.js','utf8'),env);
 const reachable = env.module.exports.canReachTarget;
 const a={x:0,y:0},b={x:40,y:0};

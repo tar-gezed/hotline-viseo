@@ -52,6 +52,7 @@ const fakeCanvas = {
 const browserHarness = {
   document: {
     readyState: 'loading',
+    addEventListener() {},
     getElementById() { return fakeCanvas; },
     createElement() { return fakeCanvas; }
   },
