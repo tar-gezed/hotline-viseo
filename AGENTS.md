@@ -54,9 +54,9 @@ The dedicated title, character, controls, audio, credits, tools and pause screen
 share `UITheme` and `CanvasMenu`; see [menu direction](docs/menu-direction.md)
 and [hud direction](docs/hud-direction.md) for state routing, input handling,
 kinetic announcements, audio policy and browser validation commands.
-The regression runner currently includes 21 suites. Browser acceptance checks
+The regression runner currently includes 22 suites. Browser acceptance checks
 are optional development tools and add no production dependencies.
 
-## Enemy combat integration
+## Enemy combat and patrol integration
 
-Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](docs/architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 22 suites. See [combat rules and regression coverage](docs/architecture.md#enemy-combat-and-navigation).

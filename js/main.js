@@ -400,19 +400,11 @@
       else if (t.includes('HEAVY') || t.includes('BOUNCER') || t.includes('BOSS')) archetypeKey = 'HEAVY';
       else archetypeKey = 'STANDARD';
 
-      const enemy = new Enemy(enemyData.x, enemyData.y, archetypeKey, enemyData.weapon || 'unarmed');
-      enemy.angle = enemyData.angle ?? 0;
-      // Wave enemies enter already hunting: survival pacing, not static room sentries.
-      enemy.state = 'SUSPICIOUS';
-      enemy.investigateX = player ? player.x : enemy.x;
-      enemy.investigateY = player ? player.y : enemy.y;
-      enemy.investigateTimer = 8;
+      const enemy = new Enemy(enemyData.x, enemyData.y, archetypeKey,
+        enemyData.weapon || 'unarmed', [], enemyData.angle ?? 0);
+      // Reinforcements patrol their ingress area until they actually see a target.
       enemy.entryTimer = 0.55;
-      enemy.alertIndicatorTimer = 0.8;
-      enemy.isWaveHunter = true;
-      if (enemyData.patrol && navGraph) {
-        enemy.patrolNodes = navGraph.getPatrolRoute(enemyData.patrol) || [];
-      }
+      if (navGraph) enemy.configurePatrol(navGraph, enemyData.patrol);
       enemies.push(enemy);
       const livingCount = enemies.filter(e => e.isAlive).length;
       const queuedCount = waveSpawner ? waveSpawner.spawnQueue.length : 0;
@@ -521,7 +513,9 @@
 
     // Initialize Wave 1
     const spLocs = mapData.spawnLocations || (mapData.spawnPoints && mapData.spawnPoints.spawnLocations) || null;
-    waveSpawner.setCustomSpawnPoints(spLocs, mapData.crateLocations || (mapData.spawnPoints && mapData.spawnPoints.crateLocations) || null);
+    const safeSpLocs = navGraph.getSafeSpawnPoints(spLocs, player, 20);
+    waveSpawner.spawnPositionValidator = p => navGraph.canTraverse(p, p, 20, false);
+    waveSpawner.setCustomSpawnPoints(safeSpLocs, mapData.crateLocations || (mapData.spawnPoints && mapData.spawnPoints.crateLocations) || null);
     waveSpawner.start(maskId, { x: player.x, y: player.y });
 
     // Keep the large control cheat-sheet out of active gameplay.
@@ -633,9 +627,7 @@
       }
 
       // Acoustic Sound Propagation (Alert nearby enemies)
-      if (!attackResult.isSilent) {
-        alertEnemiesInRadius(player.x, player.y, attackResult.soundRadius || 650);
-      }
+      alertEnemiesInRadius(player.x, player.y, attackResult.soundRadius || 650, 'PLAYER_GUNSHOT');
     } else if (attackResult.type === 'MELEE_SWING') {
       soundFX.playMeleeSwing(attackResult.weaponId);
       addTrauma(0.06);
@@ -715,14 +707,14 @@
     particleSystem.addFloatingText(enemy.x, enemy.y - 26, 'FINISH HIM', '#ff007f', 16);
   }
 
-  function alertEnemiesInRadius(x, y, radius) {
+  function alertEnemiesInRadius(x, y, radius, soundType = 'ENEMY_GUNSHOT') {
     for (let i = 0; i < enemies.length; i++) {
       const en = enemies[i];
       if (!en.isAlive || en.state === 'DEAD' || en.state === 'KNOCKED_DOWN') continue;
 
       const dist = Math.hypot(en.x - x, en.y - y);
       if (dist <= radius) {
-        en.onHeardSound(x, y, radius);
+        en.onHeardSound(x, y, radius, soundType);
       }
     }
   }
@@ -1275,14 +1267,6 @@
       }
 
       const bulletsBefore = bullets.length;
-      if (en.isWaveHunter && player && player.isAlive) {
-        if (en.state === 'PATROL') en.state = 'SUSPICIOUS';
-        if (en.state === 'SUSPICIOUS') {
-          en.investigateX = player.x;
-          en.investigateY = player.y;
-          en.investigateTimer = Math.max(en.investigateTimer || 0, 1.5);
-        }
-      }
       en.update(dt, player, mapData, enemies, floorWeapons, bullets, combatEffects, camera, navGraph);
       collectEnemyDrop(en);
 

@@ -181,7 +181,7 @@ Floating labels rasterize their outline/glow once per instance and animate the r
 
 ## 4. Testing & Verification Framework
 
-The codebase includes 21 automated regression test suites executed via Node.js (`npm test` / `node tools/test.cjs`):
+The codebase includes 22 automated regression test suites executed via Node.js (`npm test` / `node tools/test.cjs`):
 - `test_arcade_waves.js`: Wave progression, enemy ingress routes, and boundary safety.
 - `test_character_gait.js`: Procedural leg movement, strafing gait, and torso orientation.
 - `test_character_roster.js`: Stats, starting loadouts, perks, and ammo caps for all 7 characters.
@@ -189,6 +189,7 @@ The codebase includes 21 automated regression test suites executed via Node.js (
 - `test_combat_ai.js`: Comprehensive combat integration, enemy line-of-sight, and AI behaviors.
 - `test_difficulty_tuning.js`: Spawn telegraphs, initial miss heuristics, and glass shattering.
 - `test_door_safety.js`: Door sweep kinematics, stun recovery, and transition triggers.
+- `test_enemy_navigation.js`: Strict vision, acoustic orientation, last-seen memory, local patrols, body clearance, locked doors, room exits at four frame rates and all active-map ingress areas for dog/standard/heavy radii.
 - `test_engine.js`: Map bounds, NavGraph node connectivity, raycasting, and door physics.
 - `test_final_regressions.js`: Camera trauma decay, determinism, weapon speed, and HUD layering.
 - `test_floor_layers.js`: Floor polygon persistence, ordering, and migration integrity.
@@ -210,7 +211,7 @@ The codebase includes 21 automated regression test suites executed via Node.js (
 
 The repository is configured for automated deployment to GitHub Pages via GitHub Actions:
 - **Workflow (`.github/workflows/deploy.yml`):** Automatically triggered on every push to the `main` branch or manual dispatch.
-- **Automated Validation:** Runs `npm test` across all 21 test suites prior to artifact creation.
+- **Automated Validation:** Runs `npm test` across all 22 test suites prior to artifact creation.
 - **Zero-Build Packaging:** Uploads static web assets directly (`index.html`, `css/`, `js/`, `maps/`, asset images) using `actions/upload-pages-artifact@v3`.
 - **Atomic Deployment:** Deploys via `actions/deploy-pages@v4` with GitHub Pages environment tracking.
 - **Static Hosting Guarantees:** Includes `.nojekyll` to bypass Jekyll filters, and strict relative URI resolution ensuring flawless execution under subpaths such as `https://tar-gezed.github.io/hotline-viseo/`.
@@ -220,3 +221,19 @@ The repository is configured for automated deployment to GitHub Pages via GitHub
 Enemy gunfire verifies body-to-target visibility against actual door leaves, including open leaves. The body-to-muzzle segment is checked before creating projectiles: a barrel crossing a wall, furniture or glass retracts the projectile origin to the near side, where the existing swept bullet collision handles impact. Glass remains transparent to sight and shootable; intact glass blocks melee and dog bites. Shattered obstacles no longer block collision rays.
 
 `test_combat_ai.js` reproduces covered bodies, stale aim at wall corners, pistol/shotgun/rifle muzzle offsets, open door leaves and intact/shattered glass. Run `npm test` before staging or committing.
+
+Wave arrivals start in PATROL with their authored angle and a 0.55-second ingress pause. Authored patrol routes reach the enemy's actual waypoint list. Otherwise NavGraph generates up to five reachable stops within 520 world units of the arrival. At each new round, a single 50% roll may append an inspection through one reachable, unlocked doorway and back. Only that door is permitted as an area-boundary crossing during the round; the route is retained until the guard returns home. If no suitable passage exists, the round stays local. Short pauses scan the area. After combat or sound investigation, the enemy can cross doors to return home before resuming its round.
+
+The player must be inside the enemy's facing cone and visible through world geometry for visual pursuit, even at close range. Vision ranges are 720 (standard), 680 (shotgunner), 760 (dog) and 660 (heavy) world units; cone widths remain 110/100/120/95 degrees. An audible player gunshot instead starts a run to the fixed shot coordinates, with navigation through doors, a 14-second travel/search timeout and 2.5 seconds of searching on arrival. Another audible shot updates that location, unless the enemy is already visually engaged. Silenced weapons keep their smaller hearing radius. Melee and dry fire do not summon guards; ally alerts and enemy gunfire only cause a two-second look. Lost visual contact starts a six-second search at the last observed coordinates. Firing still requires sight; contact attacks also require a physically clear attack line.
+
+Navigation sweeps the actor's actual radius against wall thickness, intact glass and rotated furniture. Furniture corner anchors supply missing detours; start/goal connectors must be reachable, and locked doors are impassable. Movement follows the path segment independently of smooth facing and clamps each step at corners. Failed paths stop and retry; an unreachable patrol stop is skipped after 1.5 seconds. Less than 20% of requested displacement for 0.8 seconds invalidates the path and advances a blocked patrol stop. Dynamic doors still open by physical pushing.
+
+Validation: `npm test` runs 22 suites. `test_enemy_navigation.js` simulates 24 room exits (three body sizes, two room angles, four frame rates), verifies all nine imported-map arrivals for all body sizes, and advances heavy patrols for 20 simulated seconds at each arrival. The saved map remains untouched.
+
+Optional browser integration: start `node tools/serve.cjs --port 8097`, then run `node tools/validate_enemy_ai.cjs` with an existing Playwright installation (`PLAYWRIGHT_MODULE`, and optionally `CHROME_PATH` / `ENEMY_TEST_URL`). It exercises actual spawn hooks, director updates, visual acquisition, last-seen memory and the browser projectile loop without adding production dependencies.
+
+Browser validation on 19 September 2026 passed in headless Chrome with zero page errors: all nine heavy patrols moved over 900 world units in 20 simulated seconds; no hidden position leaked from the director; sight acquisition and last-seen search worked; a corner-obstructed muzzle emitted on the near side and the wall consumed its projectile.
+
+Wave progression (20 September 2026): total enemies follow Fibonacci starting at **5, 8, 13, 21, 34, 55, 89, 144**, with no former 48-enemy total cap. Archetype unlocks, preparation and squads of up to three remain unchanged. The configured 36-actor concurrency limit now gates reinforcements; queued enemies still belong to the wave and prevent premature completion. Existing imported arrival markers are checked for heavy-body clearance and a path to the player's starting area. If none are usable, connected navigation anchors supply runtime-only fallback markers. Spawn jitter is validated; a temporarily obstructed marker waits without losing its queued enemy or moving its warning.
+
+Updated validation: all 22 Node suites pass, including deterministic stay/exit patrol choices, locked-door rejection, navigation to gunshots outside a room, Fibonacci totals through wave eight, complete delivery of 144 queued enemies, concurrency gating and blocked-marker retries. The Chrome integration check also passes the actual player attack handler for gunfire, melee and dry fire, fixed shot memory, and all nine patrol arrivals, with zero page errors.

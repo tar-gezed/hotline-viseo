@@ -35,6 +35,6 @@ Espace était reconnu à la fois comme confirmation de menu et comme demande de 
 - Aucune erreur JavaScript dans les scénarios navigateur. Les scénarios de passage isolent les attaques de l'IA afin de tester la collision ; ils ne constituent pas une simulation prolongée de toutes les configurations de foule.
 - SHA-256 du fichier utilisateur inchangé pendant cette correction : `2C20338617D75BD40F5151D425EAD09A40EFF37080F42883B98F896B34857A61`.
 
-## Enemy combat integration
+## Enemy combat and patrol integration
 
-Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 22 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).

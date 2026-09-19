@@ -6,7 +6,7 @@
 [![Runtime: Browser / Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero%20Runtime-brightgreen.svg)](#)
 [![Hosting: GitHub Pages](https://img.shields.io/badge/Hosting-GitHub%20Pages%20Ready-blue.svg)](https://tar-gezed.github.io/hotline-viseo/)
 [![CI/CD: Deploy Pages](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml/badge.svg)](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml)
-[![Tests: 21 Node Suites Passing](https://img.shields.io/badge/Tests-21%20Passing-success.svg)](#)
+[![Tests: 22 Node Suites Passing](https://img.shields.io/badge/Tests-22%20Passing-success.svg)](#)
 
 ---
 
@@ -60,7 +60,7 @@ Le jeu est déployé et jouable publiquement en ligne sur GitHub Pages à l'adre
 
 Le déploiement est entièrement automatisé par GitHub Actions :
 - **Workflow :** `.github/workflows/deploy.yml` déclenché à chaque push sur la branche `main` (ou manuellement via *Actions*).
-- **Validation CI :** Exécute automatiquement la suite complète des 21 suites de régression (`npm test`) avant le packaging.
+- **Validation CI :** Exécute automatiquement la suite complète des 22 suites de régression (`npm test`) avant le packaging.
 - **Publication Pages :** Utilise les actions officielles `actions/configure-pages@v5`, `actions/upload-pages-artifact@v3` et `actions/deploy-pages@v4`.
 - **Compatibilité sous-dossier :** Tous les chemins de ressources (scripts, styles, cartes) sont relatifs (`maps/active.json`, `css/style.css`, etc.) pour fonctionner indifféremment à la racine ou sous le préfixe `/hotline-viseo/`. Le fichier `.nojekyll` est présent à la racine pour désactiver le traitement Jekyll.
 - **Configuration GitHub requise :** Dans le dépôt GitHub, sous **Settings > Pages > Build and deployment > Source**, sélectionner **GitHub Actions**.
@@ -134,7 +134,7 @@ Les sprites de mobilier sont partagés entre le jeu et l'éditeur, mis en cache 
 
 ## Verification
 
-Exécuter l'ensemble des 21 suites de régression automatisées avec Node.js :
+Exécuter l'ensemble des 22 suites de régression automatisées avec Node.js :
 
 ```bash
 npm test
@@ -283,6 +283,6 @@ Toutes les modifications du projet doivent respecter les règles établies dans 
 2. **Mise à jour obligatoire de la documentation** : Avant **chaque** commit, toute la documentation (`README.md`, `docs/`, `maps/README.md`) doit obligatoirement être mise à jour pour refléter l'état exact du projet.
 3. **Validation des suites de tests** : Avant tout commit, lancer `Get-ChildItem test_*.js | ForEach-Object { node $_.FullName }` et s'assurer que tous les tests passent.
 
-## Enemy combat integration
+## Enemy combat and patrol integration
 
-Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](docs/architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 22 suites. See [combat rules and regression coverage](docs/architecture.md#enemy-combat-and-navigation).

@@ -5,8 +5,9 @@
  * Features:
  * - Archetypes: Standard Mobster, Shotgunner, Attack Dog (Rusher), Heavy Bouncer
  * - Complete AI State Machine: PATROL -> SUSPICIOUS -> ALERT/CHASE -> ATTACK -> KNOCKED_DOWN -> DEAD
- * - Line-of-sight Raycasting with 110-deg vision cone & glass transparency
- * - Acoustic Sound Hearing (alerts to non-silenced gunshots and door kicks)
+ * - Local patrol rounds and radius-aware navigation with stuck recovery
+ * - Strict archetype vision cones, long-range sight and last-seen searches
+ * - Gunshots trigger fixed-location investigation; ally cues only orient guards
  * - Dynamic weapon dropping on knockdown and death
  * - Ground knockdown state (4.5s crawl, vulnerable to player executions)
  * - Distinct visuals, animations, alert indicators (!), and death sprites
@@ -50,7 +51,7 @@
             chaseSpeed: 210,
             radius: 14,
             reactionTime: 0.22,
-            visionRange: 480,
+            visionRange: 720,
             visionFov: (110 * Math.PI) / 180,
             isHeavy: false,
             isDog: false,
@@ -65,7 +66,7 @@
             chaseSpeed: 180,
             radius: 14,
             reactionTime: 0.28,
-            visionRange: 450,
+            visionRange: 680,
             visionFov: (100 * Math.PI) / 180,
             isHeavy: false,
             isDog: false,
@@ -80,7 +81,7 @@
             chaseSpeed: 320, // Super fast rush!
             radius: 12,
             reactionTime: 0.10,
-            visionRange: 520,
+            visionRange: 760,
             visionFov: (120 * Math.PI) / 180,
             isHeavy: false,
             isDog: true,
@@ -95,7 +96,7 @@
             chaseSpeed: 155,
             radius: 20, // Giant frame
             reactionTime: 0.35,
-            visionRange: 440,
+            visionRange: 660,
             visionFov: (95 * Math.PI) / 180,
             isHeavy: true,
             isDog: false,
@@ -157,6 +158,9 @@
             this.waypoints = patrolWaypoints && patrolWaypoints.length > 0 ? patrolWaypoints : [{ x, y }];
             this.currentWaypointIndex = 0;
             this.waypointWaitTimer = 0;
+            this.patrolInitialized = !!(patrolWaypoints && patrolWaypoints.length > 0);
+            this.navStuckTimer = 0;
+            this.navFailureTimer = 0;
 
             // Suspicious / Investigation
             this.investigateX = x;
@@ -206,18 +210,34 @@
 
             const dist = Math.hypot(this.x - soundX, this.y - soundY);
             if (dist <= soundRadius) {
-                // If already alerting, update target position
+                const gunshot = ['GUNSHOT', 'PLAYER_GUNSHOT'].includes(String(soundType).toUpperCase());
+                // Visual engagement takes priority; otherwise investigate the
+                // fixed shot location, never the shooter's live coordinates.
                 if (this.state === 'ALERT' || this.state === 'ATTACKING') {
-                    this.investigateX = soundX;
-                    this.investigateY = soundY;
                     return;
                 }
+                if (gunshot) {
+                    this.state = 'SUSPICIOUS';
+                    this.investigateX = soundX;
+                    this.investigateY = soundY;
+                    this.investigateTimer = 14;
+                    this.soundInvestigation = true;
+                    this.soundSearchTimer = 2.5;
+                    this.returningToPatrol = true;
+                    this.navPath = [];
+                    this.navRepathTimer = 0;
+                    this.targetAngle = Math.atan2(soundY - this.y, soundX - this.x);
+                    this.alertIndicatorTimer = 0.8;
+                    return;
+                }
+                if (this.state === 'SUSPICIOUS') return;
 
                 // Alert or investigate sound
                 this.state = 'SUSPICIOUS';
-                this.investigateX = soundX;
-                this.investigateY = soundY;
-                this.investigateTimer = 4.0;
+                this.investigateX = this.x;
+                this.investigateY = this.y;
+                this.investigateTimer = 2.0;
+                this.vx = this.vy = 0;
                 this.targetAngle = Math.atan2(soundY - this.y, soundX - this.x);
                 this.alertIndicatorTimer = 0.8;
             }
@@ -276,6 +296,7 @@
 
             const movementStartX = this.x;
             const movementStartY = this.y;
+            if (!this.patrolInitialized && navGraph) this.configurePatrol(navGraph);
 
             // 2. Line of Sight & Perception Check on Player
             let canSeePlayer = false;
@@ -288,10 +309,15 @@
                 }
             }
 
+            if (canSeePlayer) {
+                this.investigateX = player.x;
+                this.investigateY = player.y;
+            }
+
             // 3. AI State Machine Execution
             switch (this.state) {
                 case 'PATROL':
-                    this._updatePatrol(dt, canSeePlayer, player, obstacles);
+                    this._updatePatrol(dt, canSeePlayer, player, obstacles, navGraph);
                     break;
 
                 case 'SUSPICIOUS':
@@ -308,6 +334,7 @@
             }
 
             // 4. Movement integration & Wall collision
+            const intendedDistance = Math.hypot(this.vx, this.vy) * dt;
             if (ColSystem) ColSystem.moveCircle(this, obstacles, dt);
             else { this.x += this.vx * dt; this.y += this.vy * dt; }
 
@@ -318,6 +345,15 @@
             const travelledX = this.x - movementStartX;
             const travelledY = this.y - movementStartY;
             const travelled = Math.hypot(travelledX, travelledY);
+            if (intendedDistance > 0.1 && travelled < intendedDistance * 0.2) {
+                this.navStuckTimer += dt;
+                if (this.navStuckTimer > 0.8) {
+                    this.navPath = [];
+                    this.navRepathTimer = 0;
+                    this.navStuckTimer = 0;
+                    if (this.state === 'PATROL') this._advancePatrol();
+                }
+            } else this.navStuckTimer = 0;
             this.gaitMoving = travelled > 0.18;
             if (this.gaitMoving) {
                 const travelAngle = Math.atan2(travelledY, travelledX);
@@ -345,17 +381,12 @@
             const dy = player.y - this.y;
             const dist = Math.hypot(dx, dy);
 
-            // Proximity awareness (can't sneak directly behind within 40px)
-            if (dist < 42) {
-                return this._hasClearAttackLine(player, obstacles, true);
-            }
-
             // Max vision range
             if (dist > this.archetype.visionRange) return false;
 
             // Vision Cone check
             const inCone = ColSystem && typeof ColSystem.circleInCone === 'function' ? ColSystem.circleInCone(
-                player.x, player.y, player.radius || 14,
+                player.x, player.y, 0,
                 this.x, this.y, this.angle,
                 this.archetype.visionFov, this.archetype.visionRange
             ) : true;
@@ -389,95 +420,151 @@
 
         // ==================== STATE HANDLERS ====================
 
-        _updatePatrol(dt, canSeePlayer, player, obstacles) {
-            if (canSeePlayer) {
-                this._transitionToAlert(player);
-                return;
-            }
+        configurePatrol(navGraph, routeName = null) {
+            const authored = routeName && navGraph.getPatrolRoute(routeName);
+            this.patrolHome = authored && authored.length > 1 ? null : { x: this.x, y: this.y };
+            this.returningToPatrol = false;
+            this.waypoints = authored && authored.length > 1
+                ? authored.map(p => ({ x: p.x, y: p.y }))
+                : [];
+            if (this.patrolHome) this._planPatrolRound(navGraph);
+            this.currentWaypointIndex = 0;
+            this.waypointWaitTimer = 0;
+            this.patrolInitialized = true;
+            this.navPath = [];
+            this.navRepathTimer = 0;
+        }
 
-            if (this.waypoints.length === 0) {
-                this.vx = 0;
-                this.vy = 0;
-                return;
-            }
+        _advancePatrol() {
+            this.currentWaypointIndex = (this.currentWaypointIndex + 1) % Math.max(1, this.waypoints.length);
+            if (this.currentWaypointIndex === 0) this.patrolRoundComplete = true;
+            this.waypointWaitTimer = 0;
+            this.navFailureTimer = 0;
+            this.navPath = [];
+            this.navRepathTimer = 0;
+        }
 
+        _planPatrolRound(navGraph) {
+            const home = this.patrolHome;
+            delete home.allowedDoorId;
+            this.waypoints = navGraph.getLocalPatrolRoute(home.x, home.y, this.radius);
+            if (Math.random() < 0.5) {
+                const excursion = navGraph.getPatrolExcursion(home, this.radius);
+                if (excursion) {
+                    home.allowedDoorId = excursion.doorId;
+                    this.waypoints.push(...excursion.stops);
+                }
+            }
+            this.patrolRoundComplete = false;
+        }
+
+        _steerTowards(target, speed, dt) {
+            if (!target) { this.vx = this.vy = 0; return; }
+            const dx = target.x - this.x, dy = target.y - this.y;
+            const distance = Math.hypot(dx, dy);
+            if (distance < 0.01) { this.vx = this.vy = 0; return; }
+            this.targetAngle = Math.atan2(dy, dx);
+            // Facing can turn smoothly; movement must follow the clear segment
+            // and stop exactly at corners even on a slow frame.
+            const stepSpeed = Math.min(speed, distance / dt);
+            this.vx = dx / distance * stepSpeed;
+            this.vy = dy / distance * stepSpeed;
+        }
+
+        _updatePatrol(dt, canSeePlayer, player, obstacles, navGraph = null) {
+            if (canSeePlayer) { this._transitionToAlert(player); return; }
             const wp = this.waypoints[this.currentWaypointIndex];
-            const dx = wp.x - this.x;
-            const dy = wp.y - this.y;
-            const dist = Math.hypot(dx, dy);
-
-            if (dist < 16) {
-                // Reached waypoint, pause briefly
-                this.vx = 0;
-                this.vy = 0;
+            if (!wp) { this.vx = this.vy = 0; return; }
+            if (Math.hypot(wp.x - this.x, wp.y - this.y) < 6) {
+                if (this.currentWaypointIndex === 0) this.returningToPatrol = false;
+                this.vx = this.vy = 0;
                 this.waypointWaitTimer += dt;
-
-                if (this.waypointWaitTimer > 1.8) {
-                    this.waypointWaitTimer = 0;
-                    this.currentWaypointIndex = (this.currentWaypointIndex + 1) % this.waypoints.length;
+                // Briefly inspect the area before resuming the round.
+                this.targetAngle += dt * 0.65;
+                if (this.waypointWaitTimer > 0.7) {
+                    if (this.currentWaypointIndex === 0 && this.patrolRoundComplete && this.patrolHome && navGraph) {
+                        this._planPatrolRound(navGraph);
+                    }
+                    this._advancePatrol();
                 }
             } else {
-                // Move towards waypoint
-                this.targetAngle = Math.atan2(dy, dx);
-                this.vx = Math.cos(this.angle) * (this.speed * 0.7);
-                this.vy = Math.sin(this.angle) * (this.speed * 0.7);
+                const target = this._getNavigationTarget(wp.x, wp.y, navGraph, dt);
+                this._steerTowards(target, this.speed * 0.55, dt);
+                this.navFailureTimer = target ? 0 : this.navFailureTimer + dt;
+                if (this.navFailureTimer > 1.5) this._advancePatrol();
             }
         }
 
+        _beginSearch() {
+            this.state = 'SUSPICIOUS';
+            this.soundInvestigation = false;
+            this.investigateTimer = 6;
+            this.vx = this.vy = 0;
+            this.navPath = [];
+            this.navRepathTimer = 0;
+        }
+
         _updateSuspicious(dt, canSeePlayer, player, obstacles, navGraph = null) {
-            if (canSeePlayer) {
-                this._transitionToAlert(player);
-                return;
-            }
-
+            if (canSeePlayer) { this._transitionToAlert(player); return; }
             this.investigateTimer -= dt;
-            const navTarget = this._getNavigationTarget(this.investigateX, this.investigateY, navGraph, dt);
-            const dx = navTarget.x - this.x;
-            const dy = navTarget.y - this.y;
-            const destinationDist = Math.hypot(this.investigateX - this.x, this.investigateY - this.y);
-            const dist = Math.hypot(dx, dy);
-
-            if (destinationDist > 20) {
-                this.targetAngle = Math.atan2(dy, dx);
-                this.vx = Math.cos(this.angle) * this.speed;
-                this.vy = Math.sin(this.angle) * this.speed;
+            if (Math.hypot(this.investigateX - this.x, this.investigateY - this.y) > 8) {
+                const target = this._getNavigationTarget(this.investigateX, this.investigateY, navGraph, dt);
+                this._steerTowards(target, this.soundInvestigation ? this.archetype.chaseSpeed : this.speed, dt);
             } else {
-                this.vx = 0;
-                this.vy = 0;
-                // Sweep vision around suspiciously
-                this.targetAngle += Math.sin(this.investigateTimer * 3) * 0.05;
+                this.vx = this.vy = 0;
+                this.targetAngle += dt * 0.85;
+                if (this.soundInvestigation) {
+                    this.soundSearchTimer -= dt;
+                    if (this.soundSearchTimer <= 0) this.investigateTimer = 0;
+                }
             }
-
             if (this.investigateTimer <= 0) {
                 this.state = 'PATROL';
+                if (this.returningToPatrol) this.currentWaypointIndex = 0;
+                this.vx = this.vy = 0;
+                this.navPath = [];
+                this.navRepathTimer = 0;
             }
         }
 
         _getNavigationTarget(destX, destY, navGraph, dt = 1 / 60) {
             if (!navGraph || typeof navGraph.findPath !== 'function') return { x: destX, y: destY };
-            this.navRepathTimer = Math.max(0, (this.navRepathTimer || 0) - dt);
-            const destinationMoved = Math.hypot(destX - (this.navDestinationX || 0), destY - (this.navDestinationY || 0)) > 70;
-            if (!this.navPath || this.navPath.length < 2 || this.navRepathTimer <= 0 || destinationMoved) {
-                const path = navGraph.findPath(this.x, this.y, destX, destY);
-                this.navPath = Array.isArray(path) && path.length ? path : [{ x: destX, y: destY }];
+            this.navRepathTimer = Math.max(0, this.navRepathTimer - dt);
+            const destinationMoved = Math.hypot(destX - this.navDestinationX, destY - this.navDestinationY) > 24;
+            let target = this.navPath[this.navPathIndex];
+            const blocked = target && navGraph.canTraverse && !navGraph.canTraverse(this, target, this.radius);
+            if (this.navRepathTimer <= 0 || destinationMoved || blocked) {
+                // Returning from a chase may cross doors; once home, a local
+                // round only crosses its deliberately selected excursion door.
+                const local = this.state === 'PATROL' && this.patrolHome && !this.returningToPatrol;
+                const path = navGraph.findPath(this.x, this.y, destX, destY,
+                    { radius: this.radius, patrolHome: local ? this.patrolHome : null });
+                // No geometric fallback: an unreachable destination is not a
+                // licence to walk into its separating wall forever.
+                this.navPath = Array.isArray(path) ? path : [];
                 this.navPathIndex = this.navPath.length > 1 ? 1 : 0;
-                this.navRepathTimer = 0.42 + Math.random() * 0.18;
+                this.navRepathTimer = 0.6 + Math.random() * 0.2;
                 this.navDestinationX = destX;
                 this.navDestinationY = destY;
+                target = this.navPath[this.navPathIndex];
             }
-            let target = this.navPath[this.navPathIndex] || { x: destX, y: destY };
-            if (Math.hypot(target.x - this.x, target.y - this.y) < 24 && this.navPathIndex < this.navPath.length - 1) {
-                this.navPathIndex++;
-                target = this.navPath[this.navPathIndex] || target;
+            while (target && Math.hypot(target.x - this.x, target.y - this.y) < 1
+                && this.navPathIndex < this.navPath.length - 1) {
+                target = this.navPath[++this.navPathIndex];
             }
-            return target;
+            return target || null;
         }
 
         _transitionToAlert(player) {
             this.state = 'ALERT';
+            this.soundInvestigation = false;
+            this.returningToPatrol = true;
             this.reactionTimer = this.archetype.reactionTime;
             this.alertIndicatorTimer = 1.0;
             this.targetAngle = Math.atan2(player.y - this.y, player.x - this.x);
+            this.investigateX = player.x;
+            this.investigateY = player.y;
+            this.vx = this.vy = 0;
 
             if (AudioManager) {
                 if (this.archetype.isDog) {
@@ -496,20 +583,12 @@
                 return;
             }
 
-            // Keep track of player position
-            if (canSeePlayer) {
-                this.investigateX = player.x;
-                this.investigateY = player.y;
-            }
-
-            const navTarget = canSeePlayer
-                ? { x: this.investigateX, y: this.investigateY }
-                : this._getNavigationTarget(this.investigateX, this.investigateY, navGraph, dt);
-            const dx = navTarget.x - this.x;
-            const dy = navTarget.y - this.y;
+            if (!canSeePlayer) { this._beginSearch(); return; }
+            this.investigateX = player.x;
+            this.investigateY = player.y;
+            const navTarget = this._getNavigationTarget(this.investigateX, this.investigateY, navGraph, dt);
             const dist = Math.hypot(this.investigateX - this.x, this.investigateY - this.y);
-
-            this.targetAngle = Math.atan2(dy, dx);
+            this.targetAngle = Math.atan2(player.y - this.y, player.x - this.x);
 
             // Reaction Delay countdown before attacking
             if (this.reactionTimer > 0) {
@@ -525,11 +604,7 @@
                     const peer = enemies[i];
                     if (peer && peer !== this && peer.state === 'PATROL') {
                         if (Math.hypot(this.x - peer.x, this.y - peer.y) < 140) {
-                            peer.state = 'ALERT';
-                            peer.reactionTimer = peer.archetype.reactionTime;
-                            peer.alertIndicatorTimer = 0.8;
-                            peer.investigateX = this.investigateX;
-                            peer.investigateY = this.investigateY;
+                            peer.onHeardSound(this.x, this.y, 140, 'ALERT');
                         }
                     }
                 }
@@ -542,12 +617,11 @@
                 // Dog Rush & Lunge
                 if (this.attackCooldown > 0) {
                     this.vx = this.vy = 0;
-                } else if (dist < 80 && canSeePlayer) {
+                } else if (dist < 80 && canSeePlayer && this._hasClearAttackLine(player, obstacles)) {
                     this.state = 'ATTACKING';
                     this.dogLungeTimer = this.dogLungeDuration;
                 } else {
-                    this.vx = Math.cos(this.angle) * this.archetype.chaseSpeed;
-                    this.vy = Math.sin(this.angle) * this.archetype.chaseSpeed;
+                    this._steerTowards(navTarget, this.archetype.chaseSpeed, dt);
                 }
             } else if (isGun) {
                 // Firearm Combat
@@ -557,16 +631,15 @@
                     this.vy = 0;
                 } else {
                     // Move into firing range
-                    this.vx = Math.cos(this.angle) * this.archetype.chaseSpeed;
-                    this.vy = Math.sin(this.angle) * this.archetype.chaseSpeed;
+                    this._steerTowards(navTarget, this.archetype.chaseSpeed, dt);
                 }
             } else {
                 // Melee Charge
-                if (dist < (this.currentWeapon ? this.currentWeapon.range + 8 : 45) && canSeePlayer) {
+                if (dist < (this.currentWeapon ? this.currentWeapon.range + 8 : 45) && canSeePlayer && this._hasClearAttackLine(player, obstacles)) {
                     this.state = 'ATTACKING';
+                    this.vx = this.vy = 0;
                 } else {
-                    this.vx = Math.cos(this.angle) * this.archetype.chaseSpeed;
-                    this.vy = Math.sin(this.angle) * this.archetype.chaseSpeed;
+                    this._steerTowards(navTarget, this.archetype.chaseSpeed, dt);
                 }
             }
         }
@@ -574,9 +647,11 @@
         _updateAttacking(dt, canSeePlayer, player, obstacles, bullets, effects, camera) {
             if (!player || !player.isAlive) {
                 this.state = 'PATROL';
+                this.vx = this.vy = 0;
                 return;
             }
 
+            if (!canSeePlayer) { this._beginSearch(); return; }
             this.targetAngle = Math.atan2(player.y - this.y, player.x - this.x);
 
             if (this.archetype.isDog) {
@@ -602,17 +677,13 @@
             }
 
             const isGun = this.currentWeapon && this.currentWeapon.isGun;
+            this.vx = this.vy = 0;
 
             if (isGun) {
                 // Fire weapon when cooldown ready
                 if (this.attackCooldown <= 0 && canSeePlayer) {
                     this._fireGunAtPlayer(player, bullets, effects, camera, obstacles);
                     this.attackCooldown = this.currentWeapon.cooldown + 0.15; // AI slight delay
-                }
-
-                // If player leaves LoS, return to chase
-                if (!canSeePlayer) {
-                    this.state = 'ALERT';
                 }
             } else {
                 // Melee Swing
@@ -622,7 +693,7 @@
                 }
 
                 const dist = Math.hypot(player.x - this.x, player.y - this.y);
-                if (!canSeePlayer || dist > (this.currentWeapon ? this.currentWeapon.range + 20 : 55)) {
+                if (!this._hasClearAttackLine(player, obstacles) || dist > (this.currentWeapon ? this.currentWeapon.range + 20 : 55)) {
                     this.state = 'ALERT';
                 }
             }

@@ -58,6 +58,6 @@ Validation : `test_character_roster.js` vérifie les sept équipements, vitesses
 
 `MENU_TITLE` porte désormais l’identité du jeu. `MENU_MASK` affiche un seul grand portrait `CharacterArt`, la liste des sept noms et les attributs du personnage actif. Les raccourcis 1–7, la navigation clavier/manette et le clic utilisent les mêmes données `CONFIG.MASKS`. Échap/B ou RETOUR revient au titre sans recréer l’application et conserve le personnage sélectionné pour la session. Les caractéristiques et les sprites en jeu ne changent pas. Voir [direction des menus](menu-direction.md).
 
-## Enemy combat integration
+## Enemy combat and patrol integration
 
-Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 22 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).

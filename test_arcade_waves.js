@@ -3,6 +3,44 @@ global.CONFIG = require('./js/config.js');
 const { WaveSpawner } = require('./js/entities/spawner.js');
 const Enemy = require('./js/entities/enemy.js');
 
+// Fibonacci totals retain squad pacing without the former 48-enemy wave cap.
+{
+  const spawner = new WaveSpawner();
+  const totals = [5, 8, 13, 21, 34, 55, 89, 144];
+  for (let wave = 1; wave <= totals.length; wave++) {
+    assert.equal(spawner.getWaveEnemyCount(wave), totals[wave - 1]);
+    assert.equal(spawner._generateWaveQueue(wave).length, totals[wave - 1]);
+  }
+  spawner.currentWave = 8;
+  spawner.spawnQueue = spawner._generateWaveQueue(8);
+  spawner.totalWaveEnemies = 144;
+  spawner.state = 'SPAWNING';
+  spawner.spawnTimer = 0;
+  assert.equal(spawner.update(.1, null, 36).newEnemies.length, 0);
+  assert.equal(spawner.spawnQueue.length, 144, 'full arena retains queued reinforcements');
+  spawner.spawnTimer = 0;
+  assert.equal(spawner.update(.1, null, 35).newEnemies.length, 1);
+  assert.equal(spawner.spawnQueue.length, 143);
+  let emitted = 1;
+  while (spawner.spawnQueue.length) emitted += spawner.update(2, null, 0).newEnemies.length;
+  assert.equal(emitted, 144, 'all enemies eventually arrive, with no total-wave cap');
+}
+
+// Jitter never embeds an actor; temporarily obstructed markers wait and retry.
+{
+  const spawner = new WaveSpawner(), point = { id: 'safe', x: 100, y: 100 };
+  spawner.spawnPositionValidator = p => p.x === 100 && p.y === 100;
+  const enemy = spawner._spawnEnemyData({ id: 'one' }, point);
+  assert.equal(enemy.x, 100); assert.equal(enemy.y, 100);
+  spawner.spawnQueue = [{ id: 'two', spawnPoint: point }];
+  spawner.spawnPositionValidator = () => false;
+  assert.equal(spawner._spawnNextSquad().length, 0);
+  assert.equal(spawner.spawnQueue.length, 1);
+  assert.equal(spawner.enemiesSpawned, 1);
+  spawner.spawnPositionValidator = () => true;
+  assert.equal(spawner._spawnNextSquad().length, 1);
+}
+
 // The world supplies the count from BEFORE this tick's spawns.
 {
   const spawner = new WaveSpawner();
