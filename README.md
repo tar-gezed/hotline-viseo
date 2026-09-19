@@ -49,6 +49,8 @@ Les deux volumes et le mute musique sont sauvegardés dans `hotline-viseo-audio-
 
 La [direction et validation des menus](docs/menu-direction.md) documente les composants Canvas, les références et les captures aux formats 1280×720, 1440×900, 1920×1080 et 3440×1440.
 
+Le [HUD en jeu](docs/hud-direction.md) privilégie le score et le combo, avec des impacts brefs uniquement sur événement. Vague et masque s’atténuent, le masque reste consultable en pause. L’ammo devient rouge à zéro et réagit à chaque tir à vide ; la mêlée n’affiche que le nom de l’arme. La validation couvre aussi 2560×1440, avec 45 captures et des essais d’armes réels dans le navigateur.
+
 ## GitHub Pages & Déploiement Automatique
 
 Le jeu est déployé et jouable publiquement en ligne sur GitHub Pages à l'adresse :
@@ -155,6 +157,8 @@ The latest repair review is in `docs/visual-critique.md`. Run `node docs/final_r
 
 ## Vérifications des passages et de l’écran de mort
 
+L’[overlay de mort](docs/death-direction.md) retire le HUD dès l’impact et affiche **YOU'RE DEAD!** en SELINCAH rose néon `#ed4e93`, sur un voile noir à 60 % avec vignetage. Les éclaboussures mêlent impacts asymétriques, traînées obliques et fines gouttelettes sur les bords et dans plusieurs zones intérieures ; leurs formes changent à chaque mort et seules certaines taches coulent brièvement. Les indications de restart et de score sont espacées du titre et partagent la même couleur ivoire ; le score apparaît après 400 ms. Les contrôles et le garde de 220 ms sont conservés. L’outil optionnel `node tools/validate_death.cjs` couvre cinq formats, de 1280×720 à 3440×1440 ; il n’a pas été exécuté pour cette retouche visuelle, conformément à la demande.
+
 `node test_collision_passages.js` couvre les murs et vitres (y compris en diagonale) à 10/30/60/144 FPS, les poussées joueur/ennemi, la porte ajoutée `door_2` de la carte utilisateur et les ouvertures traversant plusieurs couches superposées. `node docs/test_passages_and_scores.cjs` traverse cette porte dans les deux sens avec les touches de déplacement puis vérifie qu'Espace ouvre les scores après la mort, sans recommencer la partie.
 
 L'éditeur refuse maintenant de créer une porte de moins de 48 unités. La découpe traverse toutes les couches collinéaires mur/vitre. Les chevauchements derrière les portes des anciens JSON sont corrigés sur la copie chargée ; le fichier importé n'est jamais réécrit automatiquement.
@@ -209,14 +213,19 @@ hotline-viseo/
 ├── .gitattributes          # Normalisation des fins de ligne (LF/CRLF) et binaires
 ├── AGENTS.md               # Règles impératives de commit et directives d'agents
 ├── README.md               # Documentation générale du projet
+├── assets/fonts/           # Polices locales utilisées par les écrans Canvas
+│   └── SELINCAH.ttf        # Police du tampon de mort
 ├── test_*.js               # Suites de tests unitaires et de non-régression Node
 ├── css/                    # Feuilles de style pour le canvas et les overlays
 ├── docs/                   # Documentation technique, critiques visuelles et tests Playwright
 │   ├── architecture.md     # Architecture détaillée du moteur et des sous-systèmes
 │   ├── character-direction.md # Direction artistique des 7 masques VISEO
+│   ├── death-direction.md  # Direction et validation de l'overlay de mort
 │   ├── door-physics-review.md # Physique des portes et résolution des contacts
 │   ├── floor-and-sprites-review.md # Revue des sols polygonaux et sprites
+│   ├── hud-direction.md    # Direction et validation du HUD en jeu
 │   ├── passages-and-scores-review.md # Revue des passages et calculs de score
+│   ├── menu-direction.md   # Direction et validation des menus Canvas
 │   ├── visual-critique.md  # Critiques visuelles et gameplay
 │   └── *.cjs / *.png       # Outils Playwright et captures de référence
 ├── js/                     # Code source modulaire du jeu
@@ -228,12 +237,14 @@ hotline-viseo/
 │   ├── engine/             # Physique, détection de collisions, caméra, entrées et pathfinding
 │   ├── entities/           # Joueur, IA ennemie, arsenal d'armes, portes, spawner de vagues
 │   ├── map/                # Données de carte, chargeur, moteur de rendu et éditeur
-│   └── ui/                 # Menus de masques, HUD rétro néon et écran de scores
+│   └── ui/                 # Menus, HUD, overlay de mort et écran de scores
 ├── maps/                   # Cartes de jeu exportées
 │   ├── active.json         # Carte personnalisée active chargée au démarrage
 │   └── README.md           # Documentation sur le chargement automatique des cartes
-└── tools/                  # Outils serveur Node pour développement local
-    └── serve.cjs           # Serveur HTTP statique léger avec support preview
+└── tools/                  # Outils serveur Node et validations optionnelles
+    ├── serve.cjs           # Serveur HTTP statique léger avec support preview
+    ├── validate_death.cjs  # Validation navigateur de l'écran de mort
+    └── validate_hud.cjs    # Validation navigateur du HUD
 ```
 
 ---

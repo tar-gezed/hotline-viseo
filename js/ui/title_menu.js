@@ -18,9 +18,11 @@
       c.save(); c.translate(640, 235 + Math.sin(this.timer * .75) * 4 - entrance * 24);
       c.rotate(-.075 + Math.sin(this.timer * .45) * .008);
       c.globalAlpha = 1 - entrance;
-      UITheme.text(c, 'HOTLINE', -8, -54, 128, UITheme.ivory, 'center');
-      UITheme.text(c, 'VISEO', 3, 70, 180, UITheme.pink, 'center');
-      // Thin cyan registration slip keeps the lettering crisp, without a glow.
+      // Match the death stamp's steady neon halo in display pixels.
+      const glow = 16 * UITheme.frame(w, h).scale;
+      UITheme.text(c, 'HOTLINE', -8, -54, 128, UITheme.ivory, 'center', 0, glow);
+      UITheme.text(c, 'VISEO', 3, 70, 180, UITheme.pink, 'center', 0, glow);
+      // The cyan registration slip stays crisp below the glowing lettering.
       c.fillStyle = UITheme.cyan; c.fillRect(-230, 150, 460, 3);
       c.restore();
       this.items.forEach((item, i) => {

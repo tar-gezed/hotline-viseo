@@ -2,7 +2,7 @@
 
 ## Direction
 
-Le titre sépare l’identité du jeu du choix d’un personnage : un logo ivoire/rose en deux lignes, une skyline originale en trois couches à défilement lent, quatre choix et une texture discrète. Les ombres sont dures, sans halo. Les options actives se décalent et s’inclinent légèrement. Le logo termine son apparition à 480 ms ; les quatre options sont visibles avant 500 ms d’animation. L’import de polices Google inutilisées par le Canvas a été retiré pour ne pas bloquer le lancement sur un CDN.
+Le titre sépare l’identité du jeu du choix d’un personnage : un logo ivoire/rose en deux lignes, une skyline originale en trois couches à défilement lent, quatre choix et une texture discrète. Le logo conserve son ombre dure et reçoit le même halo néon fixe que le texte de mort : rayon de 16 pixels multiplié par l’échelle UI, teinté en ivoire pour HOTLINE et en rose pour VISEO. Les autres textes restent sans halo. Les options actives se décalent et s’inclinent légèrement. Le logo termine son apparition à 480 ms ; les quatre options sont visibles avant 500 ms d’animation. L’import de polices Google inutilisées par le Canvas a été retiré pour ne pas bloquer le lancement sur un CDN.
 
 La recherche visuelle demandée a été confiée à GPT‑5.6 Luna High. Références : [menu principal de Hotline Miami 2](https://media.codeweavers.com/pub/crossover/website/appdb/bdb31c11bd2af1a8bb2ada834390fb3a.jpg), [sélection d’acte](https://cdn.mobygames.com/screenshots/3447942-hotline-miami-2-wrong-number-windows-act-selection-screen.jpg), [vidéo du titre](https://www.youtube.com/watch?v=eQG5a3kyQUQ), [analyse des menus et du VHS](https://cliqist.com/2015/03/30/aesthetic-excellence-hotline-miami-2/). Les captures ont guidé la hiérarchie logo/liste et la profondeur des silhouettes ; les vitesses de déplacement sont des choix originaux, pas des mesures du jeu de référence. Game UI Database n’était pas accessible à la recherche automatisée.
 
@@ -17,8 +17,11 @@ Les contrôles reprennent la composition du screenshot fourni et le PNG local `a
 - `MENU_AUDIO` → musique, SFX, mute musique, retour au titre ou à la pause selon l’origine.
 - `MENU_TOOLS` → pages existantes de sélection/import ou d’édition de carte.
 - `PAUSED` → reprendre, audio, recommencer. Reprendre restaure aussi bien PLAYING qu’INTERMISSION.
+- `DEAD` → [overlay brutal sur le monde](death-direction.md), retry immédiat après le garde existant ou accès aux scores ; HUD retiré dès la frame fatale, indication des scores après 400 ms.
 
 Chaque écran dispose de son composant dans `js/ui/`. `UITheme` et `CanvasMenu` partagent les couleurs, la typographie et la navigation. Les menus utilisent une zone logique 1280×720 mise à l’échelle uniformément ; la scène d’arrière-plan couvre tout le viewport en 16:9, 16:10 et ultralarge. Les textes ne sont jamais compressés par `fillText(maxWidth)`.
+
+La pause rappelle désormais le nom du masque actif au-dessus des choix. Le [HUD en jeu](hud-direction.md) partage la palette et l’échelle du titre ; son rappel de masque transitoire reste ainsi consultable à tout moment sans limite de lecture.
 
 Les événements clavier/souris des nouveaux menus sont traités une seule fois, dans la boucle, après le polling manette. Les boutons et les touches reposent sur leurs fronts d’appui ; le stick a une répétition temporisée. Le pointeur immobile ne vole pas la sélection au clavier. Le clic et le dessin partagent le même repère. Une validation ne traverse pas deux écrans dans la même frame ; le garde existant de relâchement d’attaque protège l’entrée en jeu.
 

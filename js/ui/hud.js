@@ -1,15 +1,14 @@
 /**
  * Hotline Miami: VISEO Arcade Edition - In-Game Arcade HUD
- * Real-time dynamic HUD featuring pulsing combo multipliers with decay bar,
- * rolling score tally, weapon & ammo counter, active mask badge,
- * wave status & enemy radar indicators, and floating score popups.
+ * Event-driven typography, quiet system metadata and readable ammunition.
+ * Presentation timers are independent of scoring and combo decay.
  */
 
 class GameHUD {
   constructor() {
     // Score & Combo State
     this.currentScore = 0;
-    this.displayScore = 0; // Smooth rolling score
+    this.displayScore = 0;
     this.comboCount = 0;
     this.maxComboRecorded = 0;
     this.comboMultiplier = 1;
@@ -37,6 +36,29 @@ class GameHUD {
     this.comboPulse = 1.0;
     this.screenFlashAlpha = 0;
     this.flashColor = '#ff007f';
+    this._resetPresentation();
+  }
+
+  _resetPresentation() {
+    this.scoreImpact = 0;
+    this.comboImpact = 0;
+    this.waveImpact = 0;
+    this.ammoImpact = 0;
+    this.waveAge = 0;
+    this.maskAge = 0;
+    this.presentedWave = null;
+    this.comboPulse = 1;
+  }
+
+  _announceWave(wave) {
+    if (wave === this.presentedWave) return;
+    this.presentedWave = wave;
+    this.waveAge = this.maskAge = 0;
+    this.waveImpact = .1;
+  }
+
+  notifyDryFire() {
+    if (this.currentWeapon?.isGun && this.currentAmmo <= 0) this.ammoImpact = .1;
   }
 
   /**
@@ -54,6 +76,7 @@ class GameHUD {
     this.screenFlashAlpha = 0;
     this.intermissionTime = 0;
     this.preWaveTime = 0;
+    this._resetPresentation();
   }
 
   /**
@@ -62,6 +85,7 @@ class GameHUD {
   setMask(maskId) {
     if (CONFIG.MASKS[maskId]) {
       this.activeMask = CONFIG.MASKS[maskId];
+      this.maskAge = 0;
     }
   }
 
@@ -69,6 +93,8 @@ class GameHUD {
    * Update weapon status
    */
   setWeapon(weapon, ammo = null) {
+    const previousAmmo = this.currentAmmo;
+    const previousWeapon = this.currentWeapon;
     if (typeof weapon === 'string') {
       const wDef = (typeof WeaponSystem !== 'undefined' && WeaponSystem.getWeaponType) ? WeaponSystem.getWeaponType(weapon) : (CONFIG.WEAPONS[weapon] || { id: weapon.toUpperCase(), name: weapon, isGun: false });
       this.currentWeapon = wDef;
@@ -85,9 +111,15 @@ class GameHUD {
       this.currentAmmo = isGun ? (this.currentWeapon.maxAmmo || this.currentWeapon.magSize || 12) : Infinity;
     }
     this.maxAmmo = isGun ? Math.floor((this.currentWeapon.maxAmmo || this.currentWeapon.magSize || 12) * (this.activeMask.perks?.ammoCapacityMult || 1)) : Infinity;
+    if (isGun && this.currentAmmo <= 0 && (previousAmmo > 0 || previousWeapon !== this.currentWeapon)) {
+      this.ammoImpact = .1;
+    } else if (!isGun || this.currentAmmo > 0) {
+      this.ammoImpact = 0;
+    }
   }
 
   setWave(waveNum, totalEnemies = 0) {
+    this._announceWave(waveNum);
     this.waveNumber = waveNum;
     this.totalWaveEnemies = totalEnemies;
     this.enemiesRemaining = totalEnemies;
@@ -99,6 +131,7 @@ class GameHUD {
 
   addScore(points, label = '') {
     this.currentScore += points;
+    if (points > 0) this.scoreImpact = .1;
     if (label) {
       this.addScorePopup(typeof window !== 'undefined' ? window.innerWidth * 0.5 : 640, 200, `${label} +${points}`, '#39ff14');
     }
@@ -144,7 +177,7 @@ class GameHUD {
     const earnedPoints = Math.round(basePoints * this.comboMultiplier * characterBonus);
     this.currentScore += earnedPoints;
     this.comboPointsAccumulated += earnedPoints;
-    this.comboPulse = 1.45;
+    this.scoreImpact = this.comboImpact = .1;
 
     // Audio chime scaling
     if (typeof window !== 'undefined' && window.soundFx) {
@@ -176,15 +209,14 @@ class GameHUD {
   /**
    * Update HUD timers and popups
    */
-  update(dt, waveInfo = null) {
-    // 1. Rolling score smooth lerp
-    if (this.displayScore < this.currentScore) {
-      const diff = this.currentScore - this.displayScore;
-      this.displayScore += Math.max(1, Math.ceil(diff * 0.15));
-      if (this.displayScore > this.currentScore) {
-        this.displayScore = this.currentScore;
-      }
+  update(dt, waveInfo = null, presentationDt = dt) {
+    // Exact tally on impact: no perpetual rolling/floating motion.
+    this.displayScore = this.currentScore;
+    for (const timer of ['scoreImpact', 'comboImpact', 'waveImpact', 'ammoImpact']) {
+      this[timer] = Math.max(0, this[timer] - presentationDt);
     }
+    this.waveAge += presentationDt;
+    this.maskAge += presentationDt;
 
     // 2. Combo Timer countdown & expiration
     if (this.comboTimer > 0) {
@@ -198,10 +230,7 @@ class GameHUD {
       }
     }
 
-    // 3. Combo pulse animation decay
-    if (this.comboPulse > 1.0) {
-      this.comboPulse = Math.max(1.0, this.comboPulse - dt * 2.5);
-    }
+    this.comboPulse = 1 + .2 * this._impact(this.comboImpact);
 
     // 4. Screen flash decay
     if (this.screenFlashAlpha > 0) {
@@ -223,12 +252,17 @@ class GameHUD {
 
     // 6. Sync wave spawner stats
     if (waveInfo) {
+      if (waveInfo.wave) this._announceWave(waveInfo.wave);
       this.waveNumber = waveInfo.wave || this.waveNumber;
       this.enemiesRemaining = waveInfo.enemiesRemaining !== undefined ? waveInfo.enemiesRemaining : this.enemiesRemaining;
       this.totalWaveEnemies = waveInfo.totalEnemies || this.totalWaveEnemies;
       this.preWaveTime = waveInfo.preWaveTimeLeft || 0;
       this.intermissionTime = waveInfo.intermissionTimeLeft || 0;
     }
+  }
+
+  _impact(remaining) {
+    return Math.pow(Math.max(0, remaining / .1), 2);
   }
 
   /**
@@ -245,30 +279,22 @@ class GameHUD {
       ctx.globalAlpha = 1.0;
     }
 
-    // 2. Adrenaline Edge Glow Vignette when Combo is high
-    if (this.comboCount >= 3) {
-      const vignetteAlpha = Math.min(0.4, (this.comboCount / 10) * 0.4);
-      const gradient = ctx.createRadialGradient(width * 0.5, height * 0.5, width * 0.3, width * 0.5, height * 0.5, width * 0.7);
-      gradient.addColorStop(0, 'rgba(255, 0, 127, 0)');
-      gradient.addColorStop(1, `rgba(255, 0, 127, ${vignetteAlpha})`);
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, width, height);
-    }
-
     // 3. Floating Score Popups (Projected in camera world coordinates)
     this._drawPopups(ctx, camera);
 
     ctx.save();
-    const uiScale = Math.max(1, Math.min(width / 1920, height / 1080));
+    // Same logical scale as the title; retain full width on ultrawide displays.
+    const uiScale = Math.min(width / 1280, height / 720);
     ctx.scale(uiScale, uiScale);
     const screenWidth = width, screenHeight = height;
     width /= uiScale; height /= uiScale;
 
-    // 4. TOP LEFT: Neon Score Tally & Wave Status
+    // Score top-right; quiet wave metadata top-left.
     this._drawScoreAndWave(ctx, width, height);
 
-    // 5. TOP RIGHT: Combo Multiplier & Decay Meter
-    this._drawComboMeter(ctx, width, height);
+    const projectedPlayer = camera && playerPos ? camera.worldToScreen(playerPos.x, playerPos.y) : null;
+    const hudPlayer = projectedPlayer ? { x: projectedPlayer.x / uiScale, y: projectedPlayer.y / uiScale } : null;
+    this._drawComboMeter(ctx, width, height, hudPlayer);
 
     // 6. BOTTOM RIGHT: Weapon Armory & Ammo Counter
     this._drawWeaponAmmo(ctx, width, height);
@@ -325,159 +351,130 @@ class GameHUD {
     }
   }
 
-  /**
-   * Draw Score & Wave Info
-   */
+  // Hard, offset type shares the title palette. No blur or oscillation.
+  _type(ctx, text, x, y, size, color, accent = '#ed4e93') {
+    ctx.font = `italic 900 ${size}px Impact, 'Arial Black', sans-serif`;
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = '#100e20';
+    ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 2;
+    ctx.fillStyle = accent;
+    ctx.fillText(text, x + 4, y + 4);
+    ctx.fillStyle = color;
+    ctx.fillText(text, x, y);
+    ctx.shadowOffsetX = ctx.shadowOffsetY = 0;
+  }
+
+  _metadata(ctx, text, x, y, color = '#f2e5c9') {
+    ctx.font = 'bold 12px "Courier New", monospace';
+    ctx.shadowColor = '#100e20'; ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 2;
+    ctx.fillStyle = color; ctx.fillText(text, x, y);
+    ctx.shadowOffsetX = ctx.shadowOffsetY = 0;
+  }
+
   _drawScoreAndWave(ctx, width, height) {
+    const margin = 32;
     ctx.save();
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'top';
-    ctx.font = 'italic 900 42px Impact, Arial Black, sans-serif';
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = '#32132e';
-    ctx.shadowOffsetX = 4; ctx.shadowOffsetY = 4;
-    ctx.fillStyle = '#f4f19b';
-    ctx.fillText(`${Math.round(this.displayScore)}PTS`, width - 30, 24);
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#f4b5d7';
-    ctx.font = 'italic 900 30px Impact, Arial Black, sans-serif';
-    ctx.fillText(`WAVE ${String(this.waveNumber).padStart(2, '0')}`, 28, 24);
-    ctx.font = 'bold 13px monospace';
-    ctx.fillStyle = '#e7e6d0';
-    ctx.fillText(`${this.enemiesRemaining} TO CLEAR`, 29, 62);
+    ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+    ctx.translate(width - margin, margin);
+    const impact = this._impact(this.scoreImpact);
+    ctx.scale(1 + .12 * impact, 1 + .12 * impact);
+    const score = String(Math.round(this.currentScore));
+    ctx.font = "italic 900 44px Impact, 'Arial Black', sans-serif";
+    const size = Math.min(44, 44 * 320 / Math.max(1, ctx.measureText(score).width));
+    this._type(ctx, score, 0, 0, size, '#f2e5c9', impact ? '#80d9d2' : '#ed4e93');
+    this._metadata(ctx, 'PTS', 0, 52, '#b89bb5');
+    ctx.restore();
+
+    ctx.save();
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.translate(margin, margin);
+    const waveImpact = this._impact(this.waveImpact);
+    ctx.scale(1 + .28 * waveImpact, 1 + .28 * waveImpact);
+    const quiet = Math.min(1, Math.max(0, (this.waveAge - 2.5) / .5));
+    ctx.globalAlpha = 1 - quiet * .35;
+    this._type(ctx, `WAVE ${String(this.waveNumber).padStart(2, '0')}`, 0, 0,
+      26 - quiet * 6, '#f2e5c9', '#100e20');
+    this._metadata(ctx, `${this.enemiesRemaining} LEFT`, 0, 36 - quiet * 8);
     ctx.restore();
   }
 
-  /**
-   * Draw Dynamic Combo Multiplier & Decay Bar
-   */
-  _drawComboMeter(ctx, width, height) {
+  _drawComboMeter(ctx, width, height, player = null) {
     if (this.comboCount <= 0) return;
-
-    const x = width - 36;
-    const y = 84;
-
+    const margin = 32, zoneWidth = 350;
+    const impact = this._impact(this.comboImpact);
+    // Move to the opposite upper corner if the player enters the combo zone.
+    const obstructed = player && player.x > width - zoneWidth - 48 && player.y < 235;
+    const x = obstructed ? margin + zoneWidth : width - margin;
     ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(this.comboPulse, this.comboPulse);
-
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'top';
-
-    // Combo Title & Multiplier
-    ctx.shadowColor = CONFIG.COLORS.NEON_PINK;
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = CONFIG.COLORS.NEON_PINK;
-    ctx.font = 'italic 900 36px Impact, Arial Black, sans-serif';
-    ctx.shadowColor = '#31152e';
-    ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 3;
-    ctx.fillText(`${this.comboMultiplier}X COMBO`, 0, 0);
-
-    // Combo Count
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '700 14px "Courier New", monospace';
-    ctx.fillText(`${this.comboCount} STREAK // +${this.comboPointsAccumulated} PTS`, 0, 36);
-
-    // Combo Decay Meter Bar
-    const barWidth = 180;
-    const barHeight = 8;
-    const barX = -barWidth;
-    const barY = 58;
-
+    if (player) {
+      // Also protect the actor during edge/camera transitions and large impacts.
+      ctx.beginPath(); ctx.rect(0, 0, width, height);
+      ctx.rect(player.x - 44, player.y - 44, 88, 88);
+      ctx.clip('evenodd');
+    }
+    ctx.translate(x - impact * (this.comboCount % 2 ? 7 : 2), 102 + impact * 3);
+    const pop = 1 + impact * .2;
+    ctx.scale(pop, pop);
+    ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+    const size = Math.min(46, 32 + this.comboCount * 2);
+    const headline = `${this.comboMultiplier}X COMBO`;
+    ctx.font = `italic 900 ${size}px Impact, 'Arial Black', sans-serif`;
+    const fittedSize = Math.min(size, size * 280 / Math.max(1, ctx.measureText(headline).width));
+    this._type(ctx, headline, 0, 0, fittedSize, '#ed4e93', '#80d9d2');
+    this._metadata(ctx, `${this.comboCount} STREAK / +${this.comboPointsAccumulated} PTS`, 0, 54);
     const ratio = Math.max(0, Math.min(1, this.comboTimer / this.comboMaxTimer));
-    let barColor = CONFIG.COLORS.NEON_LIME;
-    if (ratio < 0.3) barColor = CONFIG.COLORS.BLOOD_FRESH;
-    else if (ratio < 0.6) barColor = CONFIG.COLORS.NEON_YELLOW;
-
-    // Background track
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-    ctx.fillRect(barX, barY, barWidth, barHeight);
-
-    // Filled bar
-    ctx.fillStyle = barColor;
-    ctx.shadowColor = barColor;
-    ctx.shadowBlur = 0;
-    ctx.fillRect(barX + barWidth * (1 - ratio), barY, barWidth * ratio, barHeight);
-
+    ctx.fillStyle = '#100e20'; ctx.fillRect(-140, 76, 140, 3);
+    ctx.fillStyle = ratio < .3 ? '#ff647b' : '#f2e5c9';
+    ctx.fillRect(-140 * ratio, 76, 140 * ratio, 3);
     ctx.restore();
   }
 
-  /**
-   * Draw Current Weapon & Ammo Counter
-   */
   _drawWeaponAmmo(ctx, width, height) {
+    const gun = this.currentWeapon?.isGun;
+    const name = (this.currentWeapon?.name || 'FISTS').toUpperCase();
+    const empty = gun && this.currentAmmo <= 0;
+    const impact = this._impact(this.ammoImpact);
     ctx.save();
-    const gun = this.currentWeapon && this.currentWeapon.isGun;
     ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-    ctx.shadowBlur = 0; ctx.shadowColor = '#26172b';
-    ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 3;
-    ctx.fillStyle = gun && this.currentAmmo === 0 ? '#ff647b' : '#f3ebbe';
-    ctx.font = 'italic 900 40px Impact, Arial Black, sans-serif';
-    const name = this.currentWeapon && this.currentWeapon.name || 'FISTS';
-    ctx.fillText(gun ? `${this.currentAmmo}/${this.maxAmmo} RND` : name.toUpperCase(), width - 28, height - 26);
-    ctx.font = 'bold 12px monospace'; ctx.fillStyle = '#f2b7d5';
-    ctx.fillText(gun ? (this.currentAmmo === 0 ? 'EMPTY  /  THROW / GRAB' : name.toUpperCase()) : 'CLOSE QUARTERS', width - 28, height - 73);
+    ctx.translate(width - 32 - impact * 6, height - 32);
+    ctx.scale(1 + impact * .22, 1 + impact * .22);
+    if (!gun) {
+      ctx.font = 'bold 22px "Courier New", monospace';
+      ctx.fillStyle = '#f2e5c9'; ctx.shadowColor = '#100e20';
+      ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 2;
+      ctx.fillText(name, 0, 0);
+    } else {
+      this._metadata(ctx, name, 0, -48, '#b89bb5');
+      ctx.font = `bold ${empty ? 38 : 32}px "Courier New", monospace`;
+      ctx.fillStyle = empty ? (impact ? '#ffffff' : '#ff647b') : '#f2e5c9';
+      ctx.shadowColor = '#100e20'; ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 2;
+      ctx.fillText(`${this.currentAmmo} / ${this.maxAmmo}`, -34, 0);
+      this._metadata(ctx, 'RND', 0, -4, empty ? '#ff647b' : '#f2e5c9');
+      if (empty) this._metadata(ctx, 'EMPTY / THROW / GRAB', 0, -70, '#ff647b');
+    }
     ctx.restore();
   }
 
-  /**
-   * Draw Active Animal Mask Badge
-   */
   _drawMaskBadge(ctx, width, height) {
-    ctx.save();
+    const alpha = Math.max(0, Math.min(1, (3.5 - this.maskAge) / .75));
+    if (alpha <= 0) return;
+    ctx.save(); ctx.globalAlpha = alpha;
     ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-    ctx.font = 'italic 900 24px Impact, Arial Black, sans-serif';
-    ctx.shadowColor = '#281227'; ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 3;
-    ctx.fillStyle = '#f2b7d5';
-    ctx.fillText(this.activeMask.name, 28, height - 28);
+    this._type(ctx, this.activeMask.name, 32, height - 32, 22, '#b89bb5', '#100e20');
     ctx.restore();
   }
 
-  /**
-   * Draw quiet pre-wave countdown. Spawn locations are telegraphed in-world.
-   */
   _drawPreWaveBanner(ctx, width, height) {
-    const y = 85;
-    const timeLeft = Math.max(1, Math.ceil(this.preWaveTime));
-    ctx.save();
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(15, 10, 25, 0.72)';
-    ctx.fillRect(width * 0.5 - 205, y - 20, 410, 40);
-    ctx.shadowColor = '#341b32';
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 3;
-    ctx.fillStyle = '#f4b5d7';
-    ctx.font = 'italic 900 27px Impact, Arial Black, sans-serif';
-    ctx.fillText(`GET READY  /  ${timeLeft}`, width * 0.5, y);
+    ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    this._metadata(ctx, `GET READY / ${Math.max(1, Math.ceil(this.preWaveTime))}`, width * .5, 38);
     ctx.restore();
   }
 
-  /**
-   * Draw Resupply Intermission Banner
-   */
   _drawIntermissionBanner(ctx, width, height) {
-    const y = 85;
-    const timeLeft = Math.ceil(this.intermissionTime);
-
-    ctx.save();
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    ctx.fillStyle = 'rgba(15, 10, 25, 0.85)';
-    ctx.fillRect(width * 0.5 - 300, y - 24, 600, 48);
-
-    ctx.strokeStyle = CONFIG.COLORS.NEON_LIME;
-    ctx.lineWidth = 2;
-    ctx.shadowColor = CONFIG.COLORS.NEON_LIME;
-    ctx.shadowBlur = 10;
-    ctx.strokeRect(width * 0.5 - 300, y - 24, 600, 48);
-
-    ctx.fillStyle = CONFIG.COLORS.NEON_LIME;
-    ctx.font = '900 18px "Courier New", monospace';
-    ctx.fillText(`✔ SECTOR CLEAR - RESUPPLY AT CAFETERIA (${timeLeft}s)`, width * 0.5, y);
-
+    ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    this._type(ctx, 'SECTOR CLEAR', width * .5, 32, 24, '#f2e5c9', '#100e20');
+    this._metadata(ctx, `RESUPPLY AT CAFETERIA / ${Math.ceil(this.intermissionTime)}s`, width * .5, 65);
     ctx.restore();
   }
 

@@ -14,3 +14,30 @@ for(let i=0;i<12;i++)screen.show('GAME_OVER',{...run,runId:'r'+i,score:i});asser
 data.set(screen.LEADERBOARD_KEY,'{}');assert.deepEqual(screen.loadLeaderboard(),[]);data.set(screen.LEADERBOARD_KEY,'{');assert.deepEqual(screen.loadLeaderboard(),[]);
 data.set(screen.LEADERBOARD_KEY,JSON.stringify([{score:'bad',runId:'x'},null]));assert.deepEqual(screen.loadLeaderboard(),[]);
 console.log('PASS combos persist/reset, exact scoring, empty run, waves, bonuses, deduplication, top eight, persistence and corrupt storage');
+
+// Presentation events must never modify scoring, combo decay, or ammunition.
+const visual=new GameHUD();
+visual.setWave(2,7);visual.update(.12);
+assert.equal(visual.waveImpact,0);
+visual.update(3,{wave:2,enemiesRemaining:7});
+visual.setWave(2,7);assert(visual.waveAge>3,'same-wave sync cannot replay the announcement');
+visual.setWave(3,9);assert.equal(visual.waveAge,0);assert.equal(visual.waveImpact,.1);
+const gun={id:'PISTOL',name:'Pistol',isGun:true,maxAmmo:12};
+visual.setWeapon(gun,1);visual.setWeapon(gun,0);assert.equal(visual.ammoImpact,.1);
+visual.update(.12);visual.setWeapon(gun,0);assert.equal(visual.ammoImpact,0,'empty HUD sync stays still');
+visual.addKillScore('GUN',400,0,0);
+const state={score:visual.currentScore,combo:visual.comboCount,timer:visual.comboTimer};
+visual.notifyDryFire();assert.equal(visual.ammoImpact,.1);
+assert.deepEqual({score:visual.currentScore,combo:visual.comboCount,timer:visual.comboTimer},state);
+assert.equal(visual.currentAmmo,0);
+visual.update(.12);
+assert.equal(visual.scoreImpact,0);assert.equal(visual.comboImpact,0);assert.equal(visual.ammoImpact,0);
+assert.equal(visual.comboTimer,state.timer-.12,'presentation does not change combo decay');
+visual.setWeapon({name:'Bat',isGun:false});visual.notifyDryFire();assert.equal(visual.ammoImpact,0);
+visual.addKillScore('GUN',400,0,0);
+const slowTimer=visual.comboTimer;
+visual.update(.01,null,.1);
+assert.equal(visual.scoreImpact,0,'100 ms impact uses real time during hit stop');
+assert.equal(visual.comboTimer,slowTimer-.01,'combo still uses simulation time');
+visual.reset();assert.equal(visual.maskAge,0);assert.equal(visual.presentedWave,null);
+console.log('PASS event-only HUD impacts, repeated wave sync, dry fire isolation and reset');

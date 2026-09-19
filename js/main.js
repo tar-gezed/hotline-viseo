@@ -57,6 +57,7 @@
   let resumeState;
   let hud = null;
   let scoreScreen = null;
+  let deathOverlay = null;
 
   // Game State Machine
   const STATES = {
@@ -201,11 +202,14 @@
     audioMenu = new window.AudioMenu(audioSettings, () => enterMenu(audioReturnState));
     pauseMenu = new window.PauseMenu({
       resume: resumeGame,
+      maskName: () => hud?.activeMask?.name || '',
       audio: () => openAudio(STATES.PAUSED),
       restart: () => { pauseMenu.hide(); startNewGame(selectedMaskId); }
     });
     const HudClass = window.GameHUD || (typeof GameHUD !== 'undefined' ? GameHUD : null);
     hud = new HudClass();
+    deathOverlay = new window.DeathOverlay();
+    await deathOverlay.loadFont();
     // Resolve the victory fonts/glyphs in the menu, not on the first wave's
     // final frame (the checkmark can trigger a separate fallback font).
     const textWarmup = document.createElement('canvas');
@@ -626,6 +630,7 @@
       checkMeleeHit(attackResult);
     } else if (attackResult.type === 'DRY_FIRE') {
       soundFX.playEmptyClick();
+      hud.notifyDryFire();
     }
   }
 
@@ -841,7 +846,6 @@
       postProcessor.update(realDt);
       camera.update(realDt, player, input);
       renderGameWorld(0);
-      renderDeathOverlay();
       const canRestart = deathTimer > 0.22;
       // Space/Y is also a menu-confirm key: scores must take precedence.
       if (canRestart && input.isExecuteJustPressed()) {
@@ -872,13 +876,13 @@
     }
 
     runStats.elapsedTime += realDt;
-    updateGame(dt);
+    updateGame(dt, realDt);
     renderGameWorld(realDt);
     input.clearFrameTriggers();
   }
 
 
-  function updateGame(dt) {
+  function updateGame(dt, realDt = dt) {
     if (player && player.isAlive) {
       // Movement/aim only here. Gameplay actions are owned by this integration layer,
       // preventing the old double-fire / pickup-then-immediate-throw controller bug.
@@ -955,7 +959,7 @@
 
     const livingCountBeforeSpawn = enemies.filter(e => e.isAlive).length;
     const waveInfo = waveSpawner.update(dt, player ? { x: player.x, y: player.y } : null, livingCountBeforeSpawn);
-    hud.update(dt, waveInfo || null);
+    hud.update(dt, waveInfo || null, realDt);
 
     const livingCount = enemies.filter(e => e.isAlive).length;
     const queuedCount = waveSpawner ? waveSpawner.spawnQueue.length : 0;
@@ -1295,9 +1299,10 @@
     captureRunStats();
     gameState = STATES.DEAD;
     deathTimer = 0;
+    deathOverlay.resetBlood();
     triggerHitStop(0.075);
     addTrauma(1.0);
-    postProcessor.screenFlash('#ff003c', 0.22);
+    postProcessor.triggerFlash('#ff003c', 0.09, 0.07);
     if (synthMusic && typeof synthMusic.setMasterVolume === 'function') synthMusic.setMasterVolume(audioSettings.values.music * (0.32 / 0.7));
   }
 
@@ -1310,26 +1315,7 @@
   }
 
   function renderDeathOverlay() {
-    ctx.save();
-    const pulse = 0.55 + Math.sin(deathTimer * 9) * 0.08;
-    ctx.fillStyle = `rgba(10, 0, 8, ${Math.min(0.58, 0.22 + deathTimer * 0.32)})`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.textAlign = 'center';
-    ctx.shadowColor = '#ff0055';
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 5; ctx.shadowOffsetY = 5;
-    ctx.shadowColor = '#43182e';
-    ctx.fillStyle = '#ef5489';
-    const uiScale = Math.max(1, Math.min(canvas.width / 1920, canvas.height / 1080));
-    ctx.font = `italic 900 ${64 * uiScale}px Impact, Arial Black, sans-serif`;
-    ctx.fillText('YOU ARE DEAD', canvas.width * 0.5, canvas.height * 0.46);
-    if (deathTimer > 0.20) {
-      ctx.shadowBlur = 8;
-      ctx.fillStyle = '#f8f8f2';
-      ctx.font = `700 ${16 * uiScale}px monospace`;
-      ctx.fillText(input && input.isGamepadMode ? 'A / RT  RESTART    Y  SCORE' : 'CLICK / ENTER / R  RESTART    SPACE  SCORE', canvas.width * 0.5, canvas.height * 0.54);
-    }
-    ctx.restore();
+    deathOverlay.render(ctx, canvas.width, canvas.height, deathTimer, input && input.isGamepadMode);
   }
 
   // ---------------------------------------------------------------------------
@@ -1462,10 +1448,12 @@
       ctx.restore();
     }
 
-    if (gameState === STATES.PLAYING || gameState === STATES.INTERMISSION || gameState === STATES.DEAD) {
+    if (gameState === STATES.PLAYING || gameState === STATES.INTERMISSION) {
       hud.render(ctx, canvas.width, canvas.height, camera, enemies.filter(e => e.isAlive), player);
-      if (gameState !== STATES.DEAD) input.renderCrosshair(ctx);
+      input.renderCrosshair(ctx);
     }
+    // Include the lethal update's own frame: no one-frame HUD or title delay.
+    if (gameState === STATES.DEAD) renderDeathOverlay();
   }
 
   // CommonJS consumers (the plain Node regression scripts) can exercise the

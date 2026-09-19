@@ -15,11 +15,16 @@
       const f = this.frame(w, h);
       return { x: (x - f.x) / f.scale, y: (y - f.y) / f.scale };
     },
-    text(c, text, x, y, size = 30, color = this.ivory, align = 'left', angle = 0) {
+    text(c, text, x, y, size = 30, color = this.ivory, align = 'left', angle = 0, glow = 0) {
       c.save(); c.translate(x, y); c.rotate(angle);
       c.font = `italic 900 ${size}px Impact, 'Arial Black', sans-serif`;
       c.textAlign = align; c.textBaseline = 'middle';
+      if (glow > 0) c.shadowBlur = 0;
       c.fillStyle = this.ink; c.fillText(text, 4, 4);
+      if (glow > 0) {
+        c.shadowColor = color; c.shadowBlur = glow;
+        c.shadowOffsetX = 0; c.shadowOffsetY = 0;
+      }
       c.fillStyle = color; c.fillText(text, 0, 0); c.restore();
     },
     small(c, text, x, y, size = 15, color = this.muted, align = 'left') {

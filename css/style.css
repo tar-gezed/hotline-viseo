@@ -377,3 +377,5 @@ body.gamepad-mode * {
     transform: translateX(0);
   }
 }
+/* Local death-stamp face. */
+@font-face { font-family: DeathSelincah; src: url('../assets/fonts/SELINCAH.ttf') format('truetype'); font-display: swap; }
