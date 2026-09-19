@@ -51,6 +51,8 @@ La [direction et validation des menus](docs/menu-direction.md) documente les com
 
 Le [HUD en jeu](docs/hud-direction.md) privilégie le score et le combo, avec des impacts brefs uniquement sur événement. Vague et masque s’atténuent, le masque reste consultable en pause. L’ammo devient rouge à zéro et réagit à chaque tir à vide ; la mêlée n’affiche que le nom de l’arme. La validation couvre aussi 2560×1440, avec 45 captures et des essais d’armes réels dans le navigateur.
 
+Les annonces de vague utilisent une typo inclinée sans panneau, réduite de 20 % et ancrée en haut au centre : `WAVE 01` pendant **1 200 ms**, puis **3 → 2 → 1** au rythme des trois secondes réellement restantes dans les **4 secondes de préparation existantes**. `WAVE 01 CLEAR` vert dure aussi **1 200 ms**, sans `#`. Le texte de réappro agrandi affiche son timer réel en haut au centre, à position fixe, avec des flèches vertes vers chaque caisse encore disponible. Le compteur d’ennemis réagit aux éliminations. Les timings de spawn restent inchangés ; les [détails et contrôles sur six résolutions](docs/hud-direction.md#annonces-cinétiques-de-vague) sont documentés.
+
 ## GitHub Pages & Déploiement Automatique
 
 Le jeu est déployé et jouable publiquement en ligne sur GitHub Pages à l'adresse :

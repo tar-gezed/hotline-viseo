@@ -52,6 +52,7 @@ npm test
 
 The dedicated title, character, controls, audio, credits, tools and pause screens
 share `UITheme` and `CanvasMenu`; see [menu direction](docs/menu-direction.md)
-for state routing, input handling, audio policy and browser validation commands.
+and [hud direction](docs/hud-direction.md) for state routing, input handling,
+kinetic announcements, audio policy and browser validation commands.
 The regression runner currently includes 21 suites. Browser acceptance checks
 are optional development tools and add no production dependencies.

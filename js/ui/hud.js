@@ -47,6 +47,15 @@ class GameHUD {
     this.waveAge = 0;
     this.maskAge = 0;
     this.presentedWave = null;
+    this.clearAge = Infinity;
+    this.clearedWave = null;
+    this.preWaveDuration = 0;
+    this.countdownNumber = 0;
+    this.countdownImpact = 0;
+    this.countdownImpactDuration = .1;
+    this.enemyImpact = 0;
+    this.enemyImpactStrength = 0;
+    this.supplyCrates = [];
     this.comboPulse = 1;
   }
 
@@ -55,6 +64,7 @@ class GameHUD {
     this.presentedWave = wave;
     this.waveAge = this.maskAge = 0;
     this.waveImpact = .1;
+    this.clearAge = Infinity;
   }
 
   notifyDryFire() {
@@ -126,7 +136,29 @@ class GameHUD {
   }
 
   setEnemiesRemaining(count) {
+    if (count < this.enemiesRemaining) {
+      this.enemyImpact = .12;
+      this.enemyImpactStrength = Math.min(3, this.enemiesRemaining - count);
+    }
     this.enemiesRemaining = count;
+  }
+
+  setPreWave(duration) {
+    this.preWaveDuration = Math.max(0, duration);
+    this.preWaveTime = this.preWaveDuration;
+    this._syncCountdown();
+  }
+
+  _syncCountdown() {
+    // Leave the first second to the headline; count actual remaining seconds.
+    // Only the impact animation uses presentation time, never the phase timer.
+    const number = this.preWaveTime > 0 && this.preWaveTime <= 3
+      ? Math.ceil(this.preWaveTime) : 0;
+    if (number !== this.countdownNumber) {
+      this.countdownNumber = number;
+      this.countdownImpactDuration = .1 + Math.max(0, 3 - number) * .02;
+      this.countdownImpact = number ? this.countdownImpactDuration : 0;
+    }
   }
 
   addScore(points, label = '') {
@@ -137,7 +169,11 @@ class GameHUD {
     }
   }
 
-  setIntermission(duration) {
+  setIntermission(duration, wave = this.waveNumber) {
+    if (duration > 0 && this.clearedWave !== wave) {
+      this.clearedWave = wave;
+      this.clearAge = 0;
+    }
     this.intermissionTime = duration;
   }
 
@@ -212,11 +248,12 @@ class GameHUD {
   update(dt, waveInfo = null, presentationDt = dt) {
     // Exact tally on impact: no perpetual rolling/floating motion.
     this.displayScore = this.currentScore;
-    for (const timer of ['scoreImpact', 'comboImpact', 'waveImpact', 'ammoImpact']) {
+    for (const timer of ['scoreImpact', 'comboImpact', 'waveImpact', 'ammoImpact', 'enemyImpact', 'countdownImpact']) {
       this[timer] = Math.max(0, this[timer] - presentationDt);
     }
     this.waveAge += presentationDt;
     this.maskAge += presentationDt;
+    this.clearAge += presentationDt;
 
     // 2. Combo Timer countdown & expiration
     if (this.comboTimer > 0) {
@@ -254,10 +291,12 @@ class GameHUD {
     if (waveInfo) {
       if (waveInfo.wave) this._announceWave(waveInfo.wave);
       this.waveNumber = waveInfo.wave || this.waveNumber;
-      this.enemiesRemaining = waveInfo.enemiesRemaining !== undefined ? waveInfo.enemiesRemaining : this.enemiesRemaining;
+      if (waveInfo.enemiesRemaining !== undefined) this.setEnemiesRemaining(waveInfo.enemiesRemaining);
       this.totalWaveEnemies = waveInfo.totalEnemies || this.totalWaveEnemies;
       this.preWaveTime = waveInfo.preWaveTimeLeft || 0;
       this.intermissionTime = waveInfo.intermissionTimeLeft || 0;
+      this.supplyCrates = waveInfo.supplyCrates || [];
+      this._syncCountdown();
     }
   }
 
@@ -268,7 +307,7 @@ class GameHUD {
   /**
    * Render HUD elements and popups
    */
-  draw(ctx, width, height, camera = null, enemyLocations = [], playerPos = null) {
+  draw(ctx, width, height, camera = null, enemyLocations = [], playerPos = null, aimPos = null) {
     ctx.save();
 
     // 1. Screen Flash overlay
@@ -302,18 +341,30 @@ class GameHUD {
     // 7. BOTTOM LEFT: Active Animal Mask Badge
     this._drawMaskBadge(ctx, width, height);
 
-    // 8. CENTER TOP: Wave countdown / inter-wave resupply alert
-    if (this.preWaveTime > 0) {
-      this._drawPreWaveBanner(ctx, width, height);
-    } else if (this.intermissionTime > 0) {
-      this._drawIntermissionBanner(ctx, width, height);
+    // Presentation-only type; keep the actor and reticle visible through it.
+    ctx.save();
+    const protectedPoints = [hudPlayer, aimPos && { x: aimPos.x / uiScale, y: aimPos.y / uiScale }].filter(Boolean);
+    for (const point of protectedPoints) {
+      ctx.beginPath(); ctx.rect(0, 0, width, height);
+      ctx.rect(point.x - 44, point.y - 44, 88, 88);
+      ctx.clip('evenodd');
     }
+    // Fixed upper-center anchors, independent of player and reticle positions.
+    if (this.intermissionTime > 0) {
+      this._drawIntermissionBanner(ctx, width, height);
+    } else if (this.preWaveTime > 0 || (this.presentedWave !== null && this.waveAge < 1.2)) {
+      this._drawPreWaveBanner(ctx, width, height);
+    }
+    ctx.restore();
 
     ctx.restore();
     width = screenWidth; height = screenHeight;
     // 9. Offscreen Enemy Threat Indicators (Radar Arrows)
     if (playerPos && enemyLocations && enemyLocations.length > 0 && camera) {
       this._drawThreatArrows(ctx, width, height, camera, playerPos, enemyLocations);
+    }
+    if (this.intermissionTime > 0 && camera) {
+      this._drawSupplyArrows(ctx, width, height, camera);
     }
 
     ctx.restore();
@@ -364,8 +415,8 @@ class GameHUD {
     ctx.shadowOffsetX = ctx.shadowOffsetY = 0;
   }
 
-  _metadata(ctx, text, x, y, color = '#f2e5c9') {
-    ctx.font = 'bold 12px "Courier New", monospace';
+  _metadata(ctx, text, x, y, color = '#f2e5c9', size = 12) {
+    ctx.font = `bold ${size}px "Courier New", monospace`;
     ctx.shadowColor = '#100e20'; ctx.shadowBlur = 0;
     ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 2;
     ctx.fillStyle = color; ctx.fillText(text, x, y);
@@ -395,7 +446,13 @@ class GameHUD {
     ctx.globalAlpha = 1 - quiet * .35;
     this._type(ctx, `WAVE ${String(this.waveNumber).padStart(2, '0')}`, 0, 0,
       26 - quiet * 6, '#f2e5c9', '#100e20');
-    this._metadata(ctx, `${this.enemiesRemaining} LEFT`, 0, 36 - quiet * 8);
+    ctx.translate(0, 36 - quiet * 8);
+    const enemyImpact = Math.pow(this.enemyImpact / .12, 2);
+    const pop = 1 + enemyImpact * (.18 + this.enemyImpactStrength * .06);
+    ctx.scale(pop, pop);
+    ctx.globalAlpha = enemyImpact ? 1 : ctx.globalAlpha;
+    this._metadata(ctx, `${this.enemiesRemaining} LEFT`, enemyImpact * 3, -enemyImpact * 2,
+      enemyImpact ? '#ffffff' : '#f2e5c9');
     ctx.restore();
   }
 
@@ -466,15 +523,86 @@ class GameHUD {
   }
 
   _drawPreWaveBanner(ctx, width, height) {
+    this._drawWaveHeadline(ctx, width, `WAVE ${String(this.waveNumber).padStart(2, '0')}`,
+      this.waveAge, 1.2, '#ed4e93');
+    if (this.preWaveTime > 0) this._drawPreWaveCountdown(ctx, width, height);
+  }
+
+  _drawPreWaveCountdown(ctx, width, height) {
     ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    this._metadata(ctx, `GET READY / ${Math.max(1, Math.ceil(this.preWaveTime))}`, width * .5, 38);
+    this._type(ctx, 'GET READY', width * .5, 34, 20, '#f2e5c9', '#100e20');
+    const number = this.countdownNumber;
+    if (!number) { ctx.restore(); return; }
+    const impact = Math.pow(this.countdownImpact / this.countdownImpactDuration, 2);
+    const strength = .16 + (3 - number) * .14;
+    ctx.textBaseline = 'middle';
+    ctx.translate(width * .5, 230);
+    ctx.transform(1, 0, -.1 * impact, 1, 0, 0);
+    ctx.scale(1 + strength * impact, 1 + strength * impact);
+    this._type(ctx, String(number), 0, 0, 64, '#f2e5c9', '#ed4e93');
+    ctx.restore();
+  }
+
+  _drawWaveHeadline(ctx, width, text, age, duration, color) {
+    if (age >= duration) return;
+    const enter = Math.pow(Math.max(0, 1 - age / .12), 3);
+    const leave = Math.pow(Math.max(0, (age - duration + .18) / .18), 2);
+    ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.globalAlpha = 1 - leave;
+    ctx.translate(width * .5 - enter * 160 + leave * 180, 136);
+    ctx.transform(1, 0, -.18 - enter * .18 + leave * .22, 1, 0, 0);
+    const scale = 1 + enter * .18;
+    ctx.scale(scale, scale);
+    const size = 96;
+    ctx.font = `italic 900 ${size}px Impact, 'Arial Black', sans-serif`;
+    const fitted = Math.min(size, size * Math.min(820, width - 400) / Math.max(1, ctx.measureText(text).width));
+    // One saturated accent with a hard ink offset, never a backdrop.
+    ctx.shadowColor = '#100e20'; ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 7; ctx.shadowOffsetY = 9;
+    ctx.font = `italic 900 ${fitted}px Impact, 'Arial Black', sans-serif`;
+    ctx.fillStyle = color;
+    ctx.fillText(text, 0, 0);
     ctx.restore();
   }
 
   _drawIntermissionBanner(ctx, width, height) {
+    this._drawWaveHeadline(ctx, width, `WAVE ${String(this.clearedWave ?? this.waveNumber).padStart(2, '0')} CLEAR`,
+      this.clearAge, 1.2, '#39ff14');
+    const settle = Math.min(1, Math.max(0, (this.clearAge - .9) / .3));
     ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    this._type(ctx, 'SECTOR CLEAR', width * .5, 32, 24, '#f2e5c9', '#100e20');
-    this._metadata(ctx, `RESUPPLY AT CAFETERIA / ${Math.ceil(this.intermissionTime)}s`, width * .5, 65);
+    ctx.globalAlpha = settle;
+    const available = this.supplyCrates.some(crate => crate && !crate.isOpened);
+    const text = available ? `REAPPRO MUNITIONS DISPO ${Math.ceil(this.intermissionTime)}s`
+      : `REAPPRO EPUISES / VAGUE SUIVANTE ${Math.ceil(this.intermissionTime)}s`;
+    this._metadata(ctx, text, width * .5, 38, available ? '#39ff14' : '#b89bb5', 18);
+    ctx.restore();
+  }
+
+  _drawSupplyArrows(ctx, width, height, camera) {
+    const scale = Math.min(width / 1280, height / 720);
+    const margin = 28 * scale;
+    for (const crate of this.supplyCrates) {
+      if (!crate || crate.isOpened) continue;
+      const point = camera.worldToScreen(crate.x, crate.y);
+      const dx = point.x - width / 2, dy = point.y - height / 2;
+      const offscreen = point.x < margin || point.x > width - margin || point.y < margin || point.y > height - margin;
+      if (offscreen) {
+        const edge = Math.min((width / 2 - margin) / Math.max(.001, Math.abs(dx)),
+          (height / 2 - margin) / Math.max(.001, Math.abs(dy)));
+        this._drawRadarArrow(ctx, width / 2 + dx * edge, height / 2 + dy * edge,
+          Math.atan2(dy, dx), '#39ff14', scale);
+      } else {
+        // Same chevron also identifies visible caches, just above the box.
+        this._drawRadarArrow(ctx, point.x, Math.max(margin, point.y - 30 * scale), Math.PI / 2, '#39ff14', scale);
+      }
+    }
+  }
+
+  _drawRadarArrow(ctx, x, y, angle, color, scale = 1) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.scale(scale, scale);
+    ctx.fillStyle = color; ctx.shadowColor = color; ctx.shadowBlur = 6;
+    ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(-6, -6);
+    ctx.lineTo(-2, 0); ctx.lineTo(-6, 6); ctx.closePath(); ctx.fill();
     ctx.restore();
   }
 
@@ -503,23 +631,8 @@ class GameHUD {
         const edgeX = Math.max(margin, Math.min(width - margin, width * 0.5 + Math.cos(angle) * (width * 0.45)));
         const edgeY = Math.max(margin, Math.min(height - margin, height * 0.5 + Math.sin(angle) * (height * 0.42)));
 
-        ctx.save();
-        ctx.translate(edgeX, edgeY);
-        ctx.rotate(angle);
-
-        ctx.fillStyle = enemy.isDog ? '#ff8800' : (enemy.isHeavy ? '#b537f2' : '#ff0044');
-        ctx.shadowColor = ctx.fillStyle;
-        ctx.shadowBlur = 6;
-
-        ctx.beginPath();
-        ctx.moveTo(10, 0);
-        ctx.lineTo(-6, -6);
-        ctx.lineTo(-2, 0);
-        ctx.lineTo(-6, 6);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.restore();
+        this._drawRadarArrow(ctx, edgeX, edgeY, angle,
+          enemy.isDog ? '#ff8800' : (enemy.isHeavy ? '#b537f2' : '#ff0044'));
       }
     }
     ctx.restore();

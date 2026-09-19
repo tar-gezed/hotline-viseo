@@ -26,6 +26,7 @@ const scenarios = ['intro', 'gun', 'combo-impact', 'empty', 'dry-fire', 'melee',
         window.__hudTest = {
           get state() { return gameState; }, get player() { return player; },
           get hud() { return hud; }, get camera() { return camera; },
+          get spawner() { return waveSpawner; },
           get bullets() { return bullets; }, get pause() { return pauseMenu; },
           renderPause() { pauseGame(); renderGameWorld(0); pauseMenu.render(ctx,canvas.width,canvas.height,input); resumeGame(); },
           render() { renderGameWorld(0); }
@@ -74,7 +75,7 @@ const scenarios = ['intro', 'gun', 'combo-impact', 'empty', 'dry-fire', 'melee',
           t.player.equipWeapon('UZI',20); h.setWeapon(t.player.currentWeapon, t.player.ammo);
           h.addScore(12400); h.update(4);
           t.camera.snapTo(t.player.x,t.player.y);
-          if (name === 'intro') { h.setWave(2,7); h.preWaveTime = 3; }
+          if (name === 'intro') { h.setWave(2,7); h.setPreWave(4); }
           if (['combo-impact','player-safe'].includes(name)) {
             for (let i=0;i<6;i++) h.addKillScore('GUN',400,t.player.x+80,t.player.y-40);
             h.popups = []; h.update(.016);
@@ -84,7 +85,10 @@ const scenarios = ['intro', 'gun', 'combo-impact', 'empty', 'dry-fire', 'melee',
             if (name === 'dry-fire') h.notifyDryFire();
           }
           if (name === 'melee') { t.player.equipWeapon('BAT'); h.setWeapon(t.player.currentWeapon,t.player.ammo); }
-          if (name === 'intermission') h.intermissionTime = 8;
+          if (name === 'intermission') {
+            t.spawner._spawnInterWaveSupplies(); h.supplyCrates = t.spawner.supplyCrates;
+            h.setIntermission(8); h.clearAge = 1;
+          }
           if (name === 'player-safe') {
             // Move the actual sprite into the usual combo zone, with camera frozen.
             const original = { x:t.player.x, y:t.player.y };

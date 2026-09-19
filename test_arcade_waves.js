@@ -70,3 +70,43 @@ for (const type of ['STANDARD','DOG']) {
   assert.equal(enemy.isAlive,false,'entering enemies must remain vulnerable');
 }
 console.log('Arcade wave / ingress / wall / dog recovery regressions passed');
+
+// Visual beats and celebrations must not add simulation time or delay squads.
+{
+  const { GameHUD } = require('./js/ui/hud.js');
+  const spawner = new WaveSpawner(), hud = new GameHUD();
+  let started = 0;
+  spawner.onPreWave = (wave, total) => { hud.setWave(wave, total); hud.setPreWave(spawner.preWaveTimeTotal); };
+  spawner.onWaveStart = (wave, total) => { started++; hud.setWave(wave, total); };
+  spawner.onWaveClear = wave => hud.setIntermission(spawner.intermissionTimer, wave);
+  spawner.startWave(1);
+  assert.equal(spawner.preWaveTimeTotal, 4);
+  assert.equal(hud.countdownNumber, 0, 'no digit during the first second');
+  const beats = [0];
+  for (let tick = 0; tick < 39; tick++) {
+    const info = spawner.update(.1, null, 0);
+    hud.update(.1, info, .2); // Visual time deliberately runs twice as fast.
+    if (beats.at(-1) !== hud.countdownNumber) beats.push(hud.countdownNumber);
+    assert.equal(started, 0);
+    assert.equal(spawner.enemiesSpawned, 0);
+  }
+  assert.deepEqual(beats, [0,3,2,1]);
+  assert(hud.waveAge > 7, 'finished visual animation cannot end the phase');
+  hud.update(.1, spawner.update(.1, null, 0), .2);
+  assert.equal(started, 1, 'combat starts at the original four seconds');
+  assert.equal(hud.countdownNumber, 0);
+  assert(spawner.enemiesSpawned > 0);
+  spawner.spawnQueue = [];
+  hud.update(.01, spawner.update(.01, null, 0), .01);
+  assert.equal(spawner.state, 'INTERMISSION');
+  const remaining = spawner.intermissionTimer;
+  hud.update(0, null, 1.3);
+  assert(hud.clearAge > 1.2);
+  assert.equal(spawner.intermissionTimer, remaining, 'clear animation cannot consume resupply time');
+  spawner.update(remaining - .01, null, 0);
+  assert.equal(started, 1);
+  hud.update(.02, spawner.update(.02, null, 0), .02);
+  assert.equal(started, 2);
+  assert.equal(spawner.preWaveTimer, 0, 'later waves gain no prep phase');
+  assert(hud.waveAge < 1.2, 'later waves still get their short headline');
+}

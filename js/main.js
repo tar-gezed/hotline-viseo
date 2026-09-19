@@ -377,7 +377,7 @@
   function initWaveSpawnerHooks() {
     waveSpawner.onPreWave = (waveNum, totalEnemies) => {
       hud.setWave(waveNum, totalEnemies);
-      hud.preWaveTime = waveSpawner.preWaveTimeTotal;
+      hud.setPreWave(waveSpawner.preWaveTimeTotal);
       synthMusic.play('wave_clear');
       synthMusic.setIntensity(0.08);
       gameState = STATES.PLAYING;
@@ -385,8 +385,8 @@
 
     waveSpawner.onWaveStart = (waveNum, totalEnemies) => {
       hud.setWave(waveNum, totalEnemies);
+      hud.preWaveTime = hud.intermissionTime = 0;
       soundFX.playWaveStartSiren();
-      postProcessor.screenFlash('#00f3ff', 0.4);
       addTrauma(0.3);
       synthMusic.play('combat');
       gameState = STATES.PLAYING;
@@ -424,11 +424,9 @@
       gameState = STATES.INTERMISSION;
       soundFX.playWaveClearFanfare();
       synthMusic.play('wave_clear');
-      postProcessor.screenFlash('#39ff14', 0.5);
       // Keep intermission responsive; the final hit already supplies hit-stop.
-      hud.addScore(bonusPoints, 'WAVE CLEAR BONUS');
-      hud.setIntermission(waveSpawner.intermissionTimeTotal);
-      particleSystem.addFloatingText(player.x, player.y - 40, `WAVE ${waveNum} COMPLETE! +${bonusPoints}`, '#39ff14', 28);
+      hud.addScore(bonusPoints);
+      hud.setIntermission(waveSpawner.intermissionTimer, waveNum);
     };
 
     waveSpawner.onSupplySpawned = (crate) => {
@@ -1467,7 +1465,10 @@
     }
 
     if (gameState === STATES.PLAYING || gameState === STATES.INTERMISSION) {
-      hud.render(ctx, canvas.width, canvas.height, camera, enemies.filter(e => e.isAlive), player);
+      const hudAim = input.isGamepadMode
+        ? { x: input.virtualAim.screenX, y: input.virtualAim.screenY }
+        : { x: input.mouseX, y: input.mouseY };
+      hud.render(ctx, canvas.width, canvas.height, camera, enemies.filter(e => e.isAlive), player, hudAim);
       input.renderCrosshair(ctx);
     }
     // Include the lethal update's own frame: no one-frame HUD or title delay.

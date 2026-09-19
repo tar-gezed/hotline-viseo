@@ -42,6 +42,49 @@ assert.equal(visual.comboTimer,slowTimer-.01,'combo still uses simulation time')
 visual.reset();assert.equal(visual.maskAge,0);assert.equal(visual.presentedWave,null);
 console.log('PASS event-only HUD impacts, repeated wave sync, dry fire isolation and reset');
 
+// Kills (including one-frame multikills) animate only on a real count decrease.
+{
+  const h = new GameHUD();
+  h.setWave(1, 7); h.setEnemiesRemaining(6);
+  assert.equal(h.enemyImpact, .12);
+  h.update(0, null, .13); h.setEnemiesRemaining(6);
+  assert.equal(h.enemyImpact, 0);
+  h.update(0, { wave:1, enemiesRemaining:3 }, 0);
+  assert.equal(h.enemyImpactStrength, 3);
+  h.setEnemiesRemaining(3); // main.js's second sync must not erase the impact.
+  assert.equal(h.enemyImpact, .12);
+  h.setPreWave(4);
+  assert.equal(h.countdownNumber, 0);
+  for (const [remaining, digit] of [[4,0],[3.001,0],[3,3],[2.001,3],[2,2],[1.001,2],[1,1],[.001,1],[0,0]]) {
+    h.update(0, { preWaveTimeLeft:remaining }, 0);
+    assert.equal(h.countdownNumber, digit, `countdown at ${remaining}s`);
+  }
+  h.update(0, { preWaveTimeLeft:3 }, 0);
+  h.update(0, { preWaveTimeLeft:3 }, .15);
+  assert.equal(h.countdownImpact, 0, 'same beat cannot keep retriggering');
+  h.update(0, { preWaveTimeLeft:.7 }, 0);
+  assert.equal(h.countdownNumber, 1);
+  assert.equal(h.countdownImpactDuration, .14);
+  h.setIntermission(10, 1); h.update(0, null, .9); h.setIntermission(9, 1);
+  assert.equal(h.clearAge, .9, 'same clear callback cannot replay the celebration');
+  h.reset();
+  assert.equal(h.enemyImpact, 0); assert.equal(h.countdownNumber, 0);
+  assert.equal(h.clearAge, Infinity); assert.deepEqual(h.supplyCrates, []);
+
+  // Any number of caches, camera-projected positions, opened caches excluded.
+  const arrows = [];
+  h._drawRadarArrow = (...args) => arrows.push(args.slice(1));
+  h.supplyCrates = [{x:-1000,y:100}, {x:2400,y:100}, {x:600,y:400}, {x:100,y:50,isOpened:true}];
+  h._drawSupplyArrows({}, 1280, 720, {worldToScreen:(x,y)=>({x,y})});
+  assert.equal(arrows.length, 3);
+  for (const [x,y,angle,color] of arrows) {
+    assert(x >= 28 && x <= 1252 && y >= 28 && y <= 692);
+    assert.equal(color, '#39ff14'); assert(Number.isFinite(angle));
+  }
+  assert.equal(arrows[2][0],600); assert.equal(arrows[2][1],370);
+  assert.equal(arrows[2][2],Math.PI/2);
+}
+
 // Results: first confirm skips; the next press activates. All routes share it.
 const results = new ScoreScreen();
 let restarts = 0, masks = 0, next = 0;
