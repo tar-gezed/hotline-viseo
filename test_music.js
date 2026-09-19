@@ -115,9 +115,13 @@ try {
   engine._scheduler();
   assert(scheduled <= 2, 'Background return must not replay missed bars');
   engine._scheduleStep = schedule;
-  for (const mode of ['menu', 'game_over']) {
+  for (const mode of ['menu', 'game_over', 'results']) {
     engine.play(mode);
-    for (let step = 0; step < 64; step++) engine._scheduleStep(step, 5 + step * 15 / engine.bpm);
+    if (mode === 'results') {
+      assert.equal(engine.bpm, 84);
+      assert.equal(engine.totalSteps, 128);
+    }
+    for (let step = 0; step < engine.totalSteps; step++) engine._scheduleStep(step, 5 + step * 15 / engine.bpm);
   }
   engine.setMute(true); assert.equal(engine.masterGain.gain.value, 0);
   engine.setVolume(0.4); assert.equal(engine.masterGain.gain.value, 0);

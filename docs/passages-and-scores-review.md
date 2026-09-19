@@ -1,5 +1,10 @@
 # Vérification finale — 11 septembre 2026
 
+Mise à jour After Hours : la [présentation des résultats](score-direction.md) a
+été refondue, avec classement secondaire et copie du score à partager. Les
+formules et le stockage V2 couverts par cette revue sont conservés ; la validation
+actuelle ajoute six grades, cinq résolutions et les parcours clavier/souris/manette.
+
 Mise à jour d’intégration du 18 septembre 2026 : depuis les scores, le changement de personnage ouvre toujours la sélection, puis RETOUR mène au nouvel écran titre. Le test navigateur des menus couvre ce parcours et la restauration du volume après la mort. Les résultats ci-dessous décrivent la campagne historique du 11 septembre ; la suite actuelle comprend 21 tests. Voir [validation des menus](menu-direction.md).
 
 ## Portes difficiles à pousser et impacts

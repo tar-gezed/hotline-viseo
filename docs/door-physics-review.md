@@ -1,5 +1,9 @@
 # Portes : diagnostic et corrections
 
+Intégration After Hours : le compteur de portes reste consultable dans les
+[résultats](score-direction.md), sous les catégories principales. Les formules
+de score et les règles physiques de cette revue sont conservées.
+
 Mise à jour d’intégration du 18 septembre 2026 : l’écran **CONTRÔLES** documente Espace et △/Y pour l’action exécution/porte. La refonte des menus ne modifie pas les règles physiques décrites dans cette revue ; leurs régressions font partie des 21 suites actuelles. Voir [direction des menus](menu-direction.md).
 
 La vitesse angulaire seule armait les dégâts : les poussées normales accumulaient du couple et un rebond pouvait toucher plusieurs fois. La course relançait aussi automatiquement un coup à chaque frame près d'une porte. Enfin, les ennemis assommés glissaient sans collision avec le décor ; ils restaient vivants et comptaient donc toujours dans la vague, même lorsqu'ils paraissaient morts ou devenaient inaccessibles.

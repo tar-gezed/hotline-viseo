@@ -41,3 +41,61 @@ assert.equal(visual.scoreImpact,0,'100 ms impact uses real time during hit stop'
 assert.equal(visual.comboTimer,slowTimer-.01,'combo still uses simulation time');
 visual.reset();assert.equal(visual.maskAge,0);assert.equal(visual.presentedWave,null);
 console.log('PASS event-only HUD impacts, repeated wave sync, dry fire isolation and reset');
+
+// Results: first confirm skips; the next press activates. All routes share it.
+const results = new ScoreScreen();
+let restarts = 0, masks = 0, next = 0;
+results.onRestart = () => restarts++;
+results.onChangeMask = () => masks++;
+results.onNextWave = () => next++;
+results.show('GAME_OVER', run);
+const evaluated = JSON.stringify(results.breakdown);
+results.update(.2, { isMenuConfirmJustPressed: () => true });
+assert.equal(restarts, 0); assert(results.tallyComplete);
+results.update(.016, { isMenuConfirmJustPressed: () => true });
+assert.equal(restarts, 1);
+results.handleKeyDown({ key: 'r', repeat: true }); assert.equal(restarts, 1);
+results.handleKeyDown({ key: 'Tab' }); assert(results.showLeaderboard);
+results.handleKeyDown({ key: 'Escape' }); assert(!results.showLeaderboard);
+results.update(.016, { gamepad: { connected: true, justPressed: { buttonX: true } } });
+assert(results.showLeaderboard);
+results.update(.016, { gamepad: { connected: true, justPressed: { buttonY: true } } });
+assert.equal(masks, 1);
+assert.equal(JSON.stringify(results.breakdown), evaluated);
+for (const [width, height] of [[1280,720],[1440,900],[1920,1080],[2560,1440],[3440,1440]]) {
+  results.show('WAVE_CLEAR', run);
+  assert(!results.showLeaderboard);
+  const f = results.frame(width, height);
+  results.handleClick(f.x + 150 * f.scale, f.y + 676 * f.scale, width, height);
+  assert(results.tallyComplete);
+  const before = next;
+  results.handleClick(f.x + 150 * f.scale, f.y + 676 * f.scale, width, height);
+  assert.equal(next, before + 1);
+}
+const colors = new Set();
+for (const grade of CONFIG.SCORING.GRADES) {
+  results.show('WAVE_CLEAR', { ...run, score: grade.minScore });
+  assert.equal(results.breakdown.grade, grade.grade);
+  colors.add(results.breakdown.gradeColor);
+}
+assert.equal(colors.size, 6);
+results.show('WAVE_CLEAR', run);
+for (let i = 0; i < 120; i++) results.update(1 / 60);
+assert(results.stampLanded); assert.equal(results.stampScale, 1);
+console.log('PASS results skip, keyboard/gamepad/click routes, six grades, responsive hit regions and score isolation');
+
+results.eventDrivenKeyboard = true;
+results.show('GAME_OVER', run);
+const masksBefore = masks;
+results.handleKeyDown({key:'m',code:'Semicolon'}, true);
+results.update(.016, {isJustPressed:()=>true});
+assert.equal(masks,masksBefore+1,'AZERTY printed M reaches characters once');
+results.update(.016, {isJustPressed:()=>true});
+assert.equal(masks,masksBefore+1,'polled keyboard cannot replay queued actions');
+assert.match(results.shareText(), /🌊 Vague : 1/);
+assert.match(results.shareText(), /🔥 Grade : D/);
+assert(results.shareText().endsWith('https://tar-gezed.github.io/hotline-viseo/'));
+results.show('GAME_OVER',run);
+results.update(1.58); assert(results.stampScale>1.4); assert(!results.stampLanded);
+results.update(.161); assert(results.stampLanded); assert(results.stampScale<1);
+results.update(.12); assert.equal(results.stampScale,1);

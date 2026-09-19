@@ -1,5 +1,9 @@
 # Visual and gameplay repair review — 9 September 2026
 
+After Hours integration: the [results presentation](score-direction.md) now uses
+its own original Canvas skyline, animated grade and secondary leaderboard. Its
+five-resolution validation is separate from the world-rendering review below.
+
 Integration update, 18 September 2026: the title and supporting screens now use a shared Canvas palette, hard shadows, subtle scanlines and an original moving skyline. These menus replace the combined launch/character screen; the world rendering and collision work reviewed below is unchanged. See [menu direction and validation](menu-direction.md) for the current four-resolution capture workflow and its limitations.
 
 Performed directly by the main agent, without subagents. This is a critical self-review, not an independent reviewer verdict.

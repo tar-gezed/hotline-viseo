@@ -1,6 +1,6 @@
-# System Architecture — Hotline Miami: VISEO Arcade Edition
+# System Architecture — Hotline Viseo: After Hours
 
-This document details the architectural design, subsystems, data flow, and runtime mechanics of **Hotline Miami: VISEO Arcade Edition**.
+This document details the architectural design, subsystems, data flow, and runtime mechanics of **Hotline Viseo: After Hours**, also the browser page title in `index.html`.
 
 ---
 
@@ -100,7 +100,7 @@ The master coordinator runs on standard `requestAnimationFrame` with delta-time 
   - `PLAYING`: Core real-time combat and wave survival.
   - `INTERMISSION`: Brief cooldown between waves for repositioning and telegraphed spawns.
   - `DEAD`: Slow-motion death sequence with camera zoom, the screen-space `DeathOverlay`, a 220 ms input guard, and score access.
-  - `GAME_OVER`: Final summary and grade display.
+  - `GAME_OVER`: Opaque After Hours results scene, sequential tally, grade impact, secondary leaderboard and clipboard sharing; the hidden game world is not rendered.
   - `PAUSED`: Pause state with full game state preservation.
 - **Hit-Stop Slow Motion:** Brief fractional-second time freezes triggered during lethal melee impacts and door knockdowns to deliver visceral feedback.
 
@@ -161,7 +161,7 @@ Floating labels rasterize their outline/glow once per instance and animate the r
 - **Controls / audio / tools / pause:** Dedicated components. Audio settings clamp and validate persisted values, fall back to session memory when storage is unavailable, and use the same music/SFX singletons captured by entity modules. Death ducking scales the saved music volume; new runs and menus restore it. Pause remembers PLAYING versus INTERMISSION. See [menu direction](menu-direction.md).
 - **HUD (`hud.js`):** Event-driven retro arcade HUD displaying the exact score, combo multiplier and decay, wave metadata, active weapon ammo, short event impacts, transient mask feedback, and floating combat score text. Presentation timers use real time while combo decay remains simulation-time based, so hit-stop does not stretch visual feedback or alter scoring.
 - **Death Overlay (`death_overlay.js`):** Screen-space death presentation with blood textures generated and cached once per death, local `SELINCAH` font, neutral veil/vignette, delayed score hint, and no HUD on the lethal frame. `main.js` retains ownership of state transitions, input priority, retry guards, and score access.
-- **Score Screen (`score_screen.js`):** Post-run breakdown grading performance from D to S (Apex Psychopath), calculating bonuses for weapon variety, bold combos, carnage, and clear time, with a local V2 leaderboard.
+- **Score Screen (`score_screen.js`):** Original full-screen Canvas scenery, eight sequential categories, dominant final score and grade stamp, with unchanged D-to-S formulas and local V2 leaderboard storage. Four clickable footer actions provide replay, characters, ranking and clipboard sharing. Printed keyboard keys support AZERTY; navigation is queued once while clipboard writes run during the user gesture. The original 84 BPM `results` track follows shared music settings. See [score direction](score-direction.md) for layout, routing, audio and five-resolution browser validation.
 
 ---
 

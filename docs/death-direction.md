@@ -1,5 +1,9 @@
 # Écran de mort — arrêt brutal
 
+Après validation de SCORE, `GAME_OVER` affiche les [résultats After Hours](score-direction.md)
+sur une scène Canvas opaque et lance la piste `results` au volume musical choisi.
+Le monde masqué n’est plus dessiné derrière cet écran de résultats.
+
 `js/main.js::renderDeathOverlay()` délègue le dessin à `js/ui/death_overlay.js`. Le monde continue d’être rendu sous l’overlay, avec ses particules et sa caméra existantes. Aucun contrôle, hit-stop gameplay, garde d’entrée ou mécanisme de respawn n’est modifié.
 
 ## Présentation

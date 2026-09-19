@@ -1,5 +1,8 @@
 # Sols éditables et sprites — revue du 9 septembre 2026
 
+Intégration After Hours : les montagnes, bureaux et reflets de l’[écran de résultats](score-direction.md)
+sont une scène Canvas autonome, sans nouveau sprite ni couche de sol dans les cartes.
+
 Mise à jour d’intégration du 18 septembre 2026 : l’accès à l’éditeur passe désormais par **Titre → TOOLS / MAPS → ÉDITEUR DE CARTE**. Les couches de sol, les sprites et les outils décrits ci-dessous restent inchangés. Voir [les parcours de menu et leur validation](menu-direction.md).
 
 Travail réalisé directement, sans sous-agents. Comparaison visuelle dans `sprite_review.html`, avec captures Hotline Miami 2 de [PC Gamer](https://www.pcgamer.com/hotline-miami-2-wrong-number-review/) et du [guide Steam](https://steamcommunity.com/sharedfiles/filedetails/?id=419037574).

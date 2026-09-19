@@ -1,5 +1,16 @@
 # Combat music revision
 
+## After-hours results music
+
+The results screen has its own original `results` track at 84 BPM: eight bars of
+Dm9 / Bbmaj7 / Fmaj7 / Cadd9, soft pads, sparse bass, half-time percussion and a
+bell-like answering phrase. It shares the music gain/mute and voice lifecycle;
+results entry restores the user's selected volume after death ducking. Existing
+combat, menu and intermission arrangements are unchanged. The development command
+`node tools/validate_scores.cjs` exports the loop and seam to
+`test-results/scores/after-hours.wav` and checks signal levels; see
+[results validation](score-direction.md).
+
 ## Direction
 
 The first expansion had two compositional faults: fixed minor intervals were transposed onto major chords, and some pad durations crossed a chord change. High lead registers, strong filter resonance and competing counter-melodies made the result more tiring. Longer arrangements did not fix those problems.

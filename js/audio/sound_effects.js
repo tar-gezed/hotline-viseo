@@ -1073,8 +1073,23 @@ class SoundEffectsEngine {
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
 
     osc.connect(gain);
+    gain.connect(this.masterGain);
     osc.start(now);
     osc.stop(now + 0.11);
+  }
+
+  // Short low stamp impact, routed through the user's SFX volume.
+  playScoreStamp() {
+    if (!this._ensureReady()) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(180, now);
+    osc.frequency.exponentialRampToValueAtTime(42, now + .16);
+    gain.gain.setValueAtTime(.65, now);
+    gain.gain.exponentialRampToValueAtTime(.001, now + .22);
+    osc.connect(gain); gain.connect(this.masterGain);
+    osc.start(now); osc.stop(now + .23);
   }
 
   playGunshot(type, x = 0, y = 0) {

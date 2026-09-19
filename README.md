@@ -1,4 +1,4 @@
-# Hotline Miami: VISEO Arcade Edition
+# Hotline Viseo: After Hours
 
 > Un jeu d'action / shooter rétro néon en vue du dessus inspiré de *Hotline Miami*, situé dans les locaux stylisés de l'agence VISEO. Développé en pur JavaScript standard (ES6+), HTML5 Canvas 2D et Web Audio API, sans aucune dépendance de production externe (pour l'instant).
 
@@ -176,6 +176,17 @@ Les arrivées constituent l'ensemble utilisé pour **toutes les vagues, dès la 
 Validation : `node docs/test_gameplay_editor.cjs` teste placement, édition, suppression, duplication, déplacement, protections, annulation, sauvegarde/rechargement, export et chargement dans le jeu avec les munitions personnalisées et les arrivées des vagues 1 et 3.
 
 ## Scoring et classement V2
+
+Le bilan **AFTER HOURS** devient une scène Canvas grenobloise : montagnes, bureaux,
+disque rose-orangé et reflets. Huit catégories apparaissent au rythme de 140 ms,
+puis un score massif et le grade. Une boucle synthwave originale à 84 BPM accompagne
+ce moment. Entrée/R ou A/× passent le décompte avant de rejouer ; M ou Y/△ ouvrent
+les personnages ; Tab/L ou X/□ affichent le classement secondaire, qui met uniquement
+la partie actuelle en évidence. Les quatre actions sont cliquables avec survol ;
+**Partager** (S ou RB/R1) copie score, vague, grade, emojis et lien du jeu, puis
+affiche « COPIÉ ! ». M fonctionne aussi sur AZERTY. Le commentaire est centré sous
+le grade, dont l’arrivée combine frappe sonore, rebond et éclats brefs.
+Voir la [direction et validation des résultats](docs/score-direction.md).
 
 Le score en jeu comprend les points des éliminations (avec multiplicateur de combo et bonus de PAP), assommages, ravitaillements et fins de vague. Le bilan ajoute les bonus suivants :
 

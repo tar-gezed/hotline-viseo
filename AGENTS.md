@@ -1,4 +1,4 @@
-# Developer & Agent Guidelines — Hotline Miami: VISEO Arcade Edition
+# Developer & Agent Guidelines — Hotline Viseo: After Hours
 
 This document defines the development rules, architectural standards, and mandatory Git commit policies for all AI agents and human contributors working on this repository.
 

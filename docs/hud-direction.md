@@ -1,5 +1,9 @@
 # HUD en jeu
 
+Les [résultats After Hours](score-direction.md) reprennent les statistiques de la
+partie dans une composition distincte : le total final inclut les bonus existants,
+avec un décompte et un impact de grade propres à cet écran.
+
 Le HUD reprend les caractères Impact inclinés, l’ivoire, le rose et le cyan du titre. Le score domine en haut à droite, avec une taille de 44 pixels logiques et une ombre dure décalée de 4 pixels. Le combo se place dessous et grandit avec la série, avec un trait fin conservant l’information de decay. Les points de série et le nombre de kills restent affichés. Le total apparaît immédiatement, sans compteur roulant ni halo persistant.
 
 Les impacts de score, combo, changement de vague et arme vide durent 100 ms de temps réel en jeu, y compris pendant le hit stop ; le decay du combo conserve le temps de simulation. Ils partent à leur amplitude maximale et retombent rapidement, sans oscillation. Les synchronisations répétées d’une même vague ou d’une arme vide ne relancent pas l’animation. Un événement `DRY_FIRE` accepté par le contrôleur d’attaque relance l’impact de l’ammo ; le cooldown et les quantités restent ceux du jeu.

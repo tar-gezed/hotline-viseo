@@ -222,6 +222,7 @@
     ctx.drawImage(textWarmup, 0, 0);
     const ScoreClass = window.ScoreScreen || (typeof ScoreScreen !== 'undefined' ? ScoreScreen : null);
     scoreScreen = new ScoreClass();
+    scoreScreen.eventDrivenKeyboard = true;
 
     // Hook UI Callbacks
     maskMenu.onMaskConfirmed = (maskParam) => {
@@ -233,12 +234,19 @@
 
     scoreScreen.onRestart = () => {
       scoreScreen.hide();
+      canvas.style.cursor = '';
       startNewGame(selectedMaskId);
     };
 
     scoreScreen.onChangeMask = () => {
       scoreScreen.hide();
+      canvas.style.cursor = '';
       enterMenu(STATES.MENU_MASK);
+    };
+    scoreScreen.onMainMenu = () => {
+      scoreScreen.hide();
+      canvas.style.cursor = '';
+      enterMenu(STATES.MENU_TITLE);
     };
 
     // Initialize Wave Spawner
@@ -558,15 +566,26 @@
     }
     unlockAudio();
     if (gameState === STATES.GAME_OVER && scoreScreen) {
-      scoreScreen.handleKeyDown(e);
+      // Resolve printed keys (including M on AZERTY); consume actions once in update.
+      scoreScreen.handleKeyDown(e, true);
     }
   });
 
-  window.addEventListener('mousedown', (e) => {
+  canvas.addEventListener('click', (e) => {
     unlockAudio();
     if (gameState === STATES.GAME_OVER && scoreScreen) {
-      scoreScreen.handleClick(e.clientX, e.clientY, canvas.width, canvas.height);
+      const rect = canvas.getBoundingClientRect();
+      scoreScreen.handleClick((e.clientX - rect.left) * canvas.width / rect.width,
+        (e.clientY - rect.top) * canvas.height / rect.height, canvas.width, canvas.height, true);
     }
+  });
+  canvas.addEventListener('mousemove', e => {
+    if (gameState !== STATES.GAME_OVER || !scoreScreen?.visible) { canvas.style.cursor = ''; return; }
+    const rect = canvas.getBoundingClientRect();
+    const hit = scoreScreen.hitAction((e.clientX - rect.left) * canvas.width / rect.width,
+      (e.clientY - rect.top) * canvas.height / rect.height, canvas.width, canvas.height);
+    scoreScreen.hoveredAction = hit?.action || null;
+    canvas.style.cursor = hit ? 'pointer' : '';
   });
 
   window.addEventListener('contextmenu', (e) => {
@@ -859,7 +878,7 @@
 
     if (gameState === STATES.GAME_OVER) {
       scoreScreen.update(realDt, input);
-      renderGameWorld(0);
+      // Results paint an opaque scene; avoid rendering the hidden office world.
       scoreScreen.render(ctx, canvas.width, canvas.height);
       input.clearFrameTriggers();
       return;
@@ -1309,8 +1328,7 @@
   function showScoreScreen() {
     captureRunStats();
     gameState = STATES.GAME_OVER;
-    if (synthMusic) synthMusic.play('game_over');
-    if (soundFX && soundFX.playGameOverDrone) soundFX.playGameOverDrone();
+    if (synthMusic) synthMusic.setMasterVolume(audioSettings.values.music);
     scoreScreen.show('GAME_OVER', runStats);
   }
 

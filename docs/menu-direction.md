@@ -1,5 +1,7 @@
 # Hotline VISEO — écran titre et menus
 
+L’onglet du navigateur affiche **Hotline Viseo: After Hours**, défini dans `index.html`.
+
 ## Direction
 
 Le titre sépare l’identité du jeu du choix d’un personnage : un logo ivoire/rose en deux lignes, une skyline originale en trois couches à défilement lent, quatre choix et une texture discrète. Le logo conserve son ombre dure et reçoit le même halo néon fixe que le texte de mort : rayon de 16 pixels multiplié par l’échelle UI, teinté en ivoire pour HOTLINE et en rose pour VISEO. Les autres textes restent sans halo. Les options actives se décalent et s’inclinent légèrement. Le logo termine son apparition à 480 ms ; les quatre options sont visibles avant 500 ms d’animation. L’import de polices Google inutilisées par le Canvas a été retiré pour ne pas bloquer le lancement sur un CDN.
@@ -18,6 +20,7 @@ Les contrôles reprennent la composition du screenshot fourni et le PNG local `a
 - `MENU_TOOLS` → pages existantes de sélection/import ou d’édition de carte.
 - `PAUSED` → reprendre, audio, recommencer. Reprendre restaure aussi bien PLAYING qu’INTERMISSION.
 - `DEAD` → [overlay brutal sur le monde](death-direction.md), retry immédiat après le garde existant ou accès aux scores ; HUD retiré dès la frame fatale, indication des scores après 400 ms.
+- `GAME_OVER` → [résultats After Hours](score-direction.md), scène Canvas complète, décompte passable, classement secondaire par Tab/L ou X/□, rejouer, personnages et partage dans le presse-papier. Les quatre actions sont cliquables ; M utilise la touche imprimée pour fonctionner en AZERTY. La navigation est consommée une fois dans la boucle ; la copie démarre pendant le geste clavier/souris.
 
 Chaque écran dispose de son composant dans `js/ui/`. `UITheme` et `CanvasMenu` partagent les couleurs, la typographie et la navigation. Les menus utilisent une zone logique 1280×720 mise à l’échelle uniformément ; la scène d’arrière-plan couvre tout le viewport en 16:9, 16:10 et ultralarge. Les textes ne sont jamais compressés par `fillText(maxWidth)`.
 

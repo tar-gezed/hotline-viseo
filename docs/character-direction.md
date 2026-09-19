@@ -1,5 +1,8 @@
 # Sept personnages VISEO
 
+Depuis les [résultats After Hours](score-direction.md), le clic **PERSONNAGES**,
+la touche imprimée M (y compris AZERTY) ou Y/△ ramènent à cette sélection.
+
 ## Références et direction
 
 Dans Hotline Miami, les masques identifient une aptitude (par exemple les poings de Tony ou la vitesse de Brandon). Hotline Miami 2 pousse davantage les styles distincts : Corey et sa roulade, Mark et ses deux armes, Alex/Ash en duo. Sources : [masques](https://hotlinemiami.fandom.com/wiki/Masks), [The Fans](https://hotlinemiami.fandom.com/wiki/The_Fans), [prise en main des personnages](https://www.sidequesting.com/2014/04/pax-east-2014-hotline-miami-2-wrong-number-preview-recent-calls/).

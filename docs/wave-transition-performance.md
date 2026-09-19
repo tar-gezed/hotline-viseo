@@ -1,5 +1,9 @@
 # Wave transition performance
 
+After Hours results use a separate opaque scene and an original `results` music
+track. The hidden world is skipped in `GAME_OVER`; the intermission measurements
+below describe the existing wave transition. See [results validation](score-direction.md).
+
 ## Findings
 
 Combat music is synthesized live; changing to `wave_clear` does not fetch or decode a music file. A browser probe of the first-wave transition measured `music.play` at 0–0.1 ms and the intermission scheduler at about 0.1 ms p95. Disabling music playback entirely did not remove the rendering spike.
