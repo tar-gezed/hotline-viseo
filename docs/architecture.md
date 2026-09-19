@@ -215,3 +215,8 @@ The repository is configured for automated deployment to GitHub Pages via GitHub
 - **Atomic Deployment:** Deploys via `actions/deploy-pages@v4` with GitHub Pages environment tracking.
 - **Static Hosting Guarantees:** Includes `.nojekyll` to bypass Jekyll filters, and strict relative URI resolution ensuring flawless execution under subpaths such as `https://tar-gezed.github.io/hotline-viseo/`.
 
+## Enemy combat and navigation
+
+Enemy gunfire verifies body-to-target visibility against actual door leaves, including open leaves. The body-to-muzzle segment is checked before creating projectiles: a barrel crossing a wall, furniture or glass retracts the projectile origin to the near side, where the existing swept bullet collision handles impact. Glass remains transparent to sight and shootable; intact glass blocks melee and dog bites. Shattered obstacles no longer block collision rays.
+
+`test_combat_ai.js` reproduces covered bodies, stale aim at wall corners, pistol/shotgun/rifle muzzle offsets, open door leaves and intact/shattered glass. Run `npm test` before staging or committing.

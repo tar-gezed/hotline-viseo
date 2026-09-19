@@ -41,3 +41,7 @@ La seconde revue a corrigé les défauts ci-dessus. Les références commerciale
 - `docs/test_editor_palette.cjs` : création, rendu, suppression et historique des 19 types de mobilier ; coordonnées de dessin finies.
 - `docs/test_map_workflow.cjs` et `docs/final_review.cjs` : compatibilité des workflows existants et absence d'erreurs JavaScript.
 - Galerie finale : `docs/sprites-review-final.png`. Extension centrale : `docs/floor-editor-extension.png`.
+
+## Enemy combat integration
+
+Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).

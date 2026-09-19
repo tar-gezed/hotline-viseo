@@ -30,3 +30,7 @@ Run `npm start`, then `node tools/profile_wave_transition.cjs http://localhost:8
 `npm test` covers all 21 regression suites. The visual-pipeline suite verifies that a moving/fading label is painted only once, blitted every live frame and no longer rendered after expiry. Music score and lifecycle regressions remain unchanged and pass.
 
 The dedicated title-menu integration preserves the startup text warmup. Pause now remembers whether it interrupted PLAYING or INTERMISSION, including a round trip through audio settings. `tools/validate_menus.cjs` checks that resume restores INTERMISSION instead of prematurely entering combat. The performance measurements above belong to the original profiling campaign; menu acceptance captures are not new timing benchmarks. See [menu validation](menu-direction.md).
+
+## Enemy combat integration
+
+Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).

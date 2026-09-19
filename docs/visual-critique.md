@@ -38,3 +38,7 @@ The reference still has richer hand-authored prop detail and more varied floor t
 - Final comparison captures: final-compare-plan.png, final-compare-materials.png, final-compare-interiors.png and final-compare-gameplay.png. Player motion: critic-actors-gait-2x.png. Debug editor: final-editor-clearance.png.
 
 Editor floor zones remain separate from wall editing. Moving walls does not automatically regenerate floors; drafts remain local and do not rewrite source files. Clearance dots use a 24-world-unit sampling grid, so narrow passages must also be checked with the exact probe.
+
+## Enemy combat integration
+
+Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).

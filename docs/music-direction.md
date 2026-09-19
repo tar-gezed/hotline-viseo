@@ -43,3 +43,7 @@ The six default-level renders completed with zero out-of-range samples after the
 The title and pause audio screens share `AudioSettings` in `js/ui/audio_menu.js`: music and SFX are independent, clamped to 0–100%, and saved with the music mute preference in `hotline-viseo-audio-v1`. Storage failures leave working session controls. `main.js` reuses the exported engine singletons so captured entity references and UI sounds follow the same SFX gain. Pausing no longer overwrites the chosen music volume; death ducking is proportional to it and a new run restores it. Returning among title, controls and characters does not restart the current menu track. The compositions and gameplay timing are unchanged.
 
 Startup attempts playback immediately while respecting browser autoplay restrictions. Keyboard, background clicks, touch release and foreground recovery resume suspended contexts; early gestures during map loading use the exported singleton. Resume rejections are handled without an unhandled promise rejection. `tools/validate_audio_startup.cjs` measures actual output under permitted and blocked autoplay policies, including the persisted mute case; see [menu validation](menu-direction.md) for its development-only runtime setup.
+
+## Enemy combat integration
+
+Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).

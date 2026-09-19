@@ -176,7 +176,7 @@
 
             for (let i = 0; i < obstacles.length; i++) {
                 const obs = obstacles[i];
-                if (!obs) continue;
+                if (!obs || obs.shattered) continue;
 
                 // Handle glass transparency option
                 if (obs.isGlass && options.ignoreGlass) continue;

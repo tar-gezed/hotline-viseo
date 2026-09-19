@@ -43,3 +43,7 @@ Pour le navigateur : démarrer `node tools/serve.cjs --port 8093`, puis `node to
 Le script vérifie le dernier tir, deux tentatives de tir à vide successives et une attaque de mêlée avec le vrai contrôleur d’entrée. Il produit 45 captures dans `test-results/hud/`, avec une galerie `index.html` et `validation.json` : intro, arme à feu, combo, vide, tir à vide, mêlée, protection du joueur, intermission et pause, aux formats 1280×720, 1440×900, 1920×1080, 2560×1440 et 3440×1440. Les fixtures d’image sont déterministes, figées dans le navigateur ; l’IA est suspendue pour isoler le HUD. La capture de protection place le sprite réel du joueur dans la zone du combo, caméra figée. Les tests d’entrée se font avant ce gel. La revue des captures est confiée à GPT‑5.6 Luna Max.
 
 Validation du 18 septembre 2026 : les 21 suites Node passent et les cinq formats passent les tests navigateur, sans erreur de page. GPT‑5.6 Luna Max a examiné les 45 captures et validé la hiérarchie, la lisibilité, les marges et la protection du joueur. Sa remarque initiale sur la pause provenait d’une fixture qui superposait le HUD à la pause ; le scénario utilise désormais le véritable état `PAUSED`, qui masque déjà le HUD. Les captures de pause corrigées en 720p et 1440p ont été revues et validées sans chevauchement.
+
+## Enemy combat integration
+
+Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).

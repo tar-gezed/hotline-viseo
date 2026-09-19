@@ -74,3 +74,7 @@ Le WAV et les mesures figurent dans `test-results/scores/after-hours.wav` et
 Revue visuelle demandée : GPT‑5.6 Luna Max a examiné les captures D, B, A+, S,
 le classement et les contrôles manette. Verdict conforme, aucun défaut bloquant ;
 le soleil conserve volontairement une ambiance de fin de nuit/crépuscule synthétique.
+
+## Enemy combat integration
+
+Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).

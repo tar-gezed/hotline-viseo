@@ -17,3 +17,7 @@ Le compteur de vague était déjà synchronisé avec les ennemis vivants : aucun
 Validation : 14 suites Node, dont traversée avec deux acteurs à 30/60/144 FPS ; test navigateur de la boucle réelle avec IA neutralisée pour isoler le coup létal et la progression des vagues. La planche `door-states-review.png` compare les états au sol à taille de jeu et en agrandissement. Une seconde passe visuelle remplace les corps rectangulaires par des membres pliés et un costume et une tête détaillés. Ce test contrôlé ne remplace pas un long équilibrage des combats en foule.
 
 La carte utilisateur `maps/active.json` n'a pas été modifiée.
+
+## Enemy combat integration
+
+Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).

@@ -34,3 +34,7 @@ Espace était reconnu à la fois comme confirmation de menu et comme demande de 
 - Régressions de l'éditeur réussies : création/découpe, annulation/rétablissement, export/import, brouillon joué, modification des sols.
 - Aucune erreur JavaScript dans les scénarios navigateur. Les scénarios de passage isolent les attaques de l'IA afin de tester la collision ; ils ne constituent pas une simulation prolongée de toutes les configurations de foule.
 - SHA-256 du fichier utilisateur inchangé pendant cette correction : `2C20338617D75BD40F5151D425EAD09A40EFF37080F42883B98F896B34857A61`.
+
+## Enemy combat integration
+
+Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).

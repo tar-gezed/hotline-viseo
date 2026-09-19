@@ -57,3 +57,7 @@ Validation : `test_character_roster.js` vérifie les sept équipements, vitesses
 ## Sélection après l’écran titre
 
 `MENU_TITLE` porte désormais l’identité du jeu. `MENU_MASK` affiche un seul grand portrait `CharacterArt`, la liste des sept noms et les attributs du personnage actif. Les raccourcis 1–7, la navigation clavier/manette et le clic utilisent les mêmes données `CONFIG.MASKS`. Échap/B ou RETOUR revient au titre sans recréer l’application et conserve le personnage sélectionné pour la session. Les caractéristiques et les sprites en jeu ne changent pas. Voir [direction des menus](menu-direction.md).
+
+## Enemy combat integration
+
+Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).

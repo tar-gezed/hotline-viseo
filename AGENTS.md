@@ -56,3 +56,7 @@ and [hud direction](docs/hud-direction.md) for state routing, input handling,
 kinetic announcements, audio policy and browser validation commands.
 The regression runner currently includes 21 suites. Browser acceptance checks
 are optional development tools and add no production dependencies.
+
+## Enemy combat integration
+
+Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](docs/architecture.md#enemy-combat-and-navigation).

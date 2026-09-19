@@ -16,3 +16,7 @@ Retirer ou renommer active.json pour désactiver ce chargement. Conserver des co
 
 
 Depuis le jeu, ouvrir **TOOLS / MAPS** sur l’écran titre pour choisir/importer une carte ou ouvrir l’éditeur. Le démarrage et les aperçus de carte passent par le titre, puis par la sélection du personnage ; la résolution de `active.json`, des imports et des brouillons reste inchangée.
+
+## Enemy combat integration
+
+Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](../docs/architecture.md#enemy-combat-and-navigation).

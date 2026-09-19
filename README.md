@@ -282,3 +282,7 @@ Toutes les modifications du projet doivent respecter les règles établies dans 
 1. **Conventional Commits en anglais uniquement** : Tout commit doit obligatoirement suivre la convention (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`, etc.) avec un titre complet, clair et pertinent, et une description ultra complète de tous les changements.
 2. **Mise à jour obligatoire de la documentation** : Avant **chaque** commit, toute la documentation (`README.md`, `docs/`, `maps/README.md`) doit obligatoirement être mise à jour pour refléter l'état exact du projet.
 3. **Validation des suites de tests** : Avant tout commit, lancer `Get-ChildItem test_*.js | ForEach-Object { node $_.FullName }` et s'assurer que tous les tests passent.
+
+## Enemy combat integration
+
+Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](docs/architecture.md#enemy-combat-and-navigation).

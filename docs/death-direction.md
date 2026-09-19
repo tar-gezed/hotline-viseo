@@ -32,3 +32,7 @@ Pour une validation ultérieure : lancer `node tools/serve.cjs --port 8094`, pui
 L’outil avance explicitement la vraie boucle de jeu et utilise les événements clavier/souris et la Gamepad API simulée. Il couvre la première frame, le retrait du HUD, le seuil de 220 ms, l’indication à 400 ms, la priorité des scores, le retry, le respawn, les entrées maintenues et la stabilité après les coulures.
 
 Formats prévus : **1280×720, 1440×900, 1920×1080, 2560×1440 et 3440×1440**. Le script produit 25 captures (monde sans overlay, impact, résultat, manette, respawn), une galerie et `validation.json` dans `test-results/death/`. `npm test` reste la commande des 21 suites de régression existantes.
+
+## Enemy combat integration
+
+Enemy shots now check cover between body and muzzle; door leaves block sight in their actual position, and intact glass blocks contact attacks. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).

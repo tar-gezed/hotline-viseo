@@ -345,11 +345,9 @@
             const dy = player.y - this.y;
             const dist = Math.hypot(dx, dy);
 
-            const obsList = ColSystem.worldObstacles(obstacles);
-
             // Proximity awareness (can't sneak directly behind within 40px)
             if (dist < 42) {
-                return ColSystem ? ColSystem.hasLineOfSight(this.x, this.y, player.x, player.y, obsList, true) : true;
+                return this._hasClearAttackLine(player, obstacles, true);
             }
 
             // Max vision range
@@ -365,7 +363,19 @@
             if (!inCone) return false;
 
             // Raycast against walls / closed opaque doors (can see through glass)
-            return ColSystem ? ColSystem.hasLineOfSight(this.x, this.y, player.x, player.y, obsList, true) : true;
+            return this._hasClearAttackLine(player, obstacles, true);
+        }
+
+        _hasClearAttackLine(target, obstacles, seeThroughGlass = false) {
+            if (!ColSystem) return true;
+            const dx = target.x - this.x;
+            const dy = target.y - this.y;
+            const distance = Math.hypot(dx, dy);
+            if (distance < 0.001) return true;
+            return !ColSystem.raycast(this.x, this.y, dx / distance, dy / distance,
+                distance + 0.001, ColSystem.worldObstacles(obstacles), {
+                    ignoreGlass: seeThroughGlass, ignoreOpenDoors: false
+                }).hit;
         }
 
         _rotateTowardsTarget(dt) {
@@ -577,7 +587,7 @@
 
                 // Bite check
                 const distToPlayer = Math.hypot(player.x - this.x, player.y - this.y);
-                if (canSeePlayer && distToPlayer < this.radius + (player.radius || 14)) {
+                if (canSeePlayer && this._hasClearAttackLine(player, obstacles) && distToPlayer < this.radius + (player.radius || 14)) {
                     if (typeof player.takeHit === 'function') {
                         player.takeHit({ type: 'DOG_BITE', angle: this.angle });
                     }
@@ -596,7 +606,7 @@
             if (isGun) {
                 // Fire weapon when cooldown ready
                 if (this.attackCooldown <= 0 && canSeePlayer) {
-                    this._fireGunAtPlayer(player, bullets, effects, camera);
+                    this._fireGunAtPlayer(player, bullets, effects, camera, obstacles);
                     this.attackCooldown = this.currentWeapon.cooldown + 0.15; // AI slight delay
                 }
 
@@ -607,7 +617,7 @@
             } else {
                 // Melee Swing
                 if (this.attackCooldown <= 0 && canSeePlayer) {
-                    this._performMeleeSwing(player, effects, camera);
+                    this._performMeleeSwing(player, effects, camera, obstacles);
                     this.attackCooldown = (this.currentWeapon ? this.currentWeapon.cooldown : 0.3) + 0.2;
                 }
 
@@ -618,8 +628,8 @@
             }
         }
 
-        _fireGunAtPlayer(player, bullets, effects, camera) {
-            if (!this.currentWeapon) return;
+        _fireGunAtPlayer(player, bullets, effects, camera, obstacles = []) {
+            if (!this.currentWeapon || !this._hasClearAttackLine(player, obstacles, true)) return;
 
             const w = this.currentWeapon;
             const pellets = w.pellets || 1;
@@ -628,8 +638,16 @@
             if (AudioManager) AudioManager.playGunshot(w.id, this.x, this.y);
 
             const barrelLen = (w.length || 20) + 8;
-            const muzzleX = this.x + Math.cos(this.angle) * barrelLen;
-            const muzzleY = this.y + Math.sin(this.angle) * barrelLen;
+            // A long barrel can extend beyond cover while the body is still
+            // behind it. Keep the projectile on the shooter's side so its
+            // first swept update hits the obstruction (including glass).
+            const barrelHit = ColSystem && ColSystem.raycast(this.x, this.y,
+                Math.cos(this.angle), Math.sin(this.angle), barrelLen + 0.001,
+                ColSystem.worldObstacles(obstacles), { ignoreOpenDoors: false });
+            const muzzleDistance = barrelHit && barrelHit.hit
+                ? Math.max(0, barrelHit.distance - 1) : barrelLen;
+            const muzzleX = this.x + Math.cos(this.angle) * muzzleDistance;
+            const muzzleY = this.y + Math.sin(this.angle) * muzzleDistance;
 
             if (effects) {
                 const fxWeapon = String(w.id || 'PISTOL').toLowerCase();
@@ -663,7 +681,7 @@
             this.gunShotsFired++;
         }
 
-        _performMeleeSwing(player, effects, camera) {
+        _performMeleeSwing(player, effects, camera, obstacles = []) {
             const w = this.currentWeapon || WEAPON_TYPES.BAT;
             this.swingAnimationTimer = 0.16;
 
@@ -680,7 +698,7 @@
                 this.x, this.y, this.angle, w.arc, w.range
             ) : false;
 
-            if (inCone) {
+            if (inCone && this._hasClearAttackLine(player, obstacles)) {
                 if (typeof player.takeHit === 'function') {
                     player.takeHit({ type: 'MELEE', angle: this.angle, weaponType: w.id });
                 }
