@@ -1,4 +1,4 @@
-# Developer & Agent Guidelines — Hotline Miami: VISEO Arcade Edition
+# Developer & Agent Guidelines — Hotline Viseo: After Hours
 
 This document defines the development rules, architectural standards, and mandatory Git commit policies for all AI agents and human contributors working on this repository.
 
@@ -47,3 +47,20 @@ All automated Node.js regression suites must pass with 0 errors before staging o
 npm test
 # Equivalent to: node tools/test.cjs
 ```
+
+## 4. UI Integration References
+
+The dedicated title, character, controls, audio, credits, tools and pause screens
+share `UITheme` and `CanvasMenu`; see [menu direction](docs/menu-direction.md)
+and [hud direction](docs/hud-direction.md) for state routing, input handling,
+kinetic announcements, audio policy and browser validation commands.
+The regression runner currently includes 23 suites. Browser acceptance checks
+are optional development tools and add no production dependencies.
+
+## Enemy combat and patrol integration
+
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](docs/architecture.md#enemy-combat-and-navigation).
+
+## Performance review — 20 September 2026
+
+Performance changes must preserve immediate door/glass collision decisions and offscreen simulation. The current implementation caches mutable prop geometry, culls only rendering, and retains at most 96 settled corpses with a 90-second age fallback and a two-second fade. Unused supply weapons expire after two waves. See [performance architecture, measurements and reproduction](docs/game-performance.md) for the 23-suite coverage and optional browser/reference tools. Generated performance reports stay under ignored `test-results/`; no browser tooling is a production dependency.

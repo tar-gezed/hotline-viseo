@@ -512,6 +512,10 @@
       // Thick black stroke for high readability
       ctx.strokeStyle = this.strokeColor;
       ctx.lineWidth = 4;
+      // Acute corners in italic glyphs produce long miter spikes, amplified
+      // by the cached sprite's pop scale and the world's pixel downsampling.
+      ctx.lineJoin = 'round';
+      ctx.miterLimit = 2;
       ctx.strokeText(this.text, 0, 0);
 
       // Text fill

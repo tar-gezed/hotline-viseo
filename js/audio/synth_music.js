@@ -53,7 +53,7 @@ class SynthMusicEngine {
     this.isPlaying = false;
     this.isMuted = false;
     this.volume = 0.7;
-    this.currentTrack = null; // 'menu', 'combat', 'wave_clear', 'game_over'
+    this.currentTrack = null; // 'menu', 'combat', 'wave_clear', 'game_over', 'results'
 
     // Timing & Sequencer
     this.bpm = 124;
@@ -101,7 +101,7 @@ class SynthMusicEngine {
   init() {
     if (this.isInitialized && this.ctx) {
       if (this.ctx.state === 'suspended') {
-        this.ctx.resume();
+        this.ctx.resume()?.catch(() => { /* Browser policy: retry on user activation. */ });
       }
       return;
     }
@@ -171,7 +171,7 @@ class SynthMusicEngine {
       if (document.hidden && this.ctx && this.ctx.state === 'running') {
         // keep context going or pause gracefully
       } else if (!document.hidden && this.ctx && this.ctx.state === 'suspended' && this.isPlaying) {
-        this.ctx.resume();
+        this.ctx.resume()?.catch(() => { /* Browser policy: retry on user activation. */ });
       }
     });
   }
@@ -204,7 +204,7 @@ class SynthMusicEngine {
       this.init();
     }
     if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+      this.ctx.resume()?.catch(() => { /* Browser policy: retry on user activation. */ });
     }
 
     if (!this.ctx) return;
@@ -236,9 +236,12 @@ class SynthMusicEngine {
       this.bpm = 60;
       this.baseBpm = 60;
       this.targetBpm = 60;
+    } else if (trackName === 'results') {
+      this.bpm = this.baseBpm = this.targetBpm = 84;
     }
 
     this.totalSteps = trackName === 'combat' ? this.combatTrack.bars * 16 : 64;
+    if (trackName === 'results') this.totalSteps = 128;
     if (this.timerId) {
       clearInterval(this.timerId);
     }
@@ -338,7 +341,31 @@ class SynthMusicEngine {
       this._scheduleWaveClearTrack(step, time);
     } else if (this.currentTrack === 'game_over') {
       this._scheduleGameOverTrack(step, time);
+    } else if (this.currentTrack === 'results') {
+      this._scheduleResultsTrack(step, time);
     }
+  }
+
+  // Original eight-bar after-hours loop: Dm9 / Bbmaj7 / Fmaj7 / Cadd9.
+  // Half-time drums, warm sustained pads and a sparse answering bell melody.
+  _scheduleResultsTrack(step, time) {
+    const bar = Math.floor(step / 16) % 8, tick = step % 16, dt = 15 / this.bpm;
+    const chords = [
+      ['D3', 'F3', 'A3', 'E4'], ['Bb2', 'D3', 'F3', 'A3'],
+      ['F3', 'A3', 'C4', 'E4'], ['C3', 'E3', 'G3', 'D4']
+    ];
+    const chord = chords[Math.floor(bar / 2)].map(n => this.notes[n]);
+    if (tick === 0) this._synthPad(time, chord, dt * 15.8, .23);
+    if (tick === 0 || tick === 10) this._synthKick(time, .38);
+    if (tick === 8) this._synthSnare(time, .19);
+    if (tick === 2 || tick === 6 || tick === 10 || tick === 14) this._synthHiHat(time, .11);
+    if (tick === 0 || tick === 8) this._synthAnalogBass(time, chord[0] / 2, .35, 0, dt * 3);
+    const melody = [
+      ['A4', 'E4', 'F4'], ['D4', 'F4', 'E4'], ['F4', 'A4', 'D4'], ['A4', 'F4', 'D4'],
+      ['E4', 'C4', 'A4'], ['G4', 'E4', 'C4'], ['G4', 'D4', 'E4'], ['D4', 'E4', 'A4']
+    ];
+    const note = [3, 7, 14].indexOf(tick);
+    if (note >= 0) this._synthPluck(time, this.notes[melody[bar][note]], .16);
   }
 
   // 24 bars (~44–48 seconds): hook x2, bass break, answer, full reprise x2.

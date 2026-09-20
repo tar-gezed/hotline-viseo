@@ -57,10 +57,8 @@
             if (!obstacle) return null;
             if (obstacle.x1 !== undefined && obstacle.y1 !== undefined &&
                 obstacle.x2 !== undefined && obstacle.y2 !== undefined) {
-                return {
-                    x1: obstacle.x1, y1: obstacle.y1,
-                    x2: obstacle.x2, y2: obstacle.y2
-                };
+                // Callers only read endpoints; static walls need no per-query copy.
+                return obstacle;
             }
             if (!this._isDoorObstacle(obstacle)) return null;
 
@@ -173,10 +171,12 @@
 
             const targetX = ox + dx * maxDist;
             const targetY = oy + dy * maxDist;
+            const minX = Math.min(ox, targetX), maxX = Math.max(ox, targetX);
+            const minY = Math.min(oy, targetY), maxY = Math.max(oy, targetY);
 
             for (let i = 0; i < obstacles.length; i++) {
                 const obs = obstacles[i];
-                if (!obs) continue;
+                if (!obs || obs.shattered) continue;
 
                 // Handle glass transparency option
                 if (obs.isGlass && options.ignoreGlass) continue;
@@ -190,6 +190,8 @@
                 // If obstacle is a segment
                 const segment = this._getSegmentObstacle(obs);
                 if (segment) {
+                    if (Math.max(segment.x1, segment.x2) < minX || Math.min(segment.x1, segment.x2) > maxX
+                        || Math.max(segment.y1, segment.y2) < minY || Math.min(segment.y1, segment.y2) > maxY) continue;
                     const hit = this.lineSegmentIntersection(ox, oy, targetX, targetY, segment.x1, segment.y1, segment.x2, segment.y2);
                     if (hit) {
                         const dist = Math.hypot(hit.x - ox, hit.y - oy);
@@ -219,6 +221,15 @@
                 }
                 // If obstacle is a bounding box / rectangle
                 else if (obs.width !== undefined && obs.height !== undefined) {
+                    const w = Number.isFinite(obs.collisionWidth) ? obs.collisionWidth : obs.width;
+                    const h = Number.isFinite(obs.collisionHeight) ? obs.collisionHeight : obs.height;
+                    const cx = obs.centered === true ? obs.x : obs.x + w / 2;
+                    const cy = obs.centered === true ? obs.y : obs.y + h / 2;
+                    // Half the sum bounds every rotation, avoiding trig and
+                    // four temporary edges for furniture nowhere near the ray.
+                    const extent = (Math.abs(w) + Math.abs(h)) / 2;
+                    if (cx + extent < minX || cx - extent > maxX
+                        || cy + extent < minY || cy - extent > maxY) continue;
                     const segments = this._getRectangleSegments(obs) || [];
 
                     for (let s = 0; s < segments.length; s++) {
@@ -335,6 +346,8 @@
         }
 
         static _resolveCircleSegment(entity, x1, y1, x2, y2, r) {
+            if (entity.x < Math.min(x1, x2) - r || entity.x > Math.max(x1, x2) + r
+                || entity.y < Math.min(y1, y2) - r || entity.y > Math.max(y1, y2) + r) return;
             const segDx = x2 - x1;
             const segDy = y2 - y1;
             const segLenSq = segDx * segDx + segDy * segDy;
@@ -393,6 +406,11 @@
         }
 
         static _resolveCircleRect(entity, rx, ry, rw, rh, r, obstacle = null) {
+            const cx = obstacle?.centered === true ? rx : rx + rw / 2;
+            const cy = obstacle?.centered === true ? ry : ry + rh / 2;
+            const extent = (Math.abs(rw) + Math.abs(rh)) / 2 + r;
+            if (entity.x < cx - extent || entity.x > cx + extent
+                || entity.y < cy - extent || entity.y > cy + extent) return;
             if (obstacle && (obstacle.centered === true || (obstacle.angle && obstacle.angle !== 0))) {
                 this._resolveCircleOBB(entity, obstacle, r, rw, rh);
                 return;

@@ -1,5 +1,11 @@
 # Visual and gameplay repair review — 9 September 2026
 
+After Hours integration: the [results presentation](score-direction.md) now uses
+its own original Canvas skyline, animated grade and secondary leaderboard. Its
+five-resolution validation is separate from the world-rendering review below.
+
+Integration update, 18 September 2026: the title and supporting screens now use a shared Canvas palette, hard shadows, subtle scanlines and an original moving skyline. These menus replace the combined launch/character screen; the world rendering and collision work reviewed below is unchanged. See [menu direction and validation](menu-direction.md) for the current four-resolution capture workflow and its limitations.
+
 Performed directly by the main agent, without subagents. This is a critical self-review, not an independent reviewer verdict.
 
 ## Pass 1: architecture and collision
@@ -32,3 +38,11 @@ The reference still has richer hand-authored prop detail and more varied floor t
 - Final comparison captures: final-compare-plan.png, final-compare-materials.png, final-compare-interiors.png and final-compare-gameplay.png. Player motion: critic-actors-gait-2x.png. Debug editor: final-editor-clearance.png.
 
 Editor floor zones remain separate from wall editing. Moving walls does not automatically regenerate floors; drafts remain local and do not rewrite source files. Clearance dots use a 24-world-unit sampling grid, so narrow passages must also be checked with the exact probe.
+
+## Enemy combat and patrol integration
+
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+
+## Performance review — 20 September 2026
+
+La passe courante corrige les pics noirs des annonces de ramassage en arrondissant les jointures de leurs contours. Elle conserve le cache de texte et l’ordre des couches. Quinze scènes fixes correspondent à la référence pixel par pixel ; les cinq fixtures de texte ne présentent plus les pixels noirs hors contour détectés avant correction. Les corps anciens disparaissent avec un fondu de deux secondes, les taches de sang restent persistantes. Voir les [mesures, captures générées et limites](game-performance.md).

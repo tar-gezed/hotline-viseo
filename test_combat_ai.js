@@ -143,6 +143,45 @@ assert(sentry.state === 'SUSPICIOUS' || sentry.state === 'ALERT', 'Sentry alerte
 
 console.log('✓ Enemy AI & Archetypes Passed');
 
+// Weapon offsets must never bypass geometry between the body and barrel tip.
+for (const weapon of ['PISTOL', 'SHOTGUN', 'M16']) {
+    const shooter = new Enemy(0, 0, 'STANDARD', weapon);
+    const target = { x: 150, y: 0, radius: 14, isAlive: true };
+    const wall = { x1: 22, y1: -60, x2: 22, y2: 60 };
+    const shots = [];
+    shooter._fireGunAtPlayer(target, shots, null, null, { walls: [wall] });
+    assert.equal(shots.length, 0, `${weapon}: body cannot shoot through cover`);
+    // The target is visible around the corner but aim still points into it.
+    target.y = 150;
+    wall.y2 = 15;
+    shooter._fireGunAtPlayer(target, shots, null, null, { walls: [wall] });
+    assert(shots.length > 0, 'visible target allows a shot');
+    assert(shots.every(b => b.x < wall.x1), 'barrel cannot spawn bullets beyond the wall');
+
+}
+{
+    const shooter = new Enemy(0, 0, 'STANDARD', 'PISTOL');
+    const target = { x: 35, y: 0, radius: 14, isAlive: true, takeHit() { this.hit = true; } };
+    const leaf = { x: 20, y: -40, length: 80, angle: Math.PI / 2, isOpen: () => true };
+    assert.equal(shooter._checkLineOfSightToPlayer(target, { doors: [leaf] }), false,
+        'open door leaf still occludes even at proximity range');
+    leaf.angle = 0;
+    assert.equal(shooter._checkLineOfSightToPlayer(target, { doors: [leaf] }), true,
+        'swinging the leaf away exposes the target');
+    const glass = { x1: 20, y1: -60, x2: 20, y2: 60, isGlass: true };
+    const shots = [];
+    shooter._fireGunAtPlayer(target, shots, null, null, { glassPartitions: [glass] });
+    assert(shots.length && shots[0].x < 20, 'glass remains shootable without skipping the partition');
+    shooter.currentWeapon = WEAPON_TYPES.BAT;
+    shooter._performMeleeSwing(target, null, null, { glassPartitions: [glass] });
+    assert(!target.hit, 'seeing through glass does not allow melee damage through it');
+    glass.shattered = true;
+    shooter._performMeleeSwing(target, null, null, { glassPartitions: [glass] });
+    assert(target.hit, 'shattered glass no longer blocks attacks');
+
+}
+console.log('✓ Enemy barrel, door leaf and melee occlusion regressions passed');
+
 console.log('\n=========================================');
 console.log('ALL COMBAT & AI MODULES VERIFIED SUCCESSFULLY!');
 console.log('=========================================');

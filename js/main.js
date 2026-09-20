@@ -52,19 +52,28 @@
 
   // UI & Menus
   let maskMenu = null;
+  let titleMenu, controlsMenu, audioMenu, toolsMenu, creditsMenu, pauseMenu, audioSettings;
+  let audioReturnState;
+  let resumeState;
   let hud = null;
   let scoreScreen = null;
+  let deathOverlay = null;
 
   // Game State Machine
   const STATES = {
+    MENU_TITLE: 'MENU_TITLE',
+    MENU_CREDITS: 'MENU_CREDITS',
     MENU_MASK: 'MENU_MASK',
+    MENU_CONTROLS: 'MENU_CONTROLS',
+    MENU_AUDIO: 'MENU_AUDIO',
+    MENU_TOOLS: 'MENU_TOOLS',
     PLAYING: 'PLAYING',
     INTERMISSION: 'INTERMISSION',
     DEAD: 'DEAD',
     GAME_OVER: 'GAME_OVER',
     PAUSED: 'PAUSED'
   };
-  let gameState = STATES.MENU_MASK;
+  let gameState = STATES.MENU_TITLE;
   let selectedMaskId = 'vincent';
   let waitingForAttackRelease = false;
   let deathTimer = 0;
@@ -105,11 +114,15 @@
 
     // Initialize Audio
     const SynthClass = window.SynthMusic || window.SynthMusicEngine || (typeof SynthMusicEngine !== 'undefined' ? SynthMusicEngine : null);
-    synthMusic = new SynthClass();
+    synthMusic = window.synthMusic || new SynthClass();
     const SfxClass = window.SoundEffects || window.SoundEffectsEngine || (typeof SoundEffectsEngine !== 'undefined' ? SoundEffectsEngine : null);
-    soundFX = new SfxClass();
+    // Entity modules capture this singleton at script load; UI and gameplay must
+    // use the same gain node so the SFX preference applies to every sound.
+    soundFX = window.soundFX || new SfxClass();
     window.synthMusic = synthMusic;
     window.soundFX = soundFX;
+    window.soundFx = soundFX;
+    window.AudioManager = soundFX;
     window.soundEffects = soundFX;
     window.audioManager = {
       playGunshot: (type, x, y) => soundFX.playGunshot(type, x, y),
@@ -171,8 +184,32 @@
     // Initialize UI
     const MaskMenuClass = window.MaskMenu || (typeof MaskMenu !== 'undefined' ? MaskMenu : null);
     maskMenu = new MaskMenuClass();
+    let settingsStorage;
+    try { settingsStorage = window.localStorage; } catch (_) { /* Session-only settings. */ }
+    audioSettings = new window.AudioSettings(synthMusic, soundFX, settingsStorage);
+    const backToTitle = () => enterMenu(STATES.MENU_TITLE);
+    maskMenu.onBack = () => { selectedMaskId = maskMenu.selectedMaskId; backToTitle(); };
+    titleMenu = new window.TitleMenu({
+      start: () => enterMenu(STATES.MENU_MASK),
+      controls: () => enterMenu(STATES.MENU_CONTROLS),
+      audio: () => openAudio(STATES.MENU_TITLE),
+      tools: () => enterMenu(STATES.MENU_TOOLS),
+      credits: () => enterMenu(STATES.MENU_CREDITS)
+    });
+    creditsMenu = new window.CreditsMenu(backToTitle);
+    controlsMenu = new window.ControlsMenu(backToTitle);
+    toolsMenu = new window.ToolsMenu(backToTitle);
+    audioMenu = new window.AudioMenu(audioSettings, () => enterMenu(audioReturnState));
+    pauseMenu = new window.PauseMenu({
+      resume: resumeGame,
+      maskName: () => hud?.activeMask?.name || '',
+      audio: () => openAudio(STATES.PAUSED),
+      restart: () => { pauseMenu.hide(); startNewGame(selectedMaskId); }
+    });
     const HudClass = window.GameHUD || (typeof GameHUD !== 'undefined' ? GameHUD : null);
     hud = new HudClass();
+    deathOverlay = new window.DeathOverlay();
+    await deathOverlay.loadFont();
     // Resolve the victory fonts/glyphs in the menu, not on the first wave's
     // final frame (the checkmark can trigger a separate fallback font).
     const textWarmup = document.createElement('canvas');
@@ -185,6 +222,7 @@
     ctx.drawImage(textWarmup, 0, 0);
     const ScoreClass = window.ScoreScreen || (typeof ScoreScreen !== 'undefined' ? ScoreScreen : null);
     scoreScreen = new ScoreClass();
+    scoreScreen.eventDrivenKeyboard = true;
 
     // Hook UI Callbacks
     maskMenu.onMaskConfirmed = (maskParam) => {
@@ -196,13 +234,19 @@
 
     scoreScreen.onRestart = () => {
       scoreScreen.hide();
+      canvas.style.cursor = '';
       startNewGame(selectedMaskId);
     };
 
     scoreScreen.onChangeMask = () => {
       scoreScreen.hide();
-      gameState = STATES.MENU_MASK;
-      maskMenu.show(selectedMaskId);
+      canvas.style.cursor = '';
+      enterMenu(STATES.MENU_MASK);
+    };
+    scoreScreen.onMainMenu = () => {
+      scoreScreen.hide();
+      canvas.style.cursor = '';
+      enterMenu(STATES.MENU_TITLE);
     };
 
     // Initialize Wave Spawner
@@ -228,12 +272,49 @@
       }
     };
 
-    // Show initial mask select menu
-    gameState = STATES.MENU_MASK;
-    maskMenu.show(selectedMaskId);
+    // A distinct title is the normal entry point, including map previews.
+    enterMenu(STATES.MENU_TITLE);
 
     // Start Animation Loop
     requestAnimationFrame(gameLoop);
+  }
+
+  function activeMenu() {
+    return ({
+      [STATES.MENU_TITLE]: titleMenu, [STATES.MENU_MASK]: maskMenu,
+      [STATES.MENU_CONTROLS]: controlsMenu, [STATES.MENU_AUDIO]: audioMenu,
+      [STATES.MENU_CREDITS]: creditsMenu,
+      [STATES.MENU_TOOLS]: toolsMenu, [STATES.PAUSED]: pauseMenu
+    })[gameState];
+  }
+
+  function enterMenu(state) {
+    activeMenu()?.hide();
+    gameState = state;
+    const menu = activeMenu();
+    if (state === STATES.MENU_MASK) menu.show(selectedMaskId);
+    else menu?.show();
+    if (state === STATES.MENU_TITLE || state === STATES.MENU_MASK) {
+      audioSettings.apply();
+      synthMusic.play('menu');
+    }
+  }
+
+  function openAudio(from) {
+    audioReturnState = from;
+    enterMenu(STATES.MENU_AUDIO);
+  }
+
+  function pauseGame() {
+    resumeState = gameState;
+    pauseMenu.selectedIndex = 0;
+    enterMenu(STATES.PAUSED);
+  }
+
+  function resumeGame() {
+    pauseMenu.hide();
+    gameState = resumeState || STATES.PLAYING;
+    waitingForAttackRelease = true;
   }
 
   function resizeCanvas() {
@@ -270,9 +351,25 @@
   }
 
   function unlockAudio() {
-    if (synthMusic && !synthMusic.isInitialized) synthMusic.init();
-    if (soundFX && !soundFX.isInitialized) soundFX.init();
+    // Also retain gestures received while the selected map is still loading.
+    const music = synthMusic || window.synthMusic;
+    const effects = soundFX || window.soundFX;
+    if (music && !music.isInitialized) music.init();
+    if (effects && !effects.isInitialized) effects.init();
+    for (const engine of [music, effects]) {
+      if (engine?.ctx?.state === 'suspended' || engine?.ctx?.state === 'interrupted') {
+        engine.ctx.resume().catch(() => { /* Retry on the next trusted interaction. */ });
+      }
+    }
   }
+
+  // Touch activation occurs on release; no menu selection is required to unlock audio.
+  window.addEventListener('pointerup', unlockAudio);
+  window.addEventListener('touchend', unlockAudio, { passive: true });
+  window.addEventListener('focus', unlockAudio);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) unlockAudio();
+  });
 
   // ---------------------------------------------------------------------------
   // Wave Spawner Hooks
@@ -280,16 +377,17 @@
   function initWaveSpawnerHooks() {
     waveSpawner.onPreWave = (waveNum, totalEnemies) => {
       hud.setWave(waveNum, totalEnemies);
-      hud.preWaveTime = waveSpawner.preWaveTimeTotal;
+      hud.setPreWave(waveSpawner.preWaveTimeTotal);
       synthMusic.play('wave_clear');
       synthMusic.setIntensity(0.08);
       gameState = STATES.PLAYING;
     };
 
     waveSpawner.onWaveStart = (waveNum, totalEnemies) => {
+      window.WorldCleanup.expireSupplies(floorWeapons, waveNum, CONFIG.CLEANUP.SUPPLY_WEAPON_WAVES);
       hud.setWave(waveNum, totalEnemies);
+      hud.preWaveTime = hud.intermissionTime = 0;
       soundFX.playWaveStartSiren();
-      postProcessor.screenFlash('#00f3ff', 0.4);
       addTrauma(0.3);
       synthMusic.play('combat');
       gameState = STATES.PLAYING;
@@ -303,19 +401,11 @@
       else if (t.includes('HEAVY') || t.includes('BOUNCER') || t.includes('BOSS')) archetypeKey = 'HEAVY';
       else archetypeKey = 'STANDARD';
 
-      const enemy = new Enemy(enemyData.x, enemyData.y, archetypeKey, enemyData.weapon || 'unarmed');
-      enemy.angle = enemyData.angle ?? 0;
-      // Wave enemies enter already hunting: survival pacing, not static room sentries.
-      enemy.state = 'SUSPICIOUS';
-      enemy.investigateX = player ? player.x : enemy.x;
-      enemy.investigateY = player ? player.y : enemy.y;
-      enemy.investigateTimer = 8;
+      const enemy = new Enemy(enemyData.x, enemyData.y, archetypeKey,
+        enemyData.weapon || 'unarmed', [], enemyData.angle ?? 0);
+      // Reinforcements patrol their ingress area until they actually see a target.
       enemy.entryTimer = 0.55;
-      enemy.alertIndicatorTimer = 0.8;
-      enemy.isWaveHunter = true;
-      if (enemyData.patrol && navGraph) {
-        enemy.patrolNodes = navGraph.getPatrolRoute(enemyData.patrol) || [];
-      }
+      if (navGraph) enemy.configurePatrol(navGraph, enemyData.patrol);
       enemies.push(enemy);
       const livingCount = enemies.filter(e => e.isAlive).length;
       const queuedCount = waveSpawner ? waveSpawner.spawnQueue.length : 0;
@@ -327,18 +417,17 @@
       gameState = STATES.INTERMISSION;
       soundFX.playWaveClearFanfare();
       synthMusic.play('wave_clear');
-      postProcessor.screenFlash('#39ff14', 0.5);
       // Keep intermission responsive; the final hit already supplies hit-stop.
-      hud.addScore(bonusPoints, 'WAVE CLEAR BONUS');
-      hud.setIntermission(waveSpawner.intermissionTimeTotal);
-      particleSystem.addFloatingText(player.x, player.y - 40, `WAVE ${waveNum} COMPLETE! +${bonusPoints}`, '#39ff14', 28);
+      hud.addScore(bonusPoints);
+      hud.setIntermission(waveSpawner.intermissionTimer, waveNum);
     };
 
     waveSpawner.onSupplySpawned = (crate) => {
       // Spawn high-tier floor weapons near crate
       const weaponTypes = ['shotgun', 'assault_rifle', 'magnum', 'katana', 'uzi'];
       const pick = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
-      spawnFloorWeapon(crate.x, crate.y, pick);
+      const weapon = spawnFloorWeapon(crate.x, crate.y, pick);
+      weapon.supplyWave = waveSpawner.currentWave;
       particleSystem.spark(crate.x, crate.y, 0, 0, 16, '#ffe600');
     };
   }
@@ -347,6 +436,7 @@
   // Start New Game Run
   // ---------------------------------------------------------------------------
   function startNewGame(maskInput) {
+    audioSettings.apply();
     const maskId = typeof maskInput === 'object' && maskInput ? (maskInput.id || 'vincent') : (maskInput || 'vincent');
     selectedMaskId = maskId;
     deathTimer = 0;
@@ -425,7 +515,9 @@
 
     // Initialize Wave 1
     const spLocs = mapData.spawnLocations || (mapData.spawnPoints && mapData.spawnPoints.spawnLocations) || null;
-    waveSpawner.setCustomSpawnPoints(spLocs, mapData.crateLocations || (mapData.spawnPoints && mapData.spawnPoints.crateLocations) || null);
+    const safeSpLocs = navGraph.getSafeSpawnPoints(spLocs, player, 20);
+    waveSpawner.spawnPositionValidator = p => navGraph.canTraverse(p, p, 20, false);
+    waveSpawner.setCustomSpawnPoints(safeSpLocs, mapData.crateLocations || (mapData.spawnPoints && mapData.spawnPoints.crateLocations) || null);
     waveSpawner.start(maskId, { x: player.x, y: player.y });
 
     // Keep the large control cheat-sheet out of active gameplay.
@@ -445,6 +537,7 @@
     const dropped=new WeaponSystem.FloorWeapon(x, y, wDef, finalAmmo);
     if(Number.isFinite(angle))dropped.angle=angle;
     floorWeapons.push(dropped);
+    return dropped;
   }
 
   // ---------------------------------------------------------------------------
@@ -460,39 +553,38 @@
       e.preventDefault();
       if (!e.repeat) {
         if (gameState === STATES.PLAYING || gameState === STATES.INTERMISSION) {
-          gameState = STATES.PAUSED;
-          if (synthMusic) synthMusic.setMasterVolume(0.2);
+          pauseGame();
         }
         window.open('map_editor.html', '_blank', 'noopener');
       }
       return;
     }
     unlockAudio();
-    if (gameState === STATES.MENU_MASK && maskMenu) {
-      maskMenu.handleKeyDown(e);
-      return;
-    }
     if (gameState === STATES.GAME_OVER && scoreScreen) {
-      scoreScreen.handleKeyDown(e);
+      // Resolve printed keys (including M on AZERTY); consume actions once in update.
+      scoreScreen.handleKeyDown(e, true);
     }
   });
 
-  window.addEventListener('mousedown', (e) => {
+  canvas.addEventListener('click', (e) => {
     unlockAudio();
-    if (gameState === STATES.MENU_MASK && maskMenu) {
-      maskMenu.handleClick(e.clientX, e.clientY, canvas.width, canvas.height);
-      return;
-    }
     if (gameState === STATES.GAME_OVER && scoreScreen) {
-      scoreScreen.handleClick(e.clientX, e.clientY, canvas.width, canvas.height);
+      const rect = canvas.getBoundingClientRect();
+      scoreScreen.handleClick((e.clientX - rect.left) * canvas.width / rect.width,
+        (e.clientY - rect.top) * canvas.height / rect.height, canvas.width, canvas.height, true);
     }
+  });
+  canvas.addEventListener('mousemove', e => {
+    if (gameState !== STATES.GAME_OVER || !scoreScreen?.visible) { canvas.style.cursor = ''; return; }
+    const rect = canvas.getBoundingClientRect();
+    const hit = scoreScreen.hitAction((e.clientX - rect.left) * canvas.width / rect.width,
+      (e.clientY - rect.top) * canvas.height / rect.height, canvas.width, canvas.height);
+    scoreScreen.hoveredAction = hit?.action || null;
+    canvas.style.cursor = hit ? 'pointer' : '';
   });
 
   window.addEventListener('contextmenu', (e) => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault();
-  });
-  window.addEventListener('mousemove', (e) => {
-    if (gameState === STATES.MENU_MASK && maskMenu) maskMenu.handleMouseMove(e.clientX, e.clientY, canvas.width, canvas.height);
   });
 
   function handlePlayerAttack() {
@@ -538,9 +630,7 @@
       }
 
       // Acoustic Sound Propagation (Alert nearby enemies)
-      if (!attackResult.isSilent) {
-        alertEnemiesInRadius(player.x, player.y, attackResult.soundRadius || 650);
-      }
+      alertEnemiesInRadius(player.x, player.y, attackResult.soundRadius || 650, 'PLAYER_GUNSHOT');
     } else if (attackResult.type === 'MELEE_SWING') {
       soundFX.playMeleeSwing(attackResult.weaponId);
       addTrauma(0.06);
@@ -552,6 +642,7 @@
       checkMeleeHit(attackResult);
     } else if (attackResult.type === 'DRY_FIRE') {
       soundFX.playEmptyClick();
+      hud.notifyDryFire();
     }
   }
 
@@ -619,14 +710,14 @@
     particleSystem.addFloatingText(enemy.x, enemy.y - 26, 'FINISH HIM', '#ff007f', 16);
   }
 
-  function alertEnemiesInRadius(x, y, radius) {
+  function alertEnemiesInRadius(x, y, radius, soundType = 'ENEMY_GUNSHOT') {
     for (let i = 0; i < enemies.length; i++) {
       const en = enemies[i];
       if (!en.isAlive || en.state === 'DEAD' || en.state === 'KNOCKED_DOWN') continue;
 
       const dist = Math.hypot(en.x - x, en.y - y);
       if (dist <= radius) {
-        en.onHeardSound(x, y, radius);
+        en.onHeardSound(x, y, radius, soundType);
       }
     }
   }
@@ -707,27 +798,12 @@
   // ---------------------------------------------------------------------------
   // Instructions Overlay Synchronization (Gamepad vs Keyboard Mode)
   // ---------------------------------------------------------------------------
-  let lastOverlayMode = null;
   function updateInstructionsOverlay() {
+    // Controls and development links live in their own menus now.
     const mapLink = document.getElementById('mapMenuLink');
-    if (mapLink) mapLink.style.display = (gameState === STATES.MENU_MASK || gameState === STATES.PAUSED) ? '' : 'none';
+    if (mapLink) mapLink.style.display = 'none';
     const overlay = document.getElementById('instructions-overlay');
-    if (!overlay) return;
-    const mode = (input && input.isGamepadMode) ? 'gamepad' : 'keyboard';
-    if (mode === lastOverlayMode) return;
-    lastOverlayMode = mode;
-
-    if (mode === 'gamepad') {
-      overlay.innerHTML = `
-        <div><span class="key">L-STICK</span> MOVE &nbsp;|&nbsp; <span class="key">R-STICK</span> 360° AIM &nbsp;|&nbsp; <span class="key">RT</span> ATTACK &nbsp;|&nbsp; <span class="key">LT / RB / X</span> PICK UP / THROW &nbsp;|&nbsp; <span class="key">Y</span> EXECUTE</div>
-        <div><span class="key">LB</span> LOOK AHEAD &nbsp;|&nbsp; <span class="key">SELECT / BACK</span> RESTART &nbsp;|&nbsp; <span class="key">START</span> PAUSE &nbsp;|&nbsp; <span class="key">DPAD / STICK</span> MENUS</div>
-      `;
-    } else {
-      overlay.innerHTML = `
-        <div><span class="key">WASD / ZQSD</span> MOVE &nbsp;|&nbsp; <span class="key">MOUSE</span> AIM &nbsp;|&nbsp; <span class="key">L-CLICK</span> ATTACK &nbsp;|&nbsp; <span class="key">R-CLICK / E</span> PICK UP / THROW &nbsp;|&nbsp; <span class="key">SPACE</span> EXECUTE</div>
-        <div><span class="key">SHIFT</span> LOOK AHEAD &nbsp;|&nbsp; <span class="key">R</span> INSTANT RESTART &nbsp;|&nbsp; <span class="key">ESC/P</span> PAUSE &nbsp;|&nbsp; <span class="key">C</span> SCANLINES &nbsp;|&nbsp; <span class="key">M</span> MUTE</div>
-      `;
-    }
+    if (overlay) overlay.classList.add('gameplay-hidden');
   }
 
   // ---------------------------------------------------------------------------
@@ -742,7 +818,7 @@
 
     input.update(realDt, player);
     updateInstructionsOverlay();
-    if ((input.isGamepadMode || input.isMouseDown) && (!synthMusic || !synthMusic.isInitialized)) unlockAudio();
+    if ((input.isGamepadMode || input.isMouseDown) && (!synthMusic?.isInitialized || synthMusic?.ctx?.state === 'suspended')) unlockAudio();
 
     let dt = realDt;
     if (hitStopTimer > 0) {
@@ -752,37 +828,25 @@
 
     if (input.isPauseJustPressed()) {
       if (gameState === STATES.PLAYING || gameState === STATES.INTERMISSION) {
-        gameState = STATES.PAUSED;
-        if (synthMusic) synthMusic.setMasterVolume(0.2);
-        input.clearFrameTriggers();
-        return;
+        pauseGame(); input.clearFrameTriggers(); return;
       } else if (gameState === STATES.PAUSED) {
-        gameState = STATES.PLAYING;
-        if (synthMusic) synthMusic.setMasterVolume(0.7);
-        input.clearFrameTriggers();
-        return;
+        resumeGame(); input.clearFrameTriggers(); return;
       }
     }
 
-    if (gameState === STATES.PAUSED) {
-      if (input.isMenuCancelJustPressed()) {
-        gameState = STATES.PLAYING;
-        if (synthMusic) synthMusic.setMasterVolume(0.7);
-      } else if (input.isRestartJustPressed()) {
-        if (synthMusic) synthMusic.setMasterVolume(0.7);
-        startNewGame(selectedMaskId);
-      } else if (input.isJustPressed('KeyM') || (input.gamepad && input.gamepad.connected && input.gamepad.justPressed.buttonX)) {
-        if (synthMusic) synthMusic.toggleMute();
+    const menu = activeMenu();
+    if (menu) {
+      if (gameState === STATES.PAUSED && input.isRestartJustPressed()) {
+        pauseMenu.hide(); startNewGame(selectedMaskId);
+      } else {
+        if (gameState === STATES.PAUSED && (input.isJustPressed('KeyM') || input.gamepad?.justPressed.buttonX)) audioSettings.set('muted', !audioSettings.values.muted);
+        menu.update(realDt, input, canvas.width, canvas.height);
+        const current = activeMenu();
+        if (current) {
+          if (gameState === STATES.PAUSED) renderGameWorld(0);
+          current.render(ctx, canvas.width, canvas.height, input);
+        }
       }
-      renderGameWorld(0);
-      renderPauseOverlay();
-      input.clearFrameTriggers();
-      return;
-    }
-
-    if (gameState === STATES.MENU_MASK) {
-      maskMenu.update(realDt, input);
-      maskMenu.render(ctx, canvas.width, canvas.height);
       input.clearFrameTriggers();
       return;
     }
@@ -794,7 +858,6 @@
       postProcessor.update(realDt);
       camera.update(realDt, player, input);
       renderGameWorld(0);
-      renderDeathOverlay();
       const canRestart = deathTimer > 0.22;
       // Space/Y is also a menu-confirm key: scores must take precedence.
       if (canRestart && input.isExecuteJustPressed()) {
@@ -808,7 +871,7 @@
 
     if (gameState === STATES.GAME_OVER) {
       scoreScreen.update(realDt, input);
-      renderGameWorld(0);
+      // Results paint an opaque scene; avoid rendering the hidden office world.
       scoreScreen.render(ctx, canvas.width, canvas.height);
       input.clearFrameTriggers();
       return;
@@ -825,13 +888,13 @@
     }
 
     runStats.elapsedTime += realDt;
-    updateGame(dt);
+    updateGame(dt, realDt);
     renderGameWorld(realDt);
     input.clearFrameTriggers();
   }
 
 
-  function updateGame(dt) {
+  function updateGame(dt, realDt = dt) {
     if (player && player.isAlive) {
       // Movement/aim only here. Gameplay actions are owned by this integration layer,
       // preventing the old double-fire / pickup-then-immediate-throw controller bug.
@@ -901,6 +964,7 @@
     }
 
     updateEnemies(dt);
+    window.WorldCleanup.updateCorpses(enemies, dt, CONFIG.CLEANUP);
 
     bloodSystem.update(dt, bloodWallCollision);
     particleSystem.update(dt);
@@ -908,7 +972,7 @@
 
     const livingCountBeforeSpawn = enemies.filter(e => e.isAlive).length;
     const waveInfo = waveSpawner.update(dt, player ? { x: player.x, y: player.y } : null, livingCountBeforeSpawn);
-    hud.update(dt, waveInfo || null);
+    hud.update(dt, waveInfo || null, realDt);
 
     const livingCount = enemies.filter(e => e.isAlive).length;
     const queuedCount = waveSpawner ? waveSpawner.spawnQueue.length : 0;
@@ -931,7 +995,8 @@
         if (soundFX && soundFX.playAmmoRefill) soundFX.playAmmoRefill();
 
         if (crate.weapon) {
-          spawnFloorWeapon(crate.x, crate.y + 16, crate.weapon);
+          const weapon = spawnFloorWeapon(crate.x, crate.y + 16, crate.weapon);
+          weapon.supplyWave = waveSpawner.currentWave;
         }
         if (player.currentWeapon && player.currentWeapon.isGun) {
           const maxA = player.currentWeapon.maxAmmo || 30;
@@ -1207,14 +1272,6 @@
       }
 
       const bulletsBefore = bullets.length;
-      if (en.isWaveHunter && player && player.isAlive) {
-        if (en.state === 'PATROL') en.state = 'SUSPICIOUS';
-        if (en.state === 'SUSPICIOUS') {
-          en.investigateX = player.x;
-          en.investigateY = player.y;
-          en.investigateTimer = Math.max(en.investigateTimer || 0, 1.5);
-        }
-      }
       en.update(dt, player, mapData, enemies, floorWeapons, bullets, combatEffects, camera, navGraph);
       collectEnemyDrop(en);
 
@@ -1248,41 +1305,22 @@
     captureRunStats();
     gameState = STATES.DEAD;
     deathTimer = 0;
+    deathOverlay.resetBlood();
     triggerHitStop(0.075);
     addTrauma(1.0);
-    postProcessor.screenFlash('#ff003c', 0.22);
-    if (synthMusic && typeof synthMusic.setMasterVolume === 'function') synthMusic.setMasterVolume(0.32);
+    postProcessor.triggerFlash('#ff003c', 0.09, 0.07);
+    if (synthMusic && typeof synthMusic.setMasterVolume === 'function') synthMusic.setMasterVolume(audioSettings.values.music * (0.32 / 0.7));
   }
 
   function showScoreScreen() {
     captureRunStats();
     gameState = STATES.GAME_OVER;
-    if (synthMusic) synthMusic.play('game_over');
-    if (soundFX && soundFX.playGameOverDrone) soundFX.playGameOverDrone();
+    if (synthMusic) synthMusic.setMasterVolume(audioSettings.values.music);
     scoreScreen.show('GAME_OVER', runStats);
   }
 
   function renderDeathOverlay() {
-    ctx.save();
-    const pulse = 0.55 + Math.sin(deathTimer * 9) * 0.08;
-    ctx.fillStyle = `rgba(10, 0, 8, ${Math.min(0.58, 0.22 + deathTimer * 0.32)})`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.textAlign = 'center';
-    ctx.shadowColor = '#ff0055';
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 5; ctx.shadowOffsetY = 5;
-    ctx.shadowColor = '#43182e';
-    ctx.fillStyle = '#ef5489';
-    const uiScale = Math.max(1, Math.min(canvas.width / 1920, canvas.height / 1080));
-    ctx.font = `italic 900 ${64 * uiScale}px Impact, Arial Black, sans-serif`;
-    ctx.fillText('YOU ARE DEAD', canvas.width * 0.5, canvas.height * 0.46);
-    if (deathTimer > 0.20) {
-      ctx.shadowBlur = 8;
-      ctx.fillStyle = '#f8f8f2';
-      ctx.font = `700 ${16 * uiScale}px monospace`;
-      ctx.fillText(input && input.isGamepadMode ? 'A / RT  RESTART    Y  SCORE' : 'CLICK / ENTER / R  RESTART    SPACE  SCORE', canvas.width * 0.5, canvas.height * 0.54);
-    }
-    ctx.restore();
+    deathOverlay.render(ctx, canvas.width, canvas.height, deathTimer, input && input.isGamepadMode);
   }
 
   // ---------------------------------------------------------------------------
@@ -1368,13 +1406,20 @@
 
     camera.apply(sceneCtx);
     const view = camera.getBounds();
+    // Bounds include camera roll/shake. Generous sprite padding preserves
+    // weapons, labels and death poses that extend beyond an actor's center.
+    const visible = (entity, padding = 100) => entity.x >= view.left - padding
+      && entity.x <= view.right + padding && entity.y >= view.top - padding
+      && entity.y <= view.bottom + padding;
     renderWorldLayers(mapRenderer, sceneCtx, view, {
       // Background pass: map floors/shadows/decals, then persistent blood and
       // downed bodies/weapons remain grounded beneath furniture fixtures.
       afterBackground: () => {
         bloodSystem.render(sceneCtx, view);
-        enemies.filter(e => !e.isAlive || e.state === 'KNOCKED_DOWN').forEach(e => e.render(sceneCtx));
-        floorWeapons.forEach(fw => { if (fw && fw.render) fw.render(sceneCtx); });
+        for (const e of enemies) {
+          if ((!e.isAlive || e.state === 'KNOCKED_DOWN') && visible(e)) e.render(sceneCtx);
+        }
+        floorWeapons.forEach(fw => { if (fw && fw.render && visible(fw)) fw.render(sceneCtx); });
         if (waveSpawner && waveSpawner.supplyCrates) {
           waveSpawner.supplyCrates.forEach(sc => { if (sc && sc.render) sc.render(sceneCtx); });
         }
@@ -1385,7 +1430,9 @@
       afterFixtures: () => {
         renderSpawnTelegraphs(sceneCtx);
 
-        enemies.filter(e => e.isAlive && e.state !== 'KNOCKED_DOWN').forEach(e => e.render(sceneCtx));
+        for (const e of enemies) {
+          if (e.isAlive && e.state !== 'KNOCKED_DOWN' && visible(e)) e.render(sceneCtx);
+        }
         if (player) player.render(sceneCtx);
         thrownWeapons.forEach(tw => tw.render(sceneCtx));
         bullets.forEach(b => b.render(sceneCtx));
@@ -1404,8 +1451,19 @@
     pixelCtx.imageSmoothingEnabled = false;
     pixelCtx.drawImage(sceneCanvas, 0, 0, pixelCanvas.width, pixelCanvas.height);
     sceneCtx.imageSmoothingEnabled = false;
-    sceneCtx.drawImage(pixelCanvas, 0, 0, canvas.width, canvas.height);
-    postProcessor.render(sceneCanvas, ctx);
+    // Most frames only need one nearest-neighbor upscale. Distortion passes
+    // still receive their full-size source so fractional offsets/crops match.
+    const needsFullSource = postProcessor.glitchActive ||
+      (postProcessor.chromaticAberrationEnabled && postProcessor.currentAberration > 0.8);
+    if (needsFullSource) {
+      sceneCtx.drawImage(pixelCanvas, 0, 0, canvas.width, canvas.height);
+      postProcessor.render(sceneCanvas, ctx);
+    } else {
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      postProcessor.render(pixelCanvas, ctx);
+      ctx.restore();
+    }
     if (window.MapDebug && window.MapDebug.enabled) {
       ctx.save();
       ctx.fillStyle = 'rgba(12,10,24,.92)'; ctx.fillRect(16, 92, 440, 48);
@@ -1415,10 +1473,15 @@
       ctx.restore();
     }
 
-    if (gameState === STATES.PLAYING || gameState === STATES.INTERMISSION || gameState === STATES.DEAD) {
-      hud.render(ctx, canvas.width, canvas.height, camera, enemies.filter(e => e.isAlive), player);
-      if (gameState !== STATES.DEAD) input.renderCrosshair(ctx);
+    if (gameState === STATES.PLAYING || gameState === STATES.INTERMISSION) {
+      const hudAim = input.isGamepadMode
+        ? { x: input.virtualAim.screenX, y: input.virtualAim.screenY }
+        : { x: input.mouseX, y: input.mouseY };
+      hud.render(ctx, canvas.width, canvas.height, camera, enemies.filter(e => e.isAlive), player, hudAim);
+      input.renderCrosshair(ctx);
     }
+    // Include the lethal update's own frame: no one-frame HUD or title delay.
+    if (gameState === STATES.DEAD) renderDeathOverlay();
   }
 
   // CommonJS consumers (the plain Node regression scripts) can exercise the
@@ -1427,37 +1490,6 @@
     module.exports = { renderWorldLayers, updateMapRenderer, canReachTarget };
   }
 
-
-  function renderPauseOverlay() {
-    ctx.fillStyle = 'rgba(11, 8, 19, 0.85)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.save();
-    ctx.fillStyle = '#ff007f';
-    ctx.font = '900 48px monospace';
-    ctx.textAlign = 'center';
-    ctx.shadowColor = '#ff007f';
-    ctx.shadowBlur = 18;
-    ctx.fillText('--- PAUSED ---', canvas.width * 0.5, canvas.height * 0.42);
-
-    const isGamepad = input && input.isGamepadMode;
-
-    ctx.fillStyle = '#00f3ff';
-    ctx.font = '700 18px monospace';
-    ctx.shadowColor = '#00f3ff';
-    ctx.shadowBlur = 8;
-
-    if (isGamepad) {
-      ctx.fillText('[START] OR [B] RESUME GAME', canvas.width * 0.5, canvas.height * 0.52);
-      ctx.fillText('[SELECT] RESTART RUN', canvas.width * 0.5, canvas.height * 0.58);
-      ctx.fillText('[X] TOGGLE MUSIC MUTE', canvas.width * 0.5, canvas.height * 0.64);
-    } else {
-      ctx.fillText('PRESS [ESC] OR [P] TO RESUME', canvas.width * 0.5, canvas.height * 0.52);
-      ctx.fillText('PRESS [R] TO RESTART RUN', canvas.width * 0.5, canvas.height * 0.58);
-      ctx.fillText('PRESS [M] TO TOGGLE MUSIC', canvas.width * 0.5, canvas.height * 0.64);
-    }
-    ctx.restore();
-  }
 
   // ---------------------------------------------------------------------------
   // Boot & Start

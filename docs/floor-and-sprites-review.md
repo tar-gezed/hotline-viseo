@@ -1,5 +1,10 @@
 # Sols éditables et sprites — revue du 9 septembre 2026
 
+Intégration After Hours : les montagnes, bureaux et reflets de l’[écran de résultats](score-direction.md)
+sont une scène Canvas autonome, sans nouveau sprite ni couche de sol dans les cartes.
+
+Mise à jour d’intégration du 18 septembre 2026 : l’accès à l’éditeur passe désormais par **Titre → TOOLS / MAPS → ÉDITEUR DE CARTE**. Les couches de sol, les sprites et les outils décrits ci-dessous restent inchangés. Voir [les parcours de menu et leur validation](menu-direction.md).
+
 Travail réalisé directement, sans sous-agents. Comparaison visuelle dans `sprite_review.html`, avec captures Hotline Miami 2 de [PC Gamer](https://www.pcgamer.com/hotline-miami-2-wrong-number-review/) et du [guide Steam](https://steamcommunity.com/sharedfiles/filedetails/?id=419037574).
 
 ## Sols
@@ -36,3 +41,11 @@ La seconde revue a corrigé les défauts ci-dessus. Les références commerciale
 - `docs/test_editor_palette.cjs` : création, rendu, suppression et historique des 19 types de mobilier ; coordonnées de dessin finies.
 - `docs/test_map_workflow.cjs` et `docs/final_review.cjs` : compatibilité des workflows existants et absence d'erreurs JavaScript.
 - Galerie finale : `docs/sprites-review-final.png`. Extension centrale : `docs/floor-editor-extension.png`.
+
+## Enemy combat and patrol integration
+
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+
+## Performance review — 20 September 2026
+
+Le rendu du mobilier ignore désormais les objets hors du champ avec une marge couvrant rotation, ombres et décors. Les bornes caméra incluent roulis, secousse et zoom ; l’ordre sol/sang/corps/mobilier/acteurs reste conservé. Quinze rendus fixes sont identiques pixel par pixel à la référence, y compris en ultralarge et dimensions impaires. Voir la [validation du rendu](game-performance.md).

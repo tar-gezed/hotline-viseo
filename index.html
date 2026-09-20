@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HOTLINE MIAMI: VISEO ARCADE EDITION</title>
+  <title>Hotline Viseo: After Hours</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
     /* Instant reset & full canvas styling */
@@ -79,11 +79,11 @@
   </style>
 </head>
 <body>
-  <a id="mapMenuLink" href="maps.html" style="position:fixed;right:18px;top:14px;z-index:20;color:#7ef2df;background:#211827;padding:10px 16px;font:14px monospace;text-decoration:none">CARTES / IMPORTER · <span id="activeMapLabel">Chargement…</span></a>
+  <a hidden id="mapMenuLink" href="maps.html" style="position:fixed;right:18px;top:14px;z-index:20;color:#7ef2df;background:#211827;padding:10px 16px;font:14px monospace;text-decoration:none">CARTES / IMPORTER · <span id="activeMapLabel">Chargement…</span></a>
   <div id="game-container">
     <canvas id="gameCanvas"></canvas>
     
-    <div id="instructions-overlay">
+    <div id="instructions-overlay" class="gameplay-hidden" hidden>
       <div><span class="key">WASD / ZQSD</span> MOVE &nbsp;|&nbsp; <span class="key">MOUSE</span> AIM &nbsp;|&nbsp; <span class="key">L-CLICK</span> ATTACK &nbsp;|&nbsp; <span class="key">R-CLICK / E</span> PICK UP / THROW &nbsp;|&nbsp; <span class="key">SPACE</span> EXECUTE / KICK DOOR</div>
       <div><span class="key">SHIFT</span> LOOK AHEAD &nbsp;|&nbsp; <span class="key">R</span> INSTANT RESTART &nbsp;|&nbsp; <span class="key">ESC/P</span> PAUSE &nbsp;|&nbsp; <span class="key">C</span> SCANLINES &nbsp;|&nbsp; <span class="key">M</span> MUTE &nbsp;|&nbsp; <span class="key">F2</span> COLLIDERS &nbsp;|&nbsp; <a href="map_editor.html" target="_blank" rel="noopener" style="color:#9fe">F3 MAP EDITOR</a></div>
     </div>
@@ -119,12 +119,21 @@
   <script src="js/entities/character_art.js"></script>
   <script src="js/entities/player.js"></script>
   <script src="js/entities/enemy.js"></script>
+  <script src="js/entities/world_cleanup.js"></script>
   <script src="js/entities/spawner.js"></script>
 
   <!-- 6. Retro Arcade UI, Masks & HUD -->
   <script src="js/ui/hud.js"></script>
+  <script src="js/ui/ui_theme.js"></script>
+  <script src="js/ui/title_menu.js"></script>
+  <script src="js/ui/credits_menu.js"></script>
   <script src="js/ui/mask_menu.js"></script>
+  <script src="js/ui/controls_menu.js"></script>
+  <script src="js/ui/audio_menu.js"></script>
+  <script src="js/ui/tools_menu.js"></script>
+  <script src="js/ui/pause_menu.js"></script>
   <script src="js/ui/score_screen.js"></script>
+  <script src="js/ui/death_overlay.js"></script>
 
   <!-- 7. Master Orchestration Game Loop -->
   <script src="js/main.js"></script>

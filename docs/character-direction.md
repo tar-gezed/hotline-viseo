@@ -1,5 +1,8 @@
 # Sept personnages VISEO
 
+Depuis les [résultats After Hours](score-direction.md), le clic **PERSONNAGES**,
+la touche imprimée M (y compris AZERTY) ou Y/△ ramènent à cette sélection.
+
 ## Références et direction
 
 Dans Hotline Miami, les masques identifient une aptitude (par exemple les poings de Tony ou la vitesse de Brandon). Hotline Miami 2 pousse davantage les styles distincts : Corey et sa roulade, Mark et ses deux armes, Alex/Ash en duo. Sources : [masques](https://hotlinemiami.fandom.com/wiki/Masks), [The Fans](https://hotlinemiami.fandom.com/wiki/The_Fans), [prise en main des personnages](https://www.sidequesting.com/2014/04/pax-east-2014-hotline-miami-2-wrong-number-preview-recent-calls/).
@@ -47,5 +50,18 @@ Quatrième passe (Refonte Intégrale des Sprites In-Game en Vue du Dessus) :
 
 Le test de sélection a aussi découvert un tir involontaire en validant le menu avec Entrée. Le jeu attend désormais le relâchement de l'entrée d'attaque avant d'autoriser le premier tir. Les cartouches annoncées restent donc intactes au départ. La limite de munitions est appliquée aux ramassages et aux réapprovisionnements, et le HUD affiche la capacité du personnage.
 
-Validation : `test_character_roster.js` vérifie les sept équipements, vitesses, cadences, dispersions réelles des projectiles, capacités, restauration au redémarrage, points, fenêtres de combo, durée d'exécution et impacts d'Arnaud. `docs/test_character_roster.cjs` sélectionne les sept cartes du menu et vérifie leurs armes et munitions dans la boucle réelle du jeu, sans erreur JavaScript. Les captures incluent les sept menus et les sept apparitions en jeu, ainsi que la planche avec références. La qualité artistique reste une appréciation ; ces tests ne prétendent pas démontrer une égalité avec l'art original ni remplacer l'équilibrage par des parties prolongées.
+Validation : `test_character_roster.js` vérifie les sept équipements, vitesses, cadences, dispersions réelles des projectiles, capacités, restauration au redémarrage, points, fenêtres de combo, durée d'exécution et impacts d'Arnaud. `docs/test_character_roster.cjs` ouvre le titre puis sélectionne les sept personnages du menu et vérifie leurs armes et munitions dans la boucle réelle du jeu, sans erreur JavaScript. Les captures incluent les sept menus et les sept apparitions en jeu, ainsi que la planche avec références. La qualité artistique reste une appréciation ; ces tests ne prétendent pas démontrer une égalité avec l'art original ni remplacer l'équilibrage par des parties prolongées.
 
+
+
+## Sélection après l’écran titre
+
+`MENU_TITLE` porte désormais l’identité du jeu. `MENU_MASK` affiche un seul grand portrait `CharacterArt`, la liste des sept noms et les attributs du personnage actif. Les raccourcis 1–7, la navigation clavier/manette et le clic utilisent les mêmes données `CONFIG.MASKS`. Échap/B ou RETOUR revient au titre sans recréer l’application et conserve le personnage sélectionné pour la session. Les caractéristiques et les sprites en jeu ne changent pas. Voir [direction des menus](menu-direction.md).
+
+## Enemy combat and patrol integration
+
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+
+## Performance review — 20 September 2026
+
+Les silhouettes, équipements, animations et capacités restent inchangés. Le rendu ignore désormais les acteurs hors champ sans suspendre leur simulation. Seuls les cadavres morts peuvent être retirés après fondu ; un ennemi assommé reste disponible pour exécution et réveil. Voir les [règles de rétention et validations](game-performance.md).

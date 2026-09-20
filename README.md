@@ -1,4 +1,4 @@
-# Hotline Miami: VISEO Arcade Edition
+# Hotline Viseo: After Hours
 
 > Un jeu d'action / shooter rétro néon en vue du dessus inspiré de *Hotline Miami*, situé dans les locaux stylisés de l'agence VISEO. Développé en pur JavaScript standard (ES6+), HTML5 Canvas 2D et Web Audio API, sans aucune dépendance de production externe (pour l'instant).
 
@@ -6,7 +6,7 @@
 [![Runtime: Browser / Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero%20Runtime-brightgreen.svg)](#)
 [![Hosting: GitHub Pages](https://img.shields.io/badge/Hosting-GitHub%20Pages%20Ready-blue.svg)](https://tar-gezed.github.io/hotline-viseo/)
 [![CI/CD: Deploy Pages](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml/badge.svg)](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml)
-[![Tests: 20 Node Suites Passing](https://img.shields.io/badge/Tests-20%20Passing-success.svg)](#)
+[![Tests: 23 Node Suites Passing](https://img.shields.io/badge/Tests-23%20Passing-success.svg)](#)
 
 ---
 
@@ -20,6 +20,7 @@
 - [Importer une carte dans le jeu](#importer-une-carte-dans-le-jeu)
 - [Dessiner et modifier les sols](#dessiner-et-modifier-les-sols)
 - [Verification](#verification)
+- [Performances et nettoyage](#performances-et-nettoyage)
 - [Vérifications des passages et de l’écran de mort](#vérifications-des-passages-et-de-lécran-de-mort)
 - [Départs du joueur, armes et arrivées ennemies](#départs-du-joueur-armes-et-arrivées-ennemies)
 - [Scoring et classement V2](#scoring-et-classement-v2)
@@ -29,13 +30,29 @@
 
 # Running and inspecting the game
 
-Les sept personnages jouables sont désormais **Vincent, Anne, Lucas, Arnaud, Jade, PAP et JC**. Chaque carte du menu affiche son métier, son animal, ses bonus/malus et son équipement initial. Les armes de départ reviennent à chaque nouvelle partie. Leurs portraits pixel art ainsi que leurs sprites en jeu en vue plongeante (marche, visée, exécution, mort) ont été intégralement refondus dans l'esprit authentique de *Hotline Miami*. Le [détail des personnages](docs/character-direction.md) et le comparatif visuel `character_review.html` documentent leurs silhouettes, leurs règles et les références Hotline Miami.
+Les sept personnages jouables sont désormais **Vincent, Anne, Lucas, Arnaud, Jade, PAP et JC**. La sélection dédiée affiche un grand portrait actif, son métier, son animal, ses bonus/malus et son équipement initial. Les armes de départ reviennent à chaque nouvelle partie. Leurs portraits pixel art ainsi que leurs sprites en jeu en vue plongeante (marche, visée, exécution, mort) ont été intégralement refondus dans l'esprit authentique de *Hotline Miami*. Le [détail des personnages](docs/character-direction.md) et le comparatif visuel `character_review.html` documentent leurs silhouettes, leurs règles et les références Hotline Miami.
 
 Double-cliquer sur **Lancer-le-jeu.cmd** (Windows), ou lancer **`npm start`** dans ce dossier avec Node.js 18+ puis ouvrir http://localhost:8080. Aucune dépendance à installer (pour l'instant). Garder le serveur ouvert ; Ctrl+C l'arrête. Si le port est occupé : `npm start -- --port 8082`, puis http://localhost:8082.
 
 Ne pas ouvrir `index.html` en `file://` : le navigateur interdit la lecture automatique de `maps/active.json`. Le serveur local sert simplement les fichiers, sans modifier la carte. Alternative : `python -m http.server 8080`.
 
 Les brouillons et cartes importées dans le navigateur dépendent de l'origine (protocole, hôte et port). Pour récupérer un travail réalisé sous une autre adresse, importer son JSON dans l'éditeur. Conserver une copie des exports.
+
+## Écran titre et menus
+
+Le lancement ouvre **HOTLINE VISEO** : logo animé, silhouettes de bâtiments en parallaxe et quatre choix principaux. **COMMENCER MA JOURNÉE** mène à la sélection des sept personnages ; **CONTRÔLES** sépare clavier/souris et manette ; **AUDIO** règle musique et effets ; **TOOLS / MAPS** donne accès aux cartes et à l’éditeur existants. **CRÉDITS**, en bas à droite, présente quinze postes tous attribués à **Targezed**.
+
+La musique démarre au chargement si le navigateur autorise l’autoplay. Sinon, une touche, un clic n’importe où dans la page ou un toucher déverrouille le son, sans devoir choisir une option ; les réglages de volume et de mute sont conservés.
+
+Flèches ou WASD/ZQSD, croix directionnelle ou stick gauche pour choisir ; Entrée/Espace ou A/× pour valider ; Échap/Retour arrière ou B/○ pour revenir. La souris sélectionne au survol et valide au clic. Les chiffres 1–7 sélectionnent un personnage. Le retour au titre garde ce choix en mémoire pendant la session.
+
+Les deux volumes et le mute musique sont sauvegardés dans `hotline-viseo-audio-v1` lorsque le navigateur autorise le stockage. **Pause → AUDIO** utilise les mêmes réglages ; revenir à la pause puis reprendre conserve la partie et la phase de vague. Les flèches gauche/droite règlent par pas de 5 %, les pistes acceptent clic et glisser. Le thème de menu et le déverrouillage audio restent ceux du jeu.
+
+La [direction et validation des menus](docs/menu-direction.md) documente les composants Canvas, les références et les captures aux formats 1280×720, 1440×900, 1920×1080 et 3440×1440.
+
+Le [HUD en jeu](docs/hud-direction.md) privilégie le score et le combo, avec des impacts brefs uniquement sur événement. Vague et masque s’atténuent, le masque reste consultable en pause. L’ammo devient rouge à zéro et réagit à chaque tir à vide ; la mêlée n’affiche que le nom de l’arme. La validation couvre aussi 2560×1440, avec 45 captures et des essais d’armes réels dans le navigateur.
+
+Les annonces de vague utilisent une typo inclinée sans panneau, réduite de 20 % et ancrée en haut au centre : `WAVE 01` pendant **1 200 ms**, puis **3 → 2 → 1** au rythme des trois secondes réellement restantes dans les **4 secondes de préparation existantes**. `WAVE 01 CLEAR` vert dure aussi **1 200 ms**, sans `#`. Le texte de réappro agrandi affiche son timer réel en haut au centre, à position fixe, avec des flèches vertes vers chaque caisse encore disponible. Le compteur d’ennemis réagit aux éliminations. Les timings de spawn restent inchangés ; les [détails et contrôles sur six résolutions](docs/hud-direction.md#annonces-cinétiques-de-vague) sont documentés.
 
 ## GitHub Pages & Déploiement Automatique
 
@@ -44,7 +61,7 @@ Le jeu est déployé et jouable publiquement en ligne sur GitHub Pages à l'adre
 
 Le déploiement est entièrement automatisé par GitHub Actions :
 - **Workflow :** `.github/workflows/deploy.yml` déclenché à chaque push sur la branche `main` (ou manuellement via *Actions*).
-- **Validation CI :** Exécute automatiquement la suite complète des 20 suites de régression (`npm test`) avant le packaging.
+- **Validation CI :** Exécute automatiquement la suite complète des 23 suites de régression (`npm test`) avant le packaging.
 - **Publication Pages :** Utilise les actions officielles `actions/configure-pages@v5`, `actions/upload-pages-artifact@v3` et `actions/deploy-pages@v4`.
 - **Compatibilité sous-dossier :** Tous les chemins de ressources (scripts, styles, cartes) sont relatifs (`maps/active.json`, `css/style.css`, etc.) pour fonctionner indifféremment à la racine ou sous le préfixe `/hotline-viseo/`. Le fichier `.nojekyll` est présent à la racine pour désactiver le traitement Jekyll.
 - **Configuration GitHub requise :** Dans le dépôt GitHub, sous **Settings > Pages > Build and deployment > Source**, sélectionner **GitHub Actions**.
@@ -96,7 +113,7 @@ Undo/redo, local draft save/restore, and JSON import/export are available. Valid
 Ton ancien JSON est compatible. Deux parcours directs :
 
 1. Dans `map_editor.html`, **Importer JSON**, puis **Jouer cette carte**. Un brouillon local valide est restauré à l'ouverture de l'éditeur.
-2. Dans `maps.html` (bouton **CARTES / IMPORTER** du jeu), sélectionner le JSON puis **Jouer la carte importée**. Cette carte est conservée séparément du brouillon dans ce navigateur.
+2. Dans `maps.html` (menu titre **TOOLS / MAPS → CHOISIR / IMPORTER UNE CARTE**), sélectionner le JSON puis **Jouer la carte importée**. Cette carte est conservée séparément du brouillon dans ce navigateur.
 
 Pour charger une carte automatiquement depuis un dossier : **Exporter la carte** télécharge `active.json`. Déplacer ce fichier dans **`D:\Downloads\hotline-viseo\maps\active.json`**, puis recharger le jeu. Il n'y a aucun fichier JavaScript à modifier. Si le navigateur ajoute un suffixe au nom téléchargé, le renommer `active.json`.
 
@@ -116,9 +133,17 @@ Les sols édités sont exportés avec la carte et affichés par le jeu sans supe
 
 Les sprites de mobilier sont partagés entre le jeu et l'éditeur, mis en cache sur une grille de deux unités et comparables dans `sprite_review.html`. Les anciennes façades d'ascenseur sont désormais des repères d'arrivée à plat sur le sol ; leurs données restent compatibles et les arrivées de vagues ne changent pas.
 
+## Performances et nettoyage
+
+La navigation et les collisions évitent les calculs sur les obstacles éloignés et réutilisent la géométrie du mobilier. Le rendu ignore les objets hors champ et supprime une copie plein écran lorsque les distorsions ne la nécessitent pas. Sur la machine de test, le temps de travail du callback animation à 36 ennemis passe de **15,5 à 3,7 ms au p95** en 1280×720. Le stress de combat mesure 90,1 FPS moyens en 1080p, mais 57,1 FPS en 3440×1440 : les 60 FPS constants ne sont pas garantis.
+
+Les cadavres commencent à disparaître après 90 secondes de simulation, ou quand plus de 96 corps sont retenus, avec un fondu de deux secondes et une protection de la première seconde de chute. Les armes de ravitaillement non utilisées expirent au début de la deuxième vague suivante ; les armes placées sur la carte, lâchées par les ennemis ou reprises puis jetées sont conservées. Le sang reste sur sa toile persistante : le test de 5 000 taches ne montre pas de surcoût de redessin. Les petits pics noirs sur le texte de ramassage sont corrigés.
+
+Le [rapport complet de performances](docs/game-performance.md) détaille les changements, les mesures, leurs limites, le choix de conserver Canvas 2D accéléré et la simulation synchrone, les 23 suites et les validations navigateur, ainsi que les commandes de reproduction. Les outils Playwright sont réservés au développement et n’ajoutent aucune dépendance au jeu.
+
 ## Verification
 
-Exécuter l'ensemble des 20 suites de régression automatisées avec Node.js :
+Exécuter l'ensemble des 23 suites de régression automatisées avec Node.js :
 
 ```bash
 npm test
@@ -143,6 +168,8 @@ The latest repair review is in `docs/visual-critique.md`. Run `node docs/final_r
 
 ## Vérifications des passages et de l’écran de mort
 
+L’[overlay de mort](docs/death-direction.md) retire le HUD dès l’impact et affiche **YOU'RE DEAD!** en SELINCAH rose néon `#ed4e93`, sur un voile noir à 60 % avec vignetage. Les éclaboussures mêlent impacts asymétriques, traînées obliques et fines gouttelettes sur les bords et dans plusieurs zones intérieures ; leurs formes changent à chaque mort et seules certaines taches coulent brièvement. Les indications de restart et de score sont espacées du titre et partagent la même couleur ivoire ; le score apparaît après 400 ms. Les contrôles et le garde de 220 ms sont conservés. L’outil optionnel `node tools/validate_death.cjs` couvre cinq formats, de 1280×720 à 3440×1440 ; la campagne de performances du 20 septembre l’a exécuté avec succès, avec 25 captures sur cinq formats.
+
 `node test_collision_passages.js` couvre les murs et vitres (y compris en diagonale) à 10/30/60/144 FPS, les poussées joueur/ennemi, la porte ajoutée `door_2` de la carte utilisateur et les ouvertures traversant plusieurs couches superposées. `node docs/test_passages_and_scores.cjs` traverse cette porte dans les deux sens avec les touches de déplacement puis vérifie qu'Espace ouvre les scores après la mort, sans recommencer la partie.
 
 L'éditeur refuse maintenant de créer une porte de moins de 48 unités. La découpe traverse toutes les couches collinéaires mur/vitre. Les chevauchements derrière les portes des anciens JSON sont corrigés sur la copie chargée ; le fichier importé n'est jamais réécrit automatiquement.
@@ -160,6 +187,17 @@ Les arrivées constituent l'ensemble utilisé pour **toutes les vagues, dès la 
 Validation : `node docs/test_gameplay_editor.cjs` teste placement, édition, suppression, duplication, déplacement, protections, annulation, sauvegarde/rechargement, export et chargement dans le jeu avec les munitions personnalisées et les arrivées des vagues 1 et 3.
 
 ## Scoring et classement V2
+
+Le bilan **AFTER HOURS** devient une scène Canvas grenobloise : montagnes, bureaux,
+disque rose-orangé et reflets. Huit catégories apparaissent au rythme de 140 ms,
+puis un score massif et le grade. Une boucle synthwave originale à 84 BPM accompagne
+ce moment. Entrée/R ou A/× passent le décompte avant de rejouer ; M ou Y/△ ouvrent
+les personnages ; Tab/L ou X/□ affichent le classement secondaire, qui met uniquement
+la partie actuelle en évidence. Les quatre actions sont cliquables avec survol ;
+**Partager** (S ou RB/R1) copie score, vague, grade, emojis et lien du jeu, puis
+affiche « COPIÉ ! ». M fonctionne aussi sur AZERTY. Le commentaire est centré sous
+le grade, dont l’arrivée combine frappe sonore, rebond et éclats brefs.
+Voir la [direction et validation des résultats](docs/score-direction.md).
 
 Le score en jeu comprend les points des éliminations (avec multiplicateur de combo et bonus de PAP), assommages, ravitaillements et fins de vague. Le bilan ajoute les bonus suivants :
 
@@ -197,14 +235,20 @@ hotline-viseo/
 ├── .gitattributes          # Normalisation des fins de ligne (LF/CRLF) et binaires
 ├── AGENTS.md               # Règles impératives de commit et directives d'agents
 ├── README.md               # Documentation générale du projet
+├── assets/fonts/           # Polices locales utilisées par les écrans Canvas
+│   └── SELINCAH.ttf        # Police du tampon de mort
 ├── test_*.js               # Suites de tests unitaires et de non-régression Node
 ├── css/                    # Feuilles de style pour le canvas et les overlays
 ├── docs/                   # Documentation technique, critiques visuelles et tests Playwright
 │   ├── architecture.md     # Architecture détaillée du moteur et des sous-systèmes
+│   ├── game-performance.md # Optimisations, mesures, limites et reproduction
 │   ├── character-direction.md # Direction artistique des 7 masques VISEO
+│   ├── death-direction.md  # Direction et validation de l'overlay de mort
 │   ├── door-physics-review.md # Physique des portes et résolution des contacts
 │   ├── floor-and-sprites-review.md # Revue des sols polygonaux et sprites
+│   ├── hud-direction.md    # Direction et validation du HUD en jeu
 │   ├── passages-and-scores-review.md # Revue des passages et calculs de score
+│   ├── menu-direction.md   # Direction et validation des menus Canvas
 │   ├── visual-critique.md  # Critiques visuelles et gameplay
 │   └── *.cjs / *.png       # Outils Playwright et captures de référence
 ├── js/                     # Code source modulaire du jeu
@@ -216,12 +260,14 @@ hotline-viseo/
 │   ├── engine/             # Physique, détection de collisions, caméra, entrées et pathfinding
 │   ├── entities/           # Joueur, IA ennemie, arsenal d'armes, portes, spawner de vagues
 │   ├── map/                # Données de carte, chargeur, moteur de rendu et éditeur
-│   └── ui/                 # Menus de masques, HUD rétro néon et écran de scores
+│   └── ui/                 # Menus, HUD, overlay de mort et écran de scores
 ├── maps/                   # Cartes de jeu exportées
 │   ├── active.json         # Carte personnalisée active chargée au démarrage
 │   └── README.md           # Documentation sur le chargement automatique des cartes
-└── tools/                  # Outils serveur Node pour développement local
-    └── serve.cjs           # Serveur HTTP statique léger avec support preview
+└── tools/                  # Outils serveur Node et validations optionnelles
+    ├── serve.cjs           # Serveur HTTP statique léger avec support preview
+    ├── validate_death.cjs  # Validation navigateur de l'écran de mort
+    └── validate_hud.cjs    # Validation navigateur du HUD
 ```
 
 ---
@@ -246,3 +292,7 @@ Toutes les modifications du projet doivent respecter les règles établies dans 
 1. **Conventional Commits en anglais uniquement** : Tout commit doit obligatoirement suivre la convention (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`, etc.) avec un titre complet, clair et pertinent, et une description ultra complète de tous les changements.
 2. **Mise à jour obligatoire de la documentation** : Avant **chaque** commit, toute la documentation (`README.md`, `docs/`, `maps/README.md`) doit obligatoirement être mise à jour pour refléter l'état exact du projet.
 3. **Validation des suites de tests** : Avant tout commit, lancer `Get-ChildItem test_*.js | ForEach-Object { node $_.FullName }` et s'assurer que tous les tests passent.
+
+## Enemy combat and patrol integration
+
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](docs/architecture.md#enemy-combat-and-navigation).

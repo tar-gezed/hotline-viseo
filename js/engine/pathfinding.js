@@ -30,11 +30,13 @@
       const hh = h * 0.5;
       const cos = Math.cos(prop.angle || 0);
       const sin = Math.sin(prop.angle || 0);
+      const cx = prop.centered ? prop.x : prop.x + hw;
+      const cy = prop.centered ? prop.y : prop.y + hh;
       return [
-        { x: prop.x + (-hw * cos - -hh * sin), y: prop.y + (-hw * sin + -hh * cos) },
-        { x: prop.x + (hw * cos - -hh * sin), y: prop.y + (hw * sin + -hh * cos) },
-        { x: prop.x + (hw * cos - hh * sin), y: prop.y + (hw * sin + hh * cos) },
-        { x: prop.x + (-hw * cos - hh * sin), y: prop.y + (-hw * sin + hh * cos) }
+        { x: cx + (-hw * cos - -hh * sin), y: cy + (-hw * sin + -hh * cos) },
+        { x: cx + (hw * cos - -hh * sin), y: cy + (hw * sin + -hh * cos) },
+        { x: cx + (hw * cos - hh * sin), y: cy + (hw * sin + hh * cos) },
+        { x: cx + (-hw * cos - hh * sin), y: cy + (-hw * sin + hh * cos) }
       ];
     }
     return [
@@ -87,6 +89,81 @@
     return true;
   }
 
+  function pointSegmentDistanceSq(p, a, b) {
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const lengthSq = dx * dx + dy * dy;
+    const t = lengthSq ? Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / lengthSq)) : 0;
+    const x = p.x - a.x - dx * t, y = p.y - a.y - dy * t;
+    return x * x + y * y;
+  }
+
+  function segmentDistance(a, b, c, d) {
+    return Math.sqrt(segmentDistanceSq(a, b, c, d));
+  }
+
+  function segmentDistanceSq(a, b, c, d) {
+    if (Physics.lineIntersectsSegment(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y)) return 0;
+    return Math.min(pointSegmentDistanceSq(a, c, d), pointSegmentDistanceSq(b, c, d),
+      pointSegmentDistanceSq(c, a, b), pointSegmentDistanceSq(d, a, b));
+  }
+
+  // Cache geometry, never reachability: glass, door locks and map edits must
+  // affect the very next query. Weak keys allow replaced maps to be collected.
+  const propGeometry = new WeakMap();
+  function geometryForProp(prop) {
+    const w = prop.collisionWidth || prop.width, h = prop.collisionHeight || prop.height;
+    let g = propGeometry.get(prop);
+    if (g && g.x === prop.x && g.y === prop.y && g.w === w && g.h === h
+        && g.angle === prop.angle && g.centered === prop.centered) return g;
+    const corners = getSolidPropCorners(prop);
+    g = { x: prop.x, y: prop.y, w, h, angle: prop.angle, centered: prop.centered, corners,
+      minX: Math.min(...corners.map(p => p.x)), maxX: Math.max(...corners.map(p => p.x)),
+      minY: Math.min(...corners.map(p => p.y)), maxY: Math.max(...corners.map(p => p.y)) };
+    propGeometry.set(prop, g);
+    return g;
+  }
+
+  // Sweep the full actor disc, including wall thickness and rotated furniture.
+  // Unlocked doors can be pushed; locked leaves remain actual obstacles.
+  function hasBodyClearance(map, a, b, radius, ignoreDoors = true) {
+    const minX = Math.min(a.x, b.x), maxX = Math.max(a.x, b.x);
+    const minY = Math.min(a.y, b.y), maxY = Math.max(a.y, b.y);
+    // A conservative broad phase avoids exact capsule tests for distant objects.
+    const walls = map.walls || [], glass = map.glassPartitions || [];
+    for (let i = 0; i < walls.length + glass.length; i++) {
+      const wall = i < walls.length ? walls[i] : glass[i - walls.length];
+      if (wall.shattered) continue;
+      const clearance = radius + (wall.thickness || 0) / 2 - 0.001;
+      if (clearance <= 0 || Math.max(wall.x1, wall.x2) < minX - clearance
+          || Math.min(wall.x1, wall.x2) > maxX + clearance
+          || Math.max(wall.y1, wall.y2) < minY - clearance
+          || Math.min(wall.y1, wall.y2) > maxY + clearance) continue;
+      if (segmentDistanceSq(a, b, { x: wall.x1, y: wall.y1 }, { x: wall.x2, y: wall.y2 })
+          < clearance * clearance) return false;
+    }
+    for (const prop of map.props || []) {
+      if (!prop.solid) continue;
+      const g = geometryForProp(prop);
+      if (g.maxX < minX - radius || g.minX > maxX + radius
+          || g.maxY < minY - radius || g.minY > maxY + radius) continue;
+      if (pointInsideSolidProp(a.x, a.y, prop) || pointInsideSolidProp(b.x, b.y, prop)) return false;
+      const corners = g.corners;
+      for (let i = 0; i < 4; i++) {
+        if (radius > 0.001 && segmentDistanceSq(a, b, corners[i], corners[(i + 1) % 4]) < (radius - 0.001) ** 2) return false;
+      }
+    }
+    for (const door of map.doors || []) {
+      if (door.shattered || door.broken || (ignoreDoors && !door.isLocked)) continue;
+      const tip = door.getTipPosition ? door.getTipPosition() : {
+        x: door.x + Math.cos(door.angle || 0) * door.length,
+        y: door.y + Math.sin(door.angle || 0) * door.length
+      };
+      const clearance = radius + (door.thickness || 0) / 2 - 0.001;
+      if (clearance > 0 && segmentDistanceSq(a, b, door, tip) < clearance * clearance) return false;
+    }
+    return true;
+  }
+
   class NavNode {
     constructor(id, x, y, zone = 'hallway') {
       this.id = id;
@@ -118,6 +195,86 @@
       const node = new NavNode(id, x, y, zone);
       this.nodes.set(id, node);
       return node;
+    }
+
+    canTraverse(a, b, radius = 14, ignoreDoors = true) {
+      return hasBodyClearance(this.mapData, a, b, radius, ignoreDoors);
+    }
+
+    canPatrolBetween(a, b, radius, home) {
+      if (Math.hypot(b.x - home.x, b.y - home.y) > 520 || !this.canTraverse(a, b, radius)) return false;
+      return !(this.mapData.doors || []).some(d => {
+        if (home.allowedDoorId && d.id === home.allowedDoorId) return false;
+        const angle = d.baseAngle ?? d.angle ?? 0;
+        return segmentDistance(a, b, d, { x: d.x + Math.cos(angle) * d.length,
+          y: d.y + Math.sin(angle) * d.length }) < radius;
+      });
+    }
+
+    getLocalPatrolRoute(x, y, radius = 14) {
+      const home = { x, y };
+      // Local rounds cannot leave the room through a door, even an open one:
+      // use the authored doorway segment as the patrol-area boundary.
+      const staysLocal = (a, b) => this.canPatrolBetween(a, b, radius, home);
+      const reachable = new Set();
+      const queue = [...this.nodes.values()].filter(n => staysLocal(home, n));
+      for (const n of queue) reachable.add(n);
+      for (let i = 0; i < queue.length; i++) {
+        for (const { node } of queue[i].neighbors) {
+          if (!reachable.has(node) && staysLocal(queue[i], node)) {
+            reachable.add(node); queue.push(node);
+          }
+        }
+      }
+      const route = [home];
+      // Spread stops over the local reachable area rather than adjacent anchors.
+      let candidates = [...reachable];
+      // Tiny rooms may have only one graph anchor: add clear local floor stops.
+      for (const distance of [80, 160]) for (let i = 0; i < 8; i++) {
+        const p = { x: x + Math.cos(i * Math.PI / 4) * distance,
+          y: y + Math.sin(i * Math.PI / 4) * distance };
+        if (staysLocal(home, p)) candidates.push(p);
+      }
+      while (route.length < 5 && candidates.length) {
+        candidates.sort((a, b) => Math.min(...route.map(p => Math.hypot(b.x - p.x, b.y - p.y)))
+          - Math.min(...route.map(p => Math.hypot(a.x - p.x, a.y - p.y))));
+        const next = candidates.shift();
+        if (Math.min(...route.map(p => Math.hypot(next.x - p.x, next.y - p.y))) < 48) break;
+        route.push({ x: next.x, y: next.y });
+      }
+      return route;
+    }
+
+    getPatrolExcursion(home, radius = 14) {
+      const candidates = [];
+      for (const door of this.mapData.doors || []) {
+        if (door.isLocked || door.length < radius * 2 + 8) continue;
+        const angle = door.baseAngle ?? door.angle ?? 0;
+        const mx = door.x + Math.cos(angle) * door.length / 2;
+        const my = door.y + Math.sin(angle) * door.length / 2;
+        if (Math.hypot(mx - home.x, my - home.y) > 350) continue;
+        for (const side of [-1, 1]) {
+          const inside = { x: mx - Math.sin(angle) * 48 * side, y: my + Math.cos(angle) * 48 * side };
+          const outside = { x: mx + Math.sin(angle) * 100 * side, y: my - Math.cos(angle) * 100 * side };
+          if (!this.findPath(home.x, home.y, inside.x, inside.y, { radius, patrolHome: home })) continue;
+          const excursionHome = { ...home, allowedDoorId: door.id };
+          if (!this.canPatrolBetween(inside, outside, radius, excursionHome)) continue;
+          candidates.push({ doorId: door.id, stops: [inside, outside, inside] });
+        }
+      }
+      return candidates.length ? candidates[Math.floor(Math.random() * candidates.length)] : null;
+    }
+
+    getSafeSpawnPoints(points, reference, radius = 20) {
+      const valid = p => this.canTraverse(p, p, radius, false)
+        && this.findPath(p.x, p.y, reference.x, reference.y, { radius });
+      const authored = (points || []).filter(valid);
+      if (authored.length) return authored;
+      // Imported maps with unusable markers can use connected navigation
+      // anchors; the generated points are runtime-only and still telegraphed.
+      return [...this.nodes.values()].filter(valid).slice(0, 9).map(n => ({
+        id: `safe_${n.id}`, x: n.x, y: n.y, angle: 0, type: 'entry', name: 'Safe arrival'
+      }));
     }
 
     connect(idA, idB, doorId = null) {
@@ -177,6 +334,18 @@
               break;
             }
           }
+        }
+
+        // Sparse authored grids need real turning space around furniture.
+        for (const [index, prop] of (this.mapData.props || []).entries()) {
+          if (!prop.solid) continue;
+          const pad = 24;
+          const w = prop.collisionWidth || prop.width, h = prop.collisionHeight || prop.height;
+          const box = { ...prop, collisionWidth: w + pad * 2, collisionHeight: h + pad * 2 };
+          if (!prop.centered) { box.x -= pad; box.y -= pad; }
+          getSolidPropCorners(box).forEach((p, corner) => {
+            if (this.canTraverse(p, p, 20)) this.addNode(`detour_${index}_${corner}`, p.x, p.y, 'detour');
+          });
         }
 
         const nodes = Array.from(this.nodes.values());
@@ -548,161 +717,85 @@
       ]);
     }
 
-    findNearestNode(x, y, maxDistance = 500) {
+    findNearestNode(x, y, maxDistance = 500, radius = 14) {
       let closest = null;
-      let closestDistSq = maxDistance * maxDistance;
-
+      let distance = maxDistance;
       for (const node of this.nodes.values()) {
-        const dx = node.x - x;
-        const dy = node.y - y;
-        const distSq = dx * dx + dy * dy;
-        if (distSq < closestDistSq) {
-          // Verify line of sight to candidate node
-          if (hasTraversalLineOfSight(this.mapData, { x, y }, node, {ignoreDoors:true,seeThroughGlass:false})) {
-            closestDistSq = distSq;
-            closest = node;
-          }
+        const d = Math.hypot(node.x - x, node.y - y);
+        if (d < distance && this.canTraverse({ x, y }, node, radius)) {
+          closest = node; distance = d;
         }
       }
-
-      // Fallback to purely geometric closest if LOS check was fully obstructed by small obstacle
-      if (!closest) {
-        let bestDistSq = Infinity;
-        for (const node of this.nodes.values()) {
-          const dx = node.x - x;
-          const dy = node.y - y;
-          const distSq = dx * dx + dy * dy;
-          if (distSq < bestDistSq) {
-            bestDistSq = distSq;
-            closest = node;
-          }
-        }
-      }
-
       return closest;
     }
 
-    /**
-     * A* Search Algorithm
-     */
     findPath(startX, startY, targetX, targetY, options = {}) {
-      // 1. Check direct Line of Sight shortcut first
-      if (hasTraversalLineOfSight(this.mapData, { x: startX, y: startY }, { x: targetX, y: targetY }, {ignoreDoors:true,seeThroughGlass:false})) {
-        return [
-          { x: startX, y: startY },
-          { x: targetX, y: targetY }
-        ];
-      }
+      const radius = options.radius ?? 14;
+      const start = { x: startX, y: startY };
+      const target = { x: targetX, y: targetY };
+      const clear = options.patrolHome
+        ? (a, b) => this.canPatrolBetween(a, b, radius, options.patrolHome)
+        : (a, b) => this.canTraverse(a, b, radius);
+      if (clear(start, target)) return [start, target];
 
-      const startNode = this.findNearestNode(startX, startY);
-      const targetNode = this.findNearestNode(targetX, targetY);
-
-      if (!startNode || !targetNode) return null;
-      if (startNode === targetNode) {
-        return [
-          { x: startX, y: startY },
-          { x: startNode.x, y: startNode.y },
-          { x: targetX, y: targetY }
-        ];
-      }
-
-      const openSet = new Set([startNode]);
+      // Virtual endpoints connect only to reachable anchors. Trying all local
+      // connectors avoids selecting a nearer node in a disconnected component.
+      const open = new Set();
       const cameFrom = new Map();
-
-      const gScore = new Map();
-      gScore.set(startNode, 0);
-
-      const fScore = new Map();
-      fScore.set(startNode, Math.hypot(startNode.x - targetNode.x, startNode.y - targetNode.y));
-
-      while (openSet.size > 0) {
-        let current = null;
-        let lowestF = Infinity;
-
-        for (const node of openSet) {
-          const f = fScore.get(node) || Infinity;
-          if (f < lowestF) {
-            lowestF = f;
-            current = node;
-          }
+      const costs = new Map();
+      const goals = new Map();
+      for (const node of this.nodes.values()) {
+        const fromStart = Math.hypot(node.x - startX, node.y - startY);
+        const toTarget = Math.hypot(node.x - targetX, node.y - targetY);
+        if (fromStart <= 600 && clear(start, node)) {
+          open.add(node); costs.set(node, fromStart);
         }
+        if (toTarget <= 600 && clear(node, target)) goals.set(node, toTarget);
+      }
+      if (!open.size || !goals.size) return null;
 
-        if (current === targetNode) {
-          // Reconstruct path
-          const rawPath = [];
-          let curr = current;
-          while (curr) {
-            rawPath.unshift({ x: curr.x, y: curr.y, node: curr });
-            curr = cameFrom.get(curr);
-          }
-
-          rawPath.unshift({ x: startX, y: startY });
-          rawPath.push({ x: targetX, y: targetY });
-
-          // Smooth and string-pull path
-          return this.smoothPath(rawPath);
+      let bestGoal = null, bestCost = Infinity;
+      while (open.size) {
+        let current = null, bestF = Infinity;
+        for (const node of open) {
+          const f = costs.get(node) + Math.hypot(node.x - targetX, node.y - targetY);
+          if (f < bestF) { current = node; bestF = f; }
         }
-
-        openSet.delete(current);
-        const currentG = gScore.get(current) || 0;
-
-        for (const neighborEdge of current.neighbors) {
-          const neighbor = neighborEdge.node;
-          let weight = neighborEdge.baseDist;
-
-          // Add dynamic cost for doors
-          if (neighborEdge.door) {
-            if (neighborEdge.door.isLocked) {
-              weight += 10000; // impassable
-            } else if (!neighborEdge.door.isOpen()) {
-              weight += 30; // small cost to push/kick open
-            }
-          }
-
-          // Optional avoidance heuristic for flanking
-          if (options.avoidNode && neighbor === options.avoidNode) {
-            weight += 1000;
-          }
-
-          const tentativeG = currentG + weight;
-          const prevG = gScore.has(neighbor) ? gScore.get(neighbor) : Infinity;
-          if (tentativeG < prevG) {
-            cameFrom.set(neighbor, current);
-            gScore.set(neighbor, tentativeG);
-            const h = Math.hypot(neighbor.x - targetNode.x, neighbor.y - targetNode.y);
-            fScore.set(neighbor, tentativeG + h);
-            openSet.add(neighbor);
-          }
+        if (bestF >= bestCost) break;
+        open.delete(current);
+        if (goals.has(current) && costs.get(current) + goals.get(current) < bestCost) {
+          bestGoal = current; bestCost = costs.get(current) + goals.get(current);
+        }
+        for (const edge of current.neighbors) {
+          if (edge.door && edge.door.isLocked) continue;
+          const next = edge.node;
+          const doorOpen = edge.door && (typeof edge.door.isOpen === 'function'
+            ? edge.door.isOpen() : edge.door.isOpen);
+          const cost = costs.get(current) + edge.baseDist + (edge.door && !doorOpen ? 30 : 0)
+            + (options.avoidNode === next ? 1000 : 0);
+          if (cost >= (costs.get(next) ?? Infinity)) continue;
+          if (!clear(current, next)) continue;
+          costs.set(next, cost); cameFrom.set(next, current); open.add(next);
         }
       }
-
-      return null; // No path found
+      if (!bestGoal) return null;
+      const path = [target];
+      for (let node = bestGoal; node; node = cameFrom.get(node)) path.unshift({ x: node.x, y: node.y });
+      path.unshift(start);
+      return this.smoothPath(path, radius, clear);
     }
 
-    /**
-     * Path smoothing (String Pulling via Raycast LOS)
-     */
-    smoothPath(path) {
+    smoothPath(path, radius = 14, clear = (a, b) => this.canTraverse(a, b, radius)) {
       if (!path || path.length <= 2) return path;
-
-      const smoothed = [path[0]];
-      let currentIndex = 0;
-
-      while (currentIndex < path.length - 1) {
-        let furthestVisibleIndex = currentIndex + 1;
-
-        for (let i = path.length - 1; i > currentIndex + 1; i--) {
-          if (hasTraversalLineOfSight(this.mapData, path[currentIndex], path[i], {ignoreDoors:true,seeThroughGlass:false})) {
-            furthestVisibleIndex = i;
-            break;
-          }
+      const result = [path[0]];
+      for (let index = 0; index < path.length - 1;) {
+        let next = index + 1;
+        for (let i = path.length - 1; i > next; i--) {
+          if (clear(path[index], path[i])) { next = i; break; }
         }
-
-        smoothed.push(path[furthestVisibleIndex]);
-        currentIndex = furthestVisibleIndex;
+        result.push(path[next]); index = next;
       }
-
-      return smoothed;
+      return result;
     }
 
     getPatrolRoute(routeName) {

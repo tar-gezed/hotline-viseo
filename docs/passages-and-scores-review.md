@@ -1,5 +1,12 @@
 # Vérification finale — 11 septembre 2026
 
+Mise à jour After Hours : la [présentation des résultats](score-direction.md) a
+été refondue, avec classement secondaire et copie du score à partager. Les
+formules et le stockage V2 couverts par cette revue sont conservés ; la validation
+actuelle ajoute six grades, cinq résolutions et les parcours clavier/souris/manette.
+
+Mise à jour d’intégration du 18 septembre 2026 : depuis les scores, le changement de personnage ouvre toujours la sélection, puis RETOUR mène au nouvel écran titre. Le test navigateur des menus couvre ce parcours et la restauration du volume après la mort. Les résultats ci-dessous décrivent la campagne historique du 11 septembre ; la suite actuelle comprend 23 suites. Voir [validation des menus](menu-direction.md).
+
 ## Portes difficiles à pousser et impacts
 
 La poussée est calculée avant que les collisions voisines n'annulent la vitesse du personnage. Sa réponse a été accélérée, tout en restant liée au temps écoulé. Le battant conserve sa géométrie de collision réelle lorsqu'il est ouvert.
@@ -27,3 +34,11 @@ Espace était reconnu à la fois comme confirmation de menu et comme demande de 
 - Régressions de l'éditeur réussies : création/découpe, annulation/rétablissement, export/import, brouillon joué, modification des sols.
 - Aucune erreur JavaScript dans les scénarios navigateur. Les scénarios de passage isolent les attaques de l'IA afin de tester la collision ; ils ne constituent pas une simulation prolongée de toutes les configurations de foule.
 - SHA-256 du fichier utilisateur inchangé pendant cette correction : `2C20338617D75BD40F5151D425EAD09A40EFF37080F42883B98F896B34857A61`.
+
+## Enemy combat and patrol integration
+
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+
+## Performance review — 20 September 2026
+
+Les accélérations de collision restent des rejets conservateurs avant le calcul exact ; les passages et impacts gardent leurs règles. Le nettoyage ne retire que les ennemis morts et les ravitaillements inutilisés selon leur durée de rétention. La campagne courante passe les suites Node de score et de passages ainsi que `validate_scores.cjs`. Voir les [comparaisons géométriques et limites des tests](game-performance.md).

@@ -169,15 +169,21 @@ class WaveSpawner {
   _spawnEnemyData(enemyData, activeSpawnPoint, exactPosition = false) {
     const jitterX = exactPosition ? 0 : (Math.random() * 32 - 16);
     const jitterY = exactPosition ? 0 : (Math.random() * 32 - 16);
+    let position = { x: activeSpawnPoint.x + jitterX, y: activeSpawnPoint.y + jitterY };
+    if (this.spawnPositionValidator && !this.spawnPositionValidator(position)) position = activeSpawnPoint;
+    // A swinging door may temporarily cover an announced marker. Wait for a
+    // clear body-sized space rather than spawning embedded or moving the marker.
+    if (this.spawnPositionValidator && !this.spawnPositionValidator(position)) return null;
     const newEnemyInstance = {
       id: enemyData.id,
       type: enemyData.type,
       weapon: enemyData.weapon,
-      x: activeSpawnPoint.x + jitterX,
-      y: activeSpawnPoint.y + jitterY,
+      x: position.x,
+      y: position.y,
       angle: activeSpawnPoint.angle || 0,
       spawnLocationName: activeSpawnPoint.name,
       spawnType: activeSpawnPoint.type,
+      patrol: enemyData.patrol || activeSpawnPoint.patrol || null,
     };
     this.enemiesSpawned++;
     if (this.onEnemySpawned) this.onEnemySpawned(newEnemyInstance);
@@ -197,7 +203,9 @@ class WaveSpawner {
       });
       if (queueIndex < 0) queueIndex = 0;
       const enemyData = this.spawnQueue.splice(queueIndex, 1)[0];
-      spawnedEntities.push(this._spawnEnemyData(enemyData, point, true));
+      const spawned = this._spawnEnemyData(enemyData, point, true);
+      if (spawned) spawnedEntities.push(spawned);
+      else this.spawnQueue.unshift({ ...enemyData, spawnPoint: point });
     }
     this.spawnTimer = this.spawnInterval;
     if (this.spawnQueue.length === 0) this.state = 'IN_PROGRESS';
@@ -240,10 +248,10 @@ class WaveSpawner {
   /**
    * Spawn next reinforcement squad
    */
-  _spawnNextSquad() {
+  _spawnNextSquad(capacity = 3) {
     if (this.spawnQueue.length === 0) return [];
     const spawnedEntities = [];
-    const squadSize = Math.min(this.spawnQueue.length, 3);
+    const squadSize = Math.min(this.spawnQueue.length, 3, capacity);
     let activeSpawnPoint = null;
 
     for (let s = 0; s < squadSize; s++) {
@@ -251,7 +259,9 @@ class WaveSpawner {
       const enemyData = this.spawnQueue.shift();
       activeSpawnPoint = enemyData.spawnPoint || this.spawnPoints[Math.floor(Math.random() * this.spawnPoints.length)];
 
-      spawnedEntities.push(this._spawnEnemyData(enemyData, activeSpawnPoint, false));
+      const spawned = this._spawnEnemyData(enemyData, activeSpawnPoint, false);
+      if (spawned) spawnedEntities.push(spawned);
+      else { this.spawnQueue.unshift(enemyData); break; }
     }
 
     // Reset squad interval
@@ -275,14 +285,7 @@ class WaveSpawner {
       Math.hypot(p.x - this.playerPosition.x, p.y - this.playerPosition.y) >= 260) : this.spawnPoints;
     const availablePoints = safePoints.length ? safePoints : this.spawnPoints;
 
-    // Formula for wave enemy count: 6 base + (wave - 1) * 3.5
-    // Wave 1: 7
-    // Wave 2: 11
-    // Wave 3: 15
-    // Wave 4: 19
-    // Wave 5+: 22 + ...
-    const baseCount = 7;
-    const enemyCount = Math.min(48, Math.floor(baseCount + (wave - 1) * 3.8));
+    const enemyCount = this.getWaveEnemyCount(wave);
 
     // Distribution weights based on wave progression
     let meleeWeight = Math.max(0.15, 0.65 - wave * 0.08);
@@ -341,6 +344,12 @@ class WaveSpawner {
     return queue;
   }
 
+  getWaveEnemyCount(wave) {
+    let previous = 3, current = 5;
+    for (let i = 1; i < wave; i++) [previous, current] = [current, previous + current];
+    return current;
+  }
+
   /**
    * Update spawner ticks, squad reinforcements, supply crate pickups
    */
@@ -386,7 +395,9 @@ class WaveSpawner {
       this.spawnTimer -= dt;
 
       if (this.spawnTimer <= 0 && this.spawnQueue.length > 0) {
-        const squad = this._spawnNextSquad();
+        const living = currentLivingEnemiesCount ?? Math.max(0, this.enemiesSpawned - this.enemiesKilled - spawnedEntities.length);
+        const capacity = Math.max(0, (CONFIG.WAVES.MAX_CONCURRENT_ENEMIES || 36) - living - spawnedEntities.length);
+        const squad = this._spawnNextSquad(capacity);
         spawnedEntities.push(...squad);
       }
     }
