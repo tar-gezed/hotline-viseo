@@ -41,4 +41,8 @@ Editor floor zones remain separate from wall editing. Moving walls does not auto
 
 ## Enemy combat and patrol integration
 
-Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 22 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+
+## Performance review — 20 September 2026
+
+La passe courante corrige les pics noirs des annonces de ramassage en arrondissant les jointures de leurs contours. Elle conserve le cache de texte et l’ordre des couches. Quinze scènes fixes correspondent à la référence pixel par pixel ; les cinq fixtures de texte ne présentent plus les pixels noirs hors contour détectés avant correction. Les corps anciens disparaissent avec un fondu de deux secondes, les taches de sang restent persistantes. Voir les [mesures, captures générées et limites](game-performance.md).

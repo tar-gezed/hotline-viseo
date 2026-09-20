@@ -393,8 +393,10 @@
          * @returns {{left: number, top: number, right: number, bottom: number, width: number, height: number}}
          */
         getVisibleWorldBounds(padding = 100) {
-            const halfW = (this.viewportWidth * 0.5) / this.zoom + padding;
-            const halfH = (this.viewportHeight * 0.5) / this.zoom + padding;
+            const roll = this.roll + this.shakeRoll;
+            const cos = Math.abs(Math.cos(roll)), sin = Math.abs(Math.sin(roll));
+            const halfW = (this.viewportWidth * cos + this.viewportHeight * sin) * 0.5 / this.zoom + padding;
+            const halfH = (this.viewportHeight * cos + this.viewportWidth * sin) * 0.5 / this.zoom + padding;
             const finalCamX = this.x + this.shakeOffsetX;
             const finalCamY = this.y + this.shakeOffsetY;
 

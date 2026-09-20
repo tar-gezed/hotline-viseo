@@ -407,6 +407,14 @@ const CONFIG = {
     MAX_CONCURRENT_ENEMIES: 36,
   },
 
+  // Cosmetic retention, measured against dense late-wave scenes.
+  CLEANUP: {
+    MAX_CORPSES: 96,
+    CORPSE_SECONDS: 90,
+    CORPSE_FADE_SECONDS: 2,
+    SUPPLY_WEAPON_WAVES: 2,
+  },
+
   // Player Base Physics & Movement
   PLAYER: {
     BASE_SPEED: 190,

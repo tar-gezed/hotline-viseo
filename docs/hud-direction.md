@@ -36,7 +36,7 @@ Recherche confiée à GPT‑5.6 Luna High : [capture du premier Hotline Miami](h
 
 ## Vérification reproductible
 
-`npm test` exécute les 21 suites. `test_scoring.js` vérifie aussi l’indépendance des impacts visuels, leur extinction, le reset, l’absence de réannonce lors des synchronisations répétées et le decay inchangé.
+`npm test` exécute les 23 suites. `test_scoring.js` vérifie aussi l’indépendance des impacts visuels, leur extinction, le reset, l’absence de réannonce lors des synchronisations répétées et le decay inchangé.
 
 Pour le navigateur : démarrer `node tools/serve.cjs --port 8093`, puis `node tools/validate_hud.cjs`. `PLAYWRIGHT_MODULE` peut désigner un package Playwright installé, `CHROME_PATH` un exécutable Chromium et `HUD_TEST_URL` une URL alternative. Ces outils n’ajoutent aucune dépendance de production.
 
@@ -46,4 +46,8 @@ Validation du 18 septembre 2026 : les 21 suites Node passent et les cinq formats
 
 ## Enemy combat and patrol integration
 
-Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 22 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+
+## Performance review — 20 September 2026
+
+Les contours des textes flottants utilisent des jointures arrondies pour supprimer les pics noirs sur les glyphes inclinés, tout en conservant leur sprite en cache, leur animation et leur fondu. Le HUD conserve ses placements et timings. `validate_hud.cjs` et `validate_wave_hud.cjs` passent dans la campagne courante, avec les 23 suites Node. Voir les [cinq cas de texte et les comparaisons visuelles](game-performance.md).

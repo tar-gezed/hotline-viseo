@@ -32,7 +32,7 @@ Les événements clavier/souris des nouveaux menus sont traités une seule fois,
 
 ## Validation
 
-`npm test` exécute 21 suites, dont `test_menu_navigation.js` : navigation avec le vrai `InputManager`, fronts manette, retour personnage, volumes indépendants, stockage invalide/bloqué et coordonnées dans les quatre formats.
+`npm test` exécute 23 suites, dont `test_menu_navigation.js` : navigation avec le vrai `InputManager`, fronts manette, retour personnage, volumes indépendants, stockage invalide/bloqué et coordonnées dans les quatre formats.
 
 Validation navigateur optionnelle : démarrer `node tools/serve.cjs --port 8087`, puis `node tools/validate_menus.cjs` dans un environnement disposant de Playwright. `PLAYWRIGHT_MODULE` peut désigner un package déjà installé, `CHROME_PATH` un exécutable Chromium local et `MENU_TEST_URL` une URL servie sous préfixe GitHub Pages. Aucune de ces dépendances n’est chargée par le jeu.
 
@@ -42,4 +42,8 @@ Le script produit 32 captures (titre, crédits, personnages, clavier, manette, a
 
 ## Enemy combat and patrol integration
 
-Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 22 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+
+## Performance review — 20 September 2026
+
+La campagne courante repasse les contrôles de menus et les 23 suites Node. Le validateur audio isole chaque politique dans un navigateur neuf, désactive les exemptions liées à l’engagement et lit le démarrage via CDP sans geste utilisateur ; le test ne peut ainsi déverrouiller lui-même le son avant la vérification. Les gestes clavier, clic et toucher, le signal réel et le mute passent. Le code audio du jeu reste inchangé. Voir le [rapport et la reproduction](game-performance.md).

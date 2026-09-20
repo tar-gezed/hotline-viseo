@@ -384,6 +384,7 @@
     };
 
     waveSpawner.onWaveStart = (waveNum, totalEnemies) => {
+      window.WorldCleanup.expireSupplies(floorWeapons, waveNum, CONFIG.CLEANUP.SUPPLY_WEAPON_WAVES);
       hud.setWave(waveNum, totalEnemies);
       hud.preWaveTime = hud.intermissionTime = 0;
       soundFX.playWaveStartSiren();
@@ -425,7 +426,8 @@
       // Spawn high-tier floor weapons near crate
       const weaponTypes = ['shotgun', 'assault_rifle', 'magnum', 'katana', 'uzi'];
       const pick = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
-      spawnFloorWeapon(crate.x, crate.y, pick);
+      const weapon = spawnFloorWeapon(crate.x, crate.y, pick);
+      weapon.supplyWave = waveSpawner.currentWave;
       particleSystem.spark(crate.x, crate.y, 0, 0, 16, '#ffe600');
     };
   }
@@ -535,6 +537,7 @@
     const dropped=new WeaponSystem.FloorWeapon(x, y, wDef, finalAmmo);
     if(Number.isFinite(angle))dropped.angle=angle;
     floorWeapons.push(dropped);
+    return dropped;
   }
 
   // ---------------------------------------------------------------------------
@@ -961,6 +964,7 @@
     }
 
     updateEnemies(dt);
+    window.WorldCleanup.updateCorpses(enemies, dt, CONFIG.CLEANUP);
 
     bloodSystem.update(dt, bloodWallCollision);
     particleSystem.update(dt);
@@ -991,7 +995,8 @@
         if (soundFX && soundFX.playAmmoRefill) soundFX.playAmmoRefill();
 
         if (crate.weapon) {
-          spawnFloorWeapon(crate.x, crate.y + 16, crate.weapon);
+          const weapon = spawnFloorWeapon(crate.x, crate.y + 16, crate.weapon);
+          weapon.supplyWave = waveSpawner.currentWave;
         }
         if (player.currentWeapon && player.currentWeapon.isGun) {
           const maxA = player.currentWeapon.maxAmmo || 30;
@@ -1401,13 +1406,20 @@
 
     camera.apply(sceneCtx);
     const view = camera.getBounds();
+    // Bounds include camera roll/shake. Generous sprite padding preserves
+    // weapons, labels and death poses that extend beyond an actor's center.
+    const visible = (entity, padding = 100) => entity.x >= view.left - padding
+      && entity.x <= view.right + padding && entity.y >= view.top - padding
+      && entity.y <= view.bottom + padding;
     renderWorldLayers(mapRenderer, sceneCtx, view, {
       // Background pass: map floors/shadows/decals, then persistent blood and
       // downed bodies/weapons remain grounded beneath furniture fixtures.
       afterBackground: () => {
         bloodSystem.render(sceneCtx, view);
-        enemies.filter(e => !e.isAlive || e.state === 'KNOCKED_DOWN').forEach(e => e.render(sceneCtx));
-        floorWeapons.forEach(fw => { if (fw && fw.render) fw.render(sceneCtx); });
+        for (const e of enemies) {
+          if ((!e.isAlive || e.state === 'KNOCKED_DOWN') && visible(e)) e.render(sceneCtx);
+        }
+        floorWeapons.forEach(fw => { if (fw && fw.render && visible(fw)) fw.render(sceneCtx); });
         if (waveSpawner && waveSpawner.supplyCrates) {
           waveSpawner.supplyCrates.forEach(sc => { if (sc && sc.render) sc.render(sceneCtx); });
         }
@@ -1418,7 +1430,9 @@
       afterFixtures: () => {
         renderSpawnTelegraphs(sceneCtx);
 
-        enemies.filter(e => e.isAlive && e.state !== 'KNOCKED_DOWN').forEach(e => e.render(sceneCtx));
+        for (const e of enemies) {
+          if (e.isAlive && e.state !== 'KNOCKED_DOWN' && visible(e)) e.render(sceneCtx);
+        }
         if (player) player.render(sceneCtx);
         thrownWeapons.forEach(tw => tw.render(sceneCtx));
         bullets.forEach(b => b.render(sceneCtx));
@@ -1437,8 +1451,19 @@
     pixelCtx.imageSmoothingEnabled = false;
     pixelCtx.drawImage(sceneCanvas, 0, 0, pixelCanvas.width, pixelCanvas.height);
     sceneCtx.imageSmoothingEnabled = false;
-    sceneCtx.drawImage(pixelCanvas, 0, 0, canvas.width, canvas.height);
-    postProcessor.render(sceneCanvas, ctx);
+    // Most frames only need one nearest-neighbor upscale. Distortion passes
+    // still receive their full-size source so fractional offsets/crops match.
+    const needsFullSource = postProcessor.glitchActive ||
+      (postProcessor.chromaticAberrationEnabled && postProcessor.currentAberration > 0.8);
+    if (needsFullSource) {
+      sceneCtx.drawImage(pixelCanvas, 0, 0, canvas.width, canvas.height);
+      postProcessor.render(sceneCanvas, ctx);
+    } else {
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      postProcessor.render(pixelCanvas, ctx);
+      ctx.restore();
+    }
     if (window.MapDebug && window.MapDebug.enabled) {
       ctx.save();
       ctx.fillStyle = 'rgba(12,10,24,.92)'; ctx.fillRect(16, 92, 440, 48);

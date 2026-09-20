@@ -135,6 +135,7 @@ Centralized parameter repository defining:
 - **Weapons (`weapon.js`):** Real-time weapon entity handling ammunition depletion, shell casing ejection, raycast/quasi-hitscan trajectories with spread, and projectile impact decals.
 - **Doors (`door.js`, `js/map/doors.js`):** Physics-driven swinging door battants with angular velocity, rebound damping, and sweep collision. Distinguishes gentle movement pushes from combat kicks, inflicting knockdowns or lethal crushes (under Arnaud / Don Juan perk).
 - **Wave Spawner (`spawner.js`):** Controls arcade wave progression, spawning enemies from designated elevator shafts and stairwells with telegraph countdown markers.
+- **World cleanup (`world_cleanup.js`):** In-place retirement of dead enemy cosmetics (96 retained bodies, 90 simulation seconds, two-second fade, protected initial slide) and unused tagged supply weapons after two waves. Living/knocked-down actors, map weapons, enemy drops and picked/re-dropped supplies are preserved. Settings live in `CONFIG.CLEANUP`; the helper loads before `main.js`.
 - **Character Art (`character_art.js`):** Procedural 2-pixel raster drawing routines for all actors, ensuring consistent pixel density and crisp visuals without external image assets.
 
 ### 2.5 Map System & In-Browser Editor (`js/map/`)
@@ -146,7 +147,7 @@ Centralized parameter repository defining:
 
 ### 2.6 Audio & Visual FX (`js/audio/`, `js/effects/`)
 
-Floating labels rasterize their outline/glow once per instance and animate the resulting bitmap. Victory fonts are warmed during menu initialization. Wave clear no longer adds its own 120 ms simulation hit-stop; normal combat impacts retain theirs. See [wave-transition profiling](wave-transition-performance.md) for the browser measurements and regression scenario.
+Floating labels rasterize their outline/glow once per instance and animate the resulting bitmap. Rounded outline joins prevent italic glyph miter spikes. Victory fonts are warmed during menu initialization. Wave clear no longer adds its own 120 ms simulation hit-stop; normal combat impacts retain theirs. See [wave-transition profiling](wave-transition-performance.md) for the browser measurements and regression scenario.
 - **Music Synthesizer (`synth_music.js`):** The original four-bar combat score is preserved first in a six-track rotation, followed by five 24-bar scores (120–132 BPM, under 49 seconds). Explicit note-name phrases follow each chord; bass figures select chord members instead of blindly transposing minor intervals. Pads release before the next chord. New leads use gentler resonance and cents-based vibrato while the original voice defaults remain intact. Tempo stays stable as intensity changes orchestration. Menu (100 BPM), wave-clear (92 BPM), and game-over (60 BPM) retain their four-bar schedules. Source tracking, short transition fades, cached percussion noise, background scheduler recovery and output headroom support playback. `test_music.js` checks original-score fingerprints, harmony, lifecycle, rotation and controls; optional `tools/render_music.cjs` exports and audits real browser Web Audio renders. See [music direction](music-direction.md).
 - **Sound FX (`sound_effects.js`):** Dynamic sound generator synthesizing visceral gunshots, blade slashes, blunt impacts, door kicks, glass breaks, and execution sounds.
 - **Gore & Blood (`blood.js`):** Dedicated off-screen blood canvas preserving persistent splatter decals, expanding pools under corpses, arterial sprays, and dismembered limbs.
@@ -181,7 +182,7 @@ Floating labels rasterize their outline/glow once per instance and animate the r
 
 ## 4. Testing & Verification Framework
 
-The codebase includes 22 automated regression test suites executed via Node.js (`npm test` / `node tools/test.cjs`):
+The codebase includes 23 automated regression test suites executed via Node.js (`npm test` / `node tools/test.cjs`):
 - `test_arcade_waves.js`: Wave progression, enemy ingress routes, and boundary safety.
 - `test_character_gait.js`: Procedural leg movement, strafing gait, and torso orientation.
 - `test_character_roster.js`: Stats, starting loadouts, perks, and ammo caps for all 7 characters.
@@ -199,6 +200,7 @@ The codebase includes 22 automated regression test suites executed via Node.js (
 - `test_map_plan.js`: Architectural accuracy against reference office blueprints.
 - `test_menu_navigation.js`: Real InputManager keyboard/gamepad edges, selection/back paths, uniform viewport hit-testing and robust audio persistence. Optional `tools/validate_menus.cjs` exercises the browser state machine and exports four-resolution captures.
 - `test_music.js`: Original combat score fingerprint preservation, 6-track harmonic compatibility, note registers, voice release lifecycles, and audio volume/mute controls.
+- `test_performance_safety.js`: Prop geometry invalidation, live door/glass changes, rotated camera bounds, corpse retention and unused supply expiry.
 - `test_player_reach.js`: Melee swing arcs and frame-rate-independent weapon throws.
 - `test_rotated_furniture.js`: OBB collision detection for rotated desks and furniture.
 - `test_scoring.js`: Multipliers, combos, bonuses, leaderboard persistence, and corrupt storage recovery.
@@ -211,7 +213,7 @@ The codebase includes 22 automated regression test suites executed via Node.js (
 
 The repository is configured for automated deployment to GitHub Pages via GitHub Actions:
 - **Workflow (`.github/workflows/deploy.yml`):** Automatically triggered on every push to the `main` branch or manual dispatch.
-- **Automated Validation:** Runs `npm test` across all 22 test suites prior to artifact creation.
+- **Automated Validation:** Runs `npm test` across all 23 test suites prior to artifact creation.
 - **Zero-Build Packaging:** Uploads static web assets directly (`index.html`, `css/`, `js/`, `maps/`, asset images) using `actions/upload-pages-artifact@v3`.
 - **Atomic Deployment:** Deploys via `actions/deploy-pages@v4` with GitHub Pages environment tracking.
 - **Static Hosting Guarantees:** Includes `.nojekyll` to bypass Jekyll filters, and strict relative URI resolution ensuring flawless execution under subpaths such as `https://tar-gezed.github.io/hotline-viseo/`.
@@ -228,7 +230,7 @@ The player must be inside the enemy's facing cone and visible through world geom
 
 Navigation sweeps the actor's actual radius against wall thickness, intact glass and rotated furniture. Furniture corner anchors supply missing detours; start/goal connectors must be reachable, and locked doors are impassable. Movement follows the path segment independently of smooth facing and clamps each step at corners. Failed paths stop and retry; an unreachable patrol stop is skipped after 1.5 seconds. Less than 20% of requested displacement for 0.8 seconds invalidates the path and advances a blocked patrol stop. Dynamic doors still open by physical pushing.
 
-Validation: `npm test` runs 22 suites. `test_enemy_navigation.js` simulates 24 room exits (three body sizes, two room angles, four frame rates), verifies all nine imported-map arrivals for all body sizes, and advances heavy patrols for 20 simulated seconds at each arrival. The saved map remains untouched.
+Validation: `npm test` runs 23 suites. `test_enemy_navigation.js` simulates 24 room exits (three body sizes, two room angles, four frame rates), verifies all nine imported-map arrivals for all body sizes, and advances heavy patrols for 20 simulated seconds at each arrival. The saved map remains untouched.
 
 Optional browser integration: start `node tools/serve.cjs --port 8097`, then run `node tools/validate_enemy_ai.cjs` with an existing Playwright installation (`PLAYWRIGHT_MODULE`, and optionally `CHROME_PATH` / `ENEMY_TEST_URL`). It exercises actual spawn hooks, director updates, visual acquisition, last-seen memory and the browser projectile loop without adding production dependencies.
 
@@ -236,4 +238,12 @@ Browser validation on 19 September 2026 passed in headless Chrome with zero page
 
 Wave progression (20 September 2026): total enemies follow Fibonacci starting at **5, 8, 13, 21, 34, 55, 89, 144**, with no former 48-enemy total cap. Archetype unlocks, preparation and squads of up to three remain unchanged. The configured 36-actor concurrency limit now gates reinforcements; queued enemies still belong to the wave and prevent premature completion. Existing imported arrival markers are checked for heavy-body clearance and a path to the player's starting area. If none are usable, connected navigation anchors supply runtime-only fallback markers. Spawn jitter is validated; a temporarily obstructed marker waits without losing its queued enemy or moving its warning.
 
-Updated validation: all 22 Node suites pass, including deterministic stay/exit patrol choices, locked-door rejection, navigation to gunshots outside a room, Fibonacci totals through wave eight, complete delivery of 144 queued enemies, concurrency gating and blocked-marker retries. The Chrome integration check also passes the actual player attack handler for gunfire, melee and dry fire, fixed shot memory, and all nine patrol arrivals, with zero page errors.
+Updated validation: all 23 Node suites pass, including deterministic stay/exit patrol choices, locked-door rejection, navigation to gunshots outside a room, Fibonacci totals through wave eight, complete delivery of 144 queued enemies, concurrency gating and blocked-marker retries. The Chrome integration check also passes the actual player attack handler for gunfire, melee and dry fire, fixed shot memory, and all nine patrol arrivals, with zero page errors.
+
+## Performance implementation and validation
+
+The current hot-path optimization uses conservative broad-phase rejection before exact swept-body clearance, ray intersections and circle collision resolution. Squared distances avoid repeated roots; a WeakMap caches prop corners/bounds and validates every geometry field before reuse. A* checks cost improvement before clearance. Door locks, angles and shattered glass remain immediate inputs; no navigation/LOS throttle or simulation worker is introduced.
+
+Rotated camera bounds include shake and zoom. Render-only culling removes offscreen actor/weapon/furniture work while preserving simulation and world-layer order. Ordinary frames pass the downsampled pixel canvas directly to postprocessing with nearest-neighbor scaling; active glitch/chromatic distortion retains the full-resolution source path. Persistent blood stays on its fixed-size canvas.
+
+`test_performance_safety.js` adds coverage for live geometry invalidation, viewport corners, corpse lifecycle and supply expiry. Optional `tools/validate_geometry.cjs`, `tools/validate_performance.cjs` and `tools/validate_floating_text.cjs` compare reference geometry, actual pixels and text outlines. `tools/profile_game.cjs` measures callback work and animation intervals independently. See the [complete performance report](game-performance.md) for before/after numbers, GPU/worker decisions, test conditions, remaining ultrawide limitations and reproduction commands.

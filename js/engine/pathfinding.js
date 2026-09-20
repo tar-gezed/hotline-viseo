@@ -89,33 +89,67 @@
     return true;
   }
 
-  function pointSegmentDistance(p, a, b) {
+  function pointSegmentDistanceSq(p, a, b) {
     const dx = b.x - a.x, dy = b.y - a.y;
     const lengthSq = dx * dx + dy * dy;
     const t = lengthSq ? Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / lengthSq)) : 0;
-    return Math.hypot(p.x - a.x - dx * t, p.y - a.y - dy * t);
+    const x = p.x - a.x - dx * t, y = p.y - a.y - dy * t;
+    return x * x + y * y;
   }
 
   function segmentDistance(a, b, c, d) {
+    return Math.sqrt(segmentDistanceSq(a, b, c, d));
+  }
+
+  function segmentDistanceSq(a, b, c, d) {
     if (Physics.lineIntersectsSegment(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y)) return 0;
-    return Math.min(pointSegmentDistance(a, c, d), pointSegmentDistance(b, c, d),
-      pointSegmentDistance(c, a, b), pointSegmentDistance(d, a, b));
+    return Math.min(pointSegmentDistanceSq(a, c, d), pointSegmentDistanceSq(b, c, d),
+      pointSegmentDistanceSq(c, a, b), pointSegmentDistanceSq(d, a, b));
+  }
+
+  // Cache geometry, never reachability: glass, door locks and map edits must
+  // affect the very next query. Weak keys allow replaced maps to be collected.
+  const propGeometry = new WeakMap();
+  function geometryForProp(prop) {
+    const w = prop.collisionWidth || prop.width, h = prop.collisionHeight || prop.height;
+    let g = propGeometry.get(prop);
+    if (g && g.x === prop.x && g.y === prop.y && g.w === w && g.h === h
+        && g.angle === prop.angle && g.centered === prop.centered) return g;
+    const corners = getSolidPropCorners(prop);
+    g = { x: prop.x, y: prop.y, w, h, angle: prop.angle, centered: prop.centered, corners,
+      minX: Math.min(...corners.map(p => p.x)), maxX: Math.max(...corners.map(p => p.x)),
+      minY: Math.min(...corners.map(p => p.y)), maxY: Math.max(...corners.map(p => p.y)) };
+    propGeometry.set(prop, g);
+    return g;
   }
 
   // Sweep the full actor disc, including wall thickness and rotated furniture.
   // Unlocked doors can be pushed; locked leaves remain actual obstacles.
   function hasBodyClearance(map, a, b, radius, ignoreDoors = true) {
-    for (const wall of [...(map.walls || []), ...(map.glassPartitions || [])]) {
+    const minX = Math.min(a.x, b.x), maxX = Math.max(a.x, b.x);
+    const minY = Math.min(a.y, b.y), maxY = Math.max(a.y, b.y);
+    // A conservative broad phase avoids exact capsule tests for distant objects.
+    const walls = map.walls || [], glass = map.glassPartitions || [];
+    for (let i = 0; i < walls.length + glass.length; i++) {
+      const wall = i < walls.length ? walls[i] : glass[i - walls.length];
       if (wall.shattered) continue;
-      if (segmentDistance(a, b, { x: wall.x1, y: wall.y1 }, { x: wall.x2, y: wall.y2 })
-          < radius + (wall.thickness || 0) / 2 - 0.001) return false;
+      const clearance = radius + (wall.thickness || 0) / 2 - 0.001;
+      if (clearance <= 0 || Math.max(wall.x1, wall.x2) < minX - clearance
+          || Math.min(wall.x1, wall.x2) > maxX + clearance
+          || Math.max(wall.y1, wall.y2) < minY - clearance
+          || Math.min(wall.y1, wall.y2) > maxY + clearance) continue;
+      if (segmentDistanceSq(a, b, { x: wall.x1, y: wall.y1 }, { x: wall.x2, y: wall.y2 })
+          < clearance * clearance) return false;
     }
     for (const prop of map.props || []) {
       if (!prop.solid) continue;
+      const g = geometryForProp(prop);
+      if (g.maxX < minX - radius || g.minX > maxX + radius
+          || g.maxY < minY - radius || g.minY > maxY + radius) continue;
       if (pointInsideSolidProp(a.x, a.y, prop) || pointInsideSolidProp(b.x, b.y, prop)) return false;
-      const corners = getSolidPropCorners(prop);
+      const corners = g.corners;
       for (let i = 0; i < 4; i++) {
-        if (segmentDistance(a, b, corners[i], corners[(i + 1) % 4]) < radius - 0.001) return false;
+        if (radius > 0.001 && segmentDistanceSq(a, b, corners[i], corners[(i + 1) % 4]) < (radius - 0.001) ** 2) return false;
       }
     }
     for (const door of map.doors || []) {
@@ -124,7 +158,8 @@
         x: door.x + Math.cos(door.angle || 0) * door.length,
         y: door.y + Math.sin(door.angle || 0) * door.length
       };
-      if (segmentDistance(a, b, door, tip) < radius + (door.thickness || 0) / 2 - 0.001) return false;
+      const clearance = radius + (door.thickness || 0) / 2 - 0.001;
+      if (clearance > 0 && segmentDistanceSq(a, b, door, tip) < clearance * clearance) return false;
     }
     return true;
   }
@@ -734,12 +769,12 @@
         for (const edge of current.neighbors) {
           if (edge.door && edge.door.isLocked) continue;
           const next = edge.node;
-          if (!clear(current, next)) continue;
           const doorOpen = edge.door && (typeof edge.door.isOpen === 'function'
             ? edge.door.isOpen() : edge.door.isOpen);
           const cost = costs.get(current) + edge.baseDist + (edge.door && !doorOpen ? 30 : 0)
             + (options.avoidNode === next ? 1000 : 0);
           if (cost >= (costs.get(next) ?? Infinity)) continue;
+          if (!clear(current, next)) continue;
           costs.set(next, cost); cameFrom.set(next, current); open.add(next);
         }
       }

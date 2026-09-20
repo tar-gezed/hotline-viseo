@@ -410,6 +410,11 @@
       for (let i = 0; i < this.mapData.props.length; i++) {
         const p = this.mapData.props[i];
         if (/^executive_bay_/.test(p.id || '')) continue;
+        // Circumscribed radius handles both centered furniture and the legacy
+        // top-left rotation pivot, with room for shadows and decorative edges.
+        const extent = Math.hypot(p.width || 0, p.height || 0) + 100;
+        if (view && (p.x + extent < view.left || p.x - extent > view.right
+            || p.y + extent < view.top || p.y - extent > view.bottom)) continue;
 
         ctx.save();
         let drawP = p;

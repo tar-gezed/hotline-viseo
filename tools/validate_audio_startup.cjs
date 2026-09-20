@@ -6,12 +6,14 @@ const url = process.env.MENU_TEST_URL || 'http://127.0.0.1:8087/';
 
 (async () => {
   for (const allowed of [true, false]) {
-    const browser = await chromium.launch({ headless: true,
-      ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}),
-      args: [`--autoplay-policy=${allowed ? 'no-user-gesture-required' : 'document-user-activation-required'}`]
-    });
-    try {
-      for (const gesture of allowed ? ['none', 'muted'] : ['keyboard', 'background', 'touch']) {
+    // Keep each policy fixture isolated from prior user activation/engagement.
+    for (const gesture of allowed ? ['none', 'muted'] : ['keyboard', 'background', 'touch']) {
+      const browser = await chromium.launch({ headless: true,
+        ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}),
+        args: [`--autoplay-policy=${allowed ? 'no-user-gesture-required' : 'document-user-activation-required'}`,
+          '--disable-features=PreloadMediaEngagementData,MediaEngagementBypassAutoplayPolicies']
+      });
+      try {
         const context = await browser.newContext({ hasTouch: true });
         const page = await context.newPage(); const errors = [];
         page.on('pageerror', e => errors.push(e.message));
@@ -19,10 +21,26 @@ const url = process.env.MENU_TEST_URL || 'http://127.0.0.1:8087/';
           localStorage.setItem('hotline-viseo-audio-v1', JSON.stringify({ music: .4, sfx: .6, muted: true }));
         });
         await page.goto(url);
-        await page.waitForFunction(() => window.synthMusic?.currentTrack === 'menu');
+        // Playwright evaluation can grant a user gesture. Observe startup via
+        // CDP without activation, otherwise the test itself can unlock audio.
+        const session = await context.newCDPSession(page);
+        const readStartup = async () => (await session.send('Runtime.evaluate', {
+          expression: '({track:window.synthMusic?.currentTrack,state:window.synthMusic?.ctx?.state})',
+          returnByValue: true, userGesture: false
+        })).result.value;
+        let startup;
+        const deadline = Date.now() + 10000;
+        do {
+          startup = await readStartup();
+          if (startup?.track === 'menu') break;
+          await page.waitForTimeout(50);
+        } while (Date.now() < deadline);
+        assert.equal(startup?.track, 'menu');
         if (!allowed) {
-          assert.equal(await page.evaluate(() => window.synthMusic.ctx.state), 'suspended');
-          if (gesture === 'keyboard') await page.keyboard.press('Shift');
+          assert.equal(startup.state, 'suspended');
+          // A modifier alone is not a browser activation gesture. Use an
+          // ordinary key that does not also confirm a game menu selection.
+          if (gesture === 'keyboard') await page.keyboard.press('a');
           else if (gesture === 'touch') await page.touchscreen.tap(15, 15);
           else await page.mouse.click(15, 15);
         }
@@ -46,7 +64,7 @@ const url = process.env.MENU_TEST_URL || 'http://127.0.0.1:8087/';
         assert.deepEqual(errors, []);
         console.log(`PASS: ${allowed ? 'autoplay allowed' : 'autoplay blocked'} / ${gesture}`);
         await context.close();
-      }
-    } finally { await browser.close(); }
+      } finally { await browser.close(); }
+    }
   }
 })().catch(error => { console.error(error); process.exitCode = 1; });

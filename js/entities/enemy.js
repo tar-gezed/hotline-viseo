@@ -948,6 +948,7 @@
 
             // Dead state
             if (!this.isAlive || this.state === 'DEAD') {
+                ctx.globalAlpha *= this.corpseAlpha ?? 1;
                 this._drawCorpse(ctx);
                 ctx.restore();
                 return;

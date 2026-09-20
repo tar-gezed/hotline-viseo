@@ -44,4 +44,8 @@ La seconde revue a corrigé les défauts ci-dessus. Les références commerciale
 
 ## Enemy combat and patrol integration
 
-Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 22 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+
+## Performance review — 20 September 2026
+
+Le rendu du mobilier ignore désormais les objets hors du champ avec une marge couvrant rotation, ombres et décors. Les bornes caméra incluent roulis, secousse et zoom ; l’ordre sol/sang/corps/mobilier/acteurs reste conservé. Quinze rendus fixes sont identiques pixel par pixel à la référence, y compris en ultralarge et dimensions impaires. Voir la [validation du rendu](game-performance.md).

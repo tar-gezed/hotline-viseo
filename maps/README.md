@@ -19,4 +19,8 @@ Depuis le jeu, ouvrir **TOOLS / MAPS** sur l’écran titre pour choisir/importe
 
 ## Enemy combat and patrol integration
 
-Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 22 suites. See [combat rules and regression coverage](../docs/architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](../docs/architecture.md#enemy-combat-and-navigation).
+
+## Performance review — 20 September 2026
+
+Les optimisations de navigation conservent les contrôles des portes et vitres à chaque requête ; le cache de géométrie suit les modifications du mobilier. Aucun champ du format de carte ne change. Les armes placées dans la carte restent disponibles : seules les armes de ravitaillement non utilisées expirent après deux vagues. Voir le [rapport de performances](../docs/game-performance.md) et ses vérifications sur la carte importée.

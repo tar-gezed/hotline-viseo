@@ -6,7 +6,7 @@
 [![Runtime: Browser / Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero%20Runtime-brightgreen.svg)](#)
 [![Hosting: GitHub Pages](https://img.shields.io/badge/Hosting-GitHub%20Pages%20Ready-blue.svg)](https://tar-gezed.github.io/hotline-viseo/)
 [![CI/CD: Deploy Pages](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml/badge.svg)](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml)
-[![Tests: 22 Node Suites Passing](https://img.shields.io/badge/Tests-22%20Passing-success.svg)](#)
+[![Tests: 23 Node Suites Passing](https://img.shields.io/badge/Tests-23%20Passing-success.svg)](#)
 
 ---
 
@@ -20,6 +20,7 @@
 - [Importer une carte dans le jeu](#importer-une-carte-dans-le-jeu)
 - [Dessiner et modifier les sols](#dessiner-et-modifier-les-sols)
 - [Verification](#verification)
+- [Performances et nettoyage](#performances-et-nettoyage)
 - [Vérifications des passages et de l’écran de mort](#vérifications-des-passages-et-de-lécran-de-mort)
 - [Départs du joueur, armes et arrivées ennemies](#départs-du-joueur-armes-et-arrivées-ennemies)
 - [Scoring et classement V2](#scoring-et-classement-v2)
@@ -60,7 +61,7 @@ Le jeu est déployé et jouable publiquement en ligne sur GitHub Pages à l'adre
 
 Le déploiement est entièrement automatisé par GitHub Actions :
 - **Workflow :** `.github/workflows/deploy.yml` déclenché à chaque push sur la branche `main` (ou manuellement via *Actions*).
-- **Validation CI :** Exécute automatiquement la suite complète des 22 suites de régression (`npm test`) avant le packaging.
+- **Validation CI :** Exécute automatiquement la suite complète des 23 suites de régression (`npm test`) avant le packaging.
 - **Publication Pages :** Utilise les actions officielles `actions/configure-pages@v5`, `actions/upload-pages-artifact@v3` et `actions/deploy-pages@v4`.
 - **Compatibilité sous-dossier :** Tous les chemins de ressources (scripts, styles, cartes) sont relatifs (`maps/active.json`, `css/style.css`, etc.) pour fonctionner indifféremment à la racine ou sous le préfixe `/hotline-viseo/`. Le fichier `.nojekyll` est présent à la racine pour désactiver le traitement Jekyll.
 - **Configuration GitHub requise :** Dans le dépôt GitHub, sous **Settings > Pages > Build and deployment > Source**, sélectionner **GitHub Actions**.
@@ -132,9 +133,17 @@ Les sols édités sont exportés avec la carte et affichés par le jeu sans supe
 
 Les sprites de mobilier sont partagés entre le jeu et l'éditeur, mis en cache sur une grille de deux unités et comparables dans `sprite_review.html`. Les anciennes façades d'ascenseur sont désormais des repères d'arrivée à plat sur le sol ; leurs données restent compatibles et les arrivées de vagues ne changent pas.
 
+## Performances et nettoyage
+
+La navigation et les collisions évitent les calculs sur les obstacles éloignés et réutilisent la géométrie du mobilier. Le rendu ignore les objets hors champ et supprime une copie plein écran lorsque les distorsions ne la nécessitent pas. Sur la machine de test, le temps de travail du callback animation à 36 ennemis passe de **15,5 à 3,7 ms au p95** en 1280×720. Le stress de combat mesure 90,1 FPS moyens en 1080p, mais 57,1 FPS en 3440×1440 : les 60 FPS constants ne sont pas garantis.
+
+Les cadavres commencent à disparaître après 90 secondes de simulation, ou quand plus de 96 corps sont retenus, avec un fondu de deux secondes et une protection de la première seconde de chute. Les armes de ravitaillement non utilisées expirent au début de la deuxième vague suivante ; les armes placées sur la carte, lâchées par les ennemis ou reprises puis jetées sont conservées. Le sang reste sur sa toile persistante : le test de 5 000 taches ne montre pas de surcoût de redessin. Les petits pics noirs sur le texte de ramassage sont corrigés.
+
+Le [rapport complet de performances](docs/game-performance.md) détaille les changements, les mesures, leurs limites, le choix de conserver Canvas 2D accéléré et la simulation synchrone, les 23 suites et les validations navigateur, ainsi que les commandes de reproduction. Les outils Playwright sont réservés au développement et n’ajoutent aucune dépendance au jeu.
+
 ## Verification
 
-Exécuter l'ensemble des 22 suites de régression automatisées avec Node.js :
+Exécuter l'ensemble des 23 suites de régression automatisées avec Node.js :
 
 ```bash
 npm test
@@ -159,7 +168,7 @@ The latest repair review is in `docs/visual-critique.md`. Run `node docs/final_r
 
 ## Vérifications des passages et de l’écran de mort
 
-L’[overlay de mort](docs/death-direction.md) retire le HUD dès l’impact et affiche **YOU'RE DEAD!** en SELINCAH rose néon `#ed4e93`, sur un voile noir à 60 % avec vignetage. Les éclaboussures mêlent impacts asymétriques, traînées obliques et fines gouttelettes sur les bords et dans plusieurs zones intérieures ; leurs formes changent à chaque mort et seules certaines taches coulent brièvement. Les indications de restart et de score sont espacées du titre et partagent la même couleur ivoire ; le score apparaît après 400 ms. Les contrôles et le garde de 220 ms sont conservés. L’outil optionnel `node tools/validate_death.cjs` couvre cinq formats, de 1280×720 à 3440×1440 ; il n’a pas été exécuté pour cette retouche visuelle, conformément à la demande.
+L’[overlay de mort](docs/death-direction.md) retire le HUD dès l’impact et affiche **YOU'RE DEAD!** en SELINCAH rose néon `#ed4e93`, sur un voile noir à 60 % avec vignetage. Les éclaboussures mêlent impacts asymétriques, traînées obliques et fines gouttelettes sur les bords et dans plusieurs zones intérieures ; leurs formes changent à chaque mort et seules certaines taches coulent brièvement. Les indications de restart et de score sont espacées du titre et partagent la même couleur ivoire ; le score apparaît après 400 ms. Les contrôles et le garde de 220 ms sont conservés. L’outil optionnel `node tools/validate_death.cjs` couvre cinq formats, de 1280×720 à 3440×1440 ; la campagne de performances du 20 septembre l’a exécuté avec succès, avec 25 captures sur cinq formats.
 
 `node test_collision_passages.js` couvre les murs et vitres (y compris en diagonale) à 10/30/60/144 FPS, les poussées joueur/ennemi, la porte ajoutée `door_2` de la carte utilisateur et les ouvertures traversant plusieurs couches superposées. `node docs/test_passages_and_scores.cjs` traverse cette porte dans les deux sens avec les touches de déplacement puis vérifie qu'Espace ouvre les scores après la mort, sans recommencer la partie.
 
@@ -232,6 +241,7 @@ hotline-viseo/
 ├── css/                    # Feuilles de style pour le canvas et les overlays
 ├── docs/                   # Documentation technique, critiques visuelles et tests Playwright
 │   ├── architecture.md     # Architecture détaillée du moteur et des sous-systèmes
+│   ├── game-performance.md # Optimisations, mesures, limites et reproduction
 │   ├── character-direction.md # Direction artistique des 7 masques VISEO
 │   ├── death-direction.md  # Direction et validation de l'overlay de mort
 │   ├── door-physics-review.md # Physique des portes et résolution des contacts
@@ -285,4 +295,4 @@ Toutes les modifications du projet doivent respecter les règles établies dans 
 
 ## Enemy combat and patrol integration
 
-Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 22 suites. See [combat rules and regression coverage](docs/architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](docs/architecture.md#enemy-combat-and-navigation).
