@@ -42,6 +42,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Generate Open Graph preview
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+          node tools/generate_preview.cjs
+        continue-on-error: true
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 

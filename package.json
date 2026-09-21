@@ -4,7 +4,8 @@
   "scripts": {
     "start": "node tools/serve.cjs",
     "test": "node tools/test.cjs",
-    "preview:pages": "node tools/serve.cjs --port 8081 --prefix /hotline-viseo/"
+    "preview:pages": "node tools/serve.cjs --port 8081 --prefix /hotline-viseo/",
+    "preview:generate": "node tools/generate_preview.cjs"
   },
   "engines": { "node": ">=18" }
 }

@@ -63,10 +63,12 @@ Le déploiement est entièrement automatisé par GitHub Actions :
 - **Workflow :** `.github/workflows/deploy.yml` déclenché à chaque push sur la branche `main` (ou manuellement via *Actions*).
 - **Validation CI :** Exécute automatiquement la suite complète des 23 suites de régression (`npm test`) avant le packaging.
 - **Publication Pages :** Utilise les actions officielles `actions/configure-pages@v5`, `actions/upload-pages-artifact@v3` et `actions/deploy-pages@v4`.
+- **Prévisualisation dynamique Slack & Réseaux (Open Graph) :** Le `<head>` de `index.html` intègre les métadonnées Open Graph (`og:image`, `og:title`, etc.), Twitter Cards (`summary_large_image`) et la couleur d'accent néon (`theme-color: #ff007f`). L'image de prévisualisation au format standard 1200×630 (`assets/images/og-preview.png`) est rafraîchie dynamiquement lors du déploiement via un navigateur headless Chromium (`tools/generate_preview.cjs`), avec conservation d'une image de secours haute définition.
 - **Compatibilité sous-dossier :** Tous les chemins de ressources (scripts, styles, cartes) sont relatifs (`maps/active.json`, `css/style.css`, etc.) pour fonctionner indifféremment à la racine ou sous le préfixe `/hotline-viseo/`. Le fichier `.nojekyll` est présent à la racine pour désactiver le traitement Jekyll.
 - **Configuration GitHub requise :** Dans le dépôt GitHub, sous **Settings > Pages > Build and deployment > Source**, sélectionner **GitHub Actions**.
 
 Pour tester le rendu sous le préfixe GitHub Pages en local : **`npm run preview:pages`**, puis ouvrir http://localhost:8081/hotline-viseo/.
+Pour regénérer l'image Open Graph 1200×630 en local (nécessite Playwright) : **`npm run preview:generate`**.
 
 ## Musique de combat
 

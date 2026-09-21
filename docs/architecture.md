@@ -214,6 +214,8 @@ The codebase includes 23 automated regression test suites executed via Node.js (
 The repository is configured for automated deployment to GitHub Pages via GitHub Actions:
 - **Workflow (`.github/workflows/deploy.yml`):** Automatically triggered on every push to the `main` branch or manual dispatch.
 - **Automated Validation:** Runs `npm test` across all 23 test suites prior to artifact creation.
+- **Dynamic Preview Generation (`tools/generate_preview.cjs`):** Launches an ephemeral server and headless Chromium at 1200x630 to capture a fresh screenshot of the title menu directly into `assets/images/og-preview.png` before artifact upload. Fault-tolerant execution (`continue-on-error: true`) guarantees deployment continuity using the repository's high-DPI fallback image.
+- **Rich Social & Slack Unfurling:** `index.html` defines complete Open Graph (`og:type`, `og:title`, `og:description`, `og:image`, `og:image:width`, `og:image:height`, `og:image:alt`), Twitter Card (`summary_large_image`), and signature neon theme color (`theme-color: #ff007f`) metadata to render styled cards with a pink accent sidebar in Slack.
 - **Zero-Build Packaging:** Uploads static web assets directly (`index.html`, `css/`, `js/`, `maps/`, asset images) using `actions/upload-pages-artifact@v3`.
 - **Atomic Deployment:** Deploys via `actions/deploy-pages@v4` with GitHub Pages environment tracking.
 - **Static Hosting Guarantees:** Includes `.nojekyll` to bypass Jekyll filters, and strict relative URI resolution ensuring flawless execution under subpaths such as `https://tar-gezed.github.io/hotline-viseo/`.
