@@ -377,5 +377,20 @@ body.gamepad-mode * {
     transform: translateX(0);
   }
 }
-/* Local death-stamp face. */
+/* Local fonts: zero CDN dependency, works on all operating systems and CI */
+@font-face {
+  font-family: 'GameHeading';
+  src: local('Impact'), url('../assets/fonts/Anton-Regular.ttf') format('truetype');
+  font-weight: normal 900;
+  font-style: normal italic;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Impact';
+  src: local('Impact'), url('../assets/fonts/Anton-Regular.ttf') format('truetype');
+  font-weight: normal 900;
+  font-style: normal italic;
+  font-display: block;
+}
 @font-face { font-family: DeathSelincah; src: url('../assets/fonts/SELINCAH.ttf') format('truetype'); font-display: swap; }
+

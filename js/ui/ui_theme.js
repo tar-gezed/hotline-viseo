@@ -17,7 +17,7 @@
     },
     text(c, text, x, y, size = 30, color = this.ivory, align = 'left', angle = 0, glow = 0) {
       c.save(); c.translate(x, y); c.rotate(angle);
-      c.font = `italic 900 ${size}px Impact, 'Arial Black', sans-serif`;
+      c.font = `italic 900 ${size}px GameHeading, Impact, 'Arial Black', sans-serif`;
       c.textAlign = align; c.textBaseline = 'middle';
       if (glow > 0) c.shadowBlur = 0;
       c.fillStyle = this.ink; c.fillText(text, 4, 4);

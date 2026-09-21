@@ -93,8 +93,21 @@ async function capture() {
     await page.goto(url, { waitUntil: 'networkidle' });
 
     // Wait for fonts and canvas initialization
-    await page.evaluate(() => document.fonts?.ready);
-    await page.waitForTimeout(1500);
+    await page.evaluate(async () => {
+      if (document.fonts) {
+        await document.fonts.ready;
+        await Promise.allSettled([
+          document.fonts.load('italic 900 32px GameHeading'),
+          document.fonts.load('italic 900 128px GameHeading'),
+          document.fonts.load('italic 900 32px Impact'),
+          document.fonts.load('italic 900 128px Impact'),
+          document.fonts.load('30px DeathSelincah')
+        ]);
+        await document.fonts.ready;
+      }
+    });
+    // Allow entrance animation to settle into steady state
+    await page.waitForTimeout(2000);
 
     // Ensure assets/images directory exists
     const dir = path.dirname(targetFile);

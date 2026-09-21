@@ -16,7 +16,7 @@ if (!Number.isInteger(port) || port < 1 || port > 65535 || !/^\/(?:[a-zA-Z0-9_-]
   console.error('Usage: node tools/serve.cjs [--port 8080] [--prefix /hotline-viseo/] [--open]');
   process.exit(1);
 }
-const mime = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.json':'application/json; charset=utf-8', '.png':'image/png', '.svg':'image/svg+xml', '.jpg':'image/jpeg', '.wav':'audio/wav', '.mp3':'audio/mpeg', '.ico':'image/x-icon' };
+const mime = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.json':'application/json; charset=utf-8', '.png':'image/png', '.svg':'image/svg+xml', '.jpg':'image/jpeg', '.wav':'audio/wav', '.mp3':'audio/mpeg', '.ico':'image/x-icon', '.ttf':'font/ttf', '.woff':'font/woff', '.woff2':'font/woff2' };
 const server = http.createServer(async (req, res) => {
   const reply = (status, message) => { res.writeHead(status, {'Content-Type':'text/plain; charset=utf-8'}); res.end(message); };
   if (!['GET', 'HEAD'].includes(req.method)) { res.setHeader('Allow','GET, HEAD'); return reply(405, 'Method not allowed'); }

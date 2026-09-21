@@ -47,6 +47,14 @@ jobs:
         with:
           node-version: 18
 
+      - name: Install fonts for Chromium
+        run: |
+          echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ttf-mscorefonts-installer fonts-liberation fonts-dejavu
+          sudo fc-cache -f -v
+        continue-on-error: true
+
       - name: Generate Open Graph preview
         run: |
           npm install --no-save playwright

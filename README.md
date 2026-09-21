@@ -239,6 +239,7 @@ hotline-viseo/
 ├── AGENTS.md               # Règles impératives de commit et directives d'agents
 ├── README.md               # Documentation générale du projet
 ├── assets/fonts/           # Polices locales utilisées par les écrans Canvas
+│   ├── Anton-Regular.ttf   # Police de titre et d'en-têtes rétro (alternative Impact zéro CDN)
 │   └── SELINCAH.ttf        # Police du tampon de mort
 ├── test_*.js               # Suites de tests unitaires et de non-régression Node
 ├── css/                    # Feuilles de style pour le canvas et les overlays

@@ -351,9 +351,9 @@ class ScoreScreen {
   text(c, text, x, y, size, color = '#f9ecd7', angle = 0, align = 'left', maxWidth = Infinity) {
     c.save(); c.translate(x, y); c.rotate(angle);
     c.textBaseline = 'middle'; c.textAlign = align;
-    c.font = `italic 900 ${size}px Impact, 'Arial Black', sans-serif`;
+    c.font = `italic 900 ${size}px GameHeading, Impact, 'Arial Black', sans-serif`;
     const measured = c.measureText(String(text)).width;
-    if (measured > maxWidth) c.font = `italic 900 ${size * maxWidth / measured}px Impact, 'Arial Black', sans-serif`;
+    if (measured > maxWidth) c.font = `italic 900 ${size * maxWidth / measured}px GameHeading, Impact, 'Arial Black', sans-serif`;
     c.fillStyle = '#24152f'; c.fillText(String(text), 3, 4);
     c.fillStyle = color; c.fillText(String(text), 0, 0); c.restore();
   }
