@@ -897,7 +897,7 @@
       const length = Math.max(24, Math.round(door.length || 54));
       const thickness = Math.max(6, Math.round(door.thickness || 6));
       const closedAngle = Number.isFinite(door.baseAngle) ? door.baseAngle : (door.angle || 0);
-      const angle = Number.isFinite(door.angle) ? door.angle : closedAngle;
+      const angle = Number.isFinite(door.renderAngle) ? door.renderAngle : Number.isFinite(door.angle) ? door.angle : closedAngle;
       const hingeX = Math.round(door.x);
       const hingeY = Math.round(door.y);
       const closedTipX = Math.round(door.x + Math.cos(closedAngle) * length);

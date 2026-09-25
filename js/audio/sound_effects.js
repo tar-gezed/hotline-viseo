@@ -1056,6 +1056,16 @@ class SoundEffectsEngine {
     osc.stop(now + 0.035);
   }
 
+  playRevive(complete = false) {
+    if (!this._ensureReady()) return;
+    const now=this.ctx.currentTime, osc=this.ctx.createOscillator(), gain=this.ctx.createGain();
+    osc.type='sine';osc.frequency.setValueAtTime(complete?520:740,now);
+    osc.frequency.exponentialRampToValueAtTime(complete?1300:920,now+.09);
+    gain.gain.setValueAtTime(.001,now);gain.gain.exponentialRampToValueAtTime(.16,now+.008);
+    gain.gain.exponentialRampToValueAtTime(.001,now+(complete ? .3 : .12));
+    osc.connect(gain);gain.connect(this.masterGain);osc.start(now);osc.stop(now+(complete ? .32 : .14));
+  }
+
   /**
    * UI Select / Confirm Slap
    */

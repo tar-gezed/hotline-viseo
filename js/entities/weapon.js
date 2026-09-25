@@ -401,11 +401,17 @@
                 // Wall Collision & Bouncing
                 for (let i = 0; i < obstacles.length; i++) {
                     const obs = obstacles[i];
-                    if (!obs || obs.isOpen) continue;
+                    if (!obs || obs.shattered || (obs.isOpen === true && typeof obs.getTipPosition !== 'function')) continue;
 
                     // Test ray from previous to current
-                    const ray = Collision.raycast(prevX, prevY, (this.x - prevX) / (speed * dt || 1), (this.y - prevY) / (speed * dt || 1), speed * dt, [obs]);
+                    const ray = Collision.raycast(prevX, prevY, (this.x - prevX) / (speed * dt || 1), (this.y - prevY) / (speed * dt || 1), speed * dt, [obs], {ignoreOpenDoors:false});
                     if (ray.hit) {
+                        if(obs.x1 !== undefined && typeof obs.shatter === 'function' && obs.health !== undefined) {
+                            // A swept glass hit shatters the pane; the throw
+                            // continues. Walls, props and door leaves bounce.
+                            obs.shatter(ray.point.x,ray.point.y,this.vx,this.vy);
+                            continue;
+                        }
                         this.x = ray.point.x + ray.normal.x * 6;
                         this.y = ray.point.y + ray.normal.y * 6;
 

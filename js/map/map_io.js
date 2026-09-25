@@ -194,7 +194,7 @@
     const p={format:FORMAT,version:VERSION,mapSize:{width:map.MAP_WIDTH,height:map.MAP_HEIGHT},name:map.name||'Ma carte'};
     for(const key of ['walls','glassPartitions','doors','props']) p[key]=map[key].map((v,i)=>{
       const authored = {...v};
-      if(key==='doors') for(const k of ['lastKickedBy','hitEntities','pushContributors','contactPush','kickTime','kickCooldown','kickSign','isDangerous','bloodStains']) delete authored[k];
+      if(key==='doors') for(const k of ['lastKickedBy','lastKickedByPlayerId','renderAngle','hitEntities','pushContributors','contactPush','kickTime','kickCooldown','kickSign','isDangerous','bloodStains']) delete authored[k];
       const q=clone(authored);q.id=q.id||key+'_'+String(i+1).padStart(3,'0');
       if(key==='doors'||key==='glassPartitions') for(const k of ['shattered','health','maxHealth','angle','prevAngle','angularVelocity','minAngle','maxAngle']) delete q[k];
       return q;

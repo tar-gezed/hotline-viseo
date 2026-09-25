@@ -6,6 +6,10 @@ const path = require('node:path');
 const { spawn } = require('node:child_process');
 const root = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
+const siteOnly = args.includes('--site-only');
+const sitePages = new Set(['index.html', 'maps.html', 'map_editor.html', 'favicon.ico']);
+const siteDirectories = new Set(['assets', 'css', 'js', 'maps']);
+const siteVendorFiles = new Set(['vendor/trystero-mqtt.min.js', 'vendor/LICENSES.txt', 'vendor/README.md']);
 function option(name, fallback) {
   const i = args.indexOf(name);
   return i < 0 ? fallback : args[i + 1];
@@ -13,8 +17,14 @@ function option(name, fallback) {
 const port = Number(option('--port', '8080'));
 const prefix = option('--prefix', '/');
 if (!Number.isInteger(port) || port < 1 || port > 65535 || !/^\/(?:[a-zA-Z0-9_-]+\/)*$/.test(prefix)) {
-  console.error('Usage: node tools/serve.cjs [--port 8080] [--prefix /hotline-viseo/] [--open]');
+  console.error('Usage: node tools/serve.cjs [--port 8080] [--prefix /hotline-viseo/] [--site-only] [--open]');
   process.exit(1);
+}
+function isAllowedSiteFile(file) {
+  if (!siteOnly) return true;
+  const relative = path.relative(root, file).split(path.sep).join('/');
+  if (!relative || sitePages.has(relative) || siteVendorFiles.has(relative)) return true;
+  return siteDirectories.has(relative.split('/')[0]);
 }
 const mime = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.json':'application/json; charset=utf-8', '.png':'image/png', '.svg':'image/svg+xml', '.jpg':'image/jpeg', '.wav':'audio/wav', '.mp3':'audio/mpeg', '.ico':'image/x-icon', '.ttf':'font/ttf', '.woff':'font/woff', '.woff2':'font/woff2' };
 const server = http.createServer(async (req, res) => {
@@ -29,10 +39,12 @@ const server = http.createServer(async (req, res) => {
   if (relative.includes('\\') || relative.includes('\0') || relative.split('/').some(s=>s.startsWith('.'))) return reply(403, 'Forbidden');
   let file = path.resolve(root, relative);
   if (file !== root && !file.startsWith(root + path.sep)) return reply(403, 'Forbidden');
+  if (!isAllowedSiteFile(file)) return reply(404, 'Not found');
   try {
     // realpath also prevents symbolic links escaping the served folder.
     file = await fs.promises.realpath(file);
     if (file !== root && !file.startsWith(root + path.sep)) return reply(403, 'Forbidden');
+    if (!isAllowedSiteFile(file)) return reply(404, 'Not found');
     let stat = await fs.promises.stat(file);
     if (stat.isDirectory()) {
       if (!pathname.endsWith('/')) { res.writeHead(302,{Location:encodeURI(pathname + '/')}); return res.end(); }

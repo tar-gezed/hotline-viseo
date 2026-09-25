@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@trystero-p2p/mqtt": "0.25.4",
+    "esbuild": "0.25.12"
+  }
+}

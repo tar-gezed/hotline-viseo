@@ -31,12 +31,12 @@ Pour une validation ultérieure : lancer `node tools/serve.cjs --port 8094`, pui
 
 L’outil avance explicitement la vraie boucle de jeu et utilise les événements clavier/souris et la Gamepad API simulée. Il couvre la première frame, le retrait du HUD, le seuil de 220 ms, l’indication à 400 ms, la priorité des scores, le retry, le respawn, les entrées maintenues et la stabilité après les coulures.
 
-Formats prévus : **1280×720, 1440×900, 1920×1080, 2560×1440 et 3440×1440**. Le script produit 25 captures (monde sans overlay, impact, résultat, manette, respawn), une galerie et `validation.json` dans `test-results/death/`. `npm test` reste la commande des 23 suites de régression existantes.
+Formats prévus : **1280×720, 1440×900, 1920×1080, 2560×1440 et 3440×1440**. Le script produit 25 captures (monde sans overlay, impact, résultat, manette, respawn), une galerie et `validation.json` dans `test-results/death/`. `npm test` reste la commande de régression ; le runner actuel comprend 31 suites, dont sept suites coop ajoutées depuis cette revue.
 
 ## Enemy combat and patrol integration
 
-Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 31 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
 
 ## Performance review — 20 September 2026
 
-La campagne de performances du 20 septembre a exécuté avec succès `tools/validate_death.cjs`, y compris ses 25 captures sur cinq formats ; elle complète la validation historique ci-dessus. Le fondu de nettoyage concerne les cadavres ennemis dans le monde, sans changer le tampon de mort, ses coulures, ses délais ni les contrôles. Les 23 suites Node passent. Voir le [rapport de performances](game-performance.md).
+La campagne de performances du 20 septembre a exécuté avec succès `tools/validate_death.cjs`, y compris ses 25 captures sur cinq formats ; elle complète la validation historique ci-dessus. Le fondu de nettoyage concerne les cadavres ennemis dans le monde, sans changer le tampon de mort, ses coulures, ses délais ni les contrôles. Les 31 suites Node actuelles passent. Voir le [rapport de performances](game-performance.md).

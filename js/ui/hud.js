@@ -643,6 +643,45 @@ class GameHUD {
 const hud = new GameHUD();
 GameHUD.prototype.render = GameHUD.prototype.draw;
 
+// Coop-only overlay. Solo does not call it or change its original score layout.
+GameHUD.prototype.drawSquad = function (ctx, width, height, players, camera, localId) {
+  const colors = ['#00f3ff', '#ff007f', '#39ff14', '#ffe600', '#ff7700'];
+  const scale = Math.max(.65, Math.min(width / 1280, height / 720));
+  ctx.save(); ctx.scale(scale, scale);
+  const w = width / scale, h = height / scale;
+  players.forEach((p, i) => {
+    const color = colors[p.playerId], y = 118 + i * 45;
+    ctx.fillStyle = 'rgba(12,10,24,.84)'; ctx.fillRect(16, y, 244, 40);
+    ctx.fillStyle = color; ctx.fillRect(16, y, 3, 40);
+    if (typeof CharacterArt !== 'undefined') {
+      ctx.save(); ctx.beginPath(); ctx.rect(23,y+3,35,34); ctx.clip();
+      CharacterArt.portrait(ctx,p.character || CONFIG.MASKS[String(p.mask).toLowerCase()],41,y+23,.65);
+      ctx.restore();
+    }
+    ctx.font = 'bold 13px monospace'; ctx.textAlign = 'left';
+    const name = p.character?.name || p.mask;
+    ctx.fillText('P' + (p.playerId + 1) + ' · ' + name, 68, y + 15);
+    ctx.fillStyle = p.isDowned ? '#ff668a' : p.isAlive ? '#f2e5c9' : '#bd95ac';
+    ctx.font = '11px monospace'; ctx.fillText(p.isDowned ? 'À TERRE · '+Math.ceil(p.downedTimer)+' s' : p.isAlive ? 'EN VIE' : 'SPECTATEUR', 68, y + 31);
+    if(p.isDowned) {
+      ctx.fillStyle='#57283a';ctx.fillRect(16,y+38,244,2);
+      ctx.fillStyle=p.reviveProgress>0?color:'#ff668a';ctx.fillRect(16,y+38,244*Math.max(0,Math.min(1,p.reviveProgress>0?p.reviveProgress/2:p.downedTimer/25)),2);
+    }
+    ctx.textAlign = 'right'; ctx.fillText(String(p.score || 0), 249, y + 27);
+    if (p.playerId === localId || !p.isAlive) return;
+    const screen = camera.worldToScreen(p.x, p.y), x = screen.x / scale, sy = screen.y / scale;
+    if (x >= 20 && x <= w - 20 && sy >= 20 && sy <= h - 20) return;
+    const angle = Math.atan2(sy - h / 2, x - w / 2), dx = Math.cos(angle), dy = Math.sin(angle);
+    const reach = Math.min((w / 2 - 26) / Math.max(.001, Math.abs(dx)), (h / 2 - 26) / Math.max(.001, Math.abs(dy)));
+    const ax = w / 2 + dx * reach, ay = h / 2 + dy * reach;
+    ctx.save(); ctx.translate(ax, ay); ctx.rotate(angle); ctx.fillStyle = color;
+    if(p.isDowned)ctx.globalAlpha=.55+.45*Math.abs(Math.sin(p.downedTimer*6));
+    ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(-7, -6); ctx.lineTo(-7, 6); ctx.closePath(); ctx.fill(); ctx.restore();
+    ctx.fillStyle = color; ctx.textAlign = 'center'; ctx.fillText('P' + (p.playerId + 1), ax - dx * 20, ay - dy * 20);
+  });
+  ctx.restore();
+};
+
 if (typeof window !== 'undefined') {
   window.hud = hud;
   window.GameHUD = GameHUD;

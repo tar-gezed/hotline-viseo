@@ -66,7 +66,9 @@ tick(controls, ['ArrowRight']); assert.equal(controls.tab, 1);
 tick(controls, ['Backspace']); assert.equal(back, 2);
 const credits = new env.CreditsMenu(() => back++); credits.show();
 tick(credits, ['Escape']); assert.equal(back, 3);
-const menus = [title, mask, audio, controls, credits, new env.ToolsMenu(() => {}), new env.PauseMenu({ resume() {}, audio() {}, restart() {} })];
+const pause=new env.PauseMenu({resume(){},audio(){},restart(){},quit(){action='quit';}});
+pause.show();pause.selectedIndex=3;tick(pause,['Enter']);assert.equal(action,'quit','solo pause exposes a working exit');
+const menus = [title, mask, audio, controls, credits, new env.ToolsMenu(() => {}), pause];
 for (const [w, h] of [[1280, 720], [1440, 900], [1920, 1080], [3440, 1440]]) {
   const frame = env.UITheme.frame(w, h);
   assert(frame.x >= 0 && frame.y >= 0);

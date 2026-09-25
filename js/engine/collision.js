@@ -324,7 +324,7 @@
             const r = entity.radius || 14;
 
             // Push before any neighbouring wall removes the movement velocity.
-            for(const obs of obstacles) if(obs && typeof obs.pushEntity === 'function') obs.pushEntity(entity,dt);
+            if (!entity.networkPrediction) for(const obs of obstacles) if(obs && typeof obs.pushEntity === 'function') obs.pushEntity(entity,dt);
             for (let pass=0;pass<3;pass++) for (let i = 0; i < obstacles.length; i++) {
                 const obs = obstacles[i];
                 if (!obs || obs.shattered || obs.broken) continue;

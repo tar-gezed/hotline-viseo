@@ -6,7 +6,7 @@ This document details the architectural design, subsystems, data flow, and runti
 
 ## 1. High-Level Architecture
 
-The game is structured into modular layers with zero external production dependencies, running entirely in modern web browsers via HTML5 Canvas 2D and the Web Audio API.
+The game is structured into modular layers with no framework or runtime package installation; optional multiplayer uses a locally vendored WebRTC/MQTT bundle, running entirely in modern web browsers via HTML5 Canvas 2D and the Web Audio API.
 
 ```mermaid
 graph TD
@@ -182,7 +182,7 @@ Floating labels rasterize their outline/glow once per instance and animate the r
 
 ## 4. Testing & Verification Framework
 
-The codebase includes 23 automated regression test suites executed via Node.js (`npm test` / `node tools/test.cjs`):
+The codebase includes 31 automated regression test suites executed via Node.js (`npm test` / `node tools/test.cjs`):
 - `test_arcade_waves.js`: Wave progression, enemy ingress routes, and boundary safety.
 - `test_character_gait.js`: Procedural leg movement, strafing gait, and torso orientation.
 - `test_character_roster.js`: Stats, starting loadouts, perks, and ammo caps for all 7 characters.
@@ -199,6 +199,13 @@ The codebase includes 23 automated regression test suites executed via Node.js (
 - `test_map_files.js`: JSON schema compatibility (v1/v2) and active map isolation.
 - `test_map_plan.js`: Architectural accuracy against reference office blueprints.
 - `test_menu_navigation.js`: Real InputManager keyboard/gamepad edges, selection/back paths, uniform viewport hit-testing and robust audio persistence. Optional `tools/validate_menus.cjs` exercises the browser state machine and exports four-resolution captures.
+- `test_multiplayer_room_code.js`: Cryptographic room codes, alphabet and invitation URLs.
+- `test_multiplayer_protocol.js`: Bounded wire schemas, malformed frames, SHA-256, repeated input edges and angular interpolation.
+- `test_multiplayer_network.js`: Star admission, capacity, nonce/epochs, between-run arrivals, congestion, readiness and disconnect quorum.
+- `test_multiplayer_logic.js`: Multi-target AI, TED, attribution, safe starts, occupied spawn recovery, squad death and respawn.
+- `test_multiplayer_presentation.js`: Client wave fade, replicated markers, per-frame door/projectile presentation, bounded cosmetics, direct roster selection, controller actions and results layouts.
+- `test_multiplayer_events.js`: Short projectile visibility, piercing glass, throw/glass/door physics, replicated effects and text, five independent supply claims/labels, footprint ownership, host pause reasons and immediate exit.
+- `test_multiplayer_revive.js`: Solo lethality preservation, slow crawling, 25-second bleeding, two-second contextual rescue, cover, simultaneous helpers, interrupted/expired inputs, gamepad holds, snapshots, incapacitated defeat and wave recovery.
 - `test_music.js`: Original combat score fingerprint preservation, 6-track harmonic compatibility, note registers, voice release lifecycles, and audio volume/mute controls.
 - `test_performance_safety.js`: Prop geometry invalidation, live door/glass changes, rotated camera bounds, corpse retention and unused supply expiry.
 - `test_player_reach.js`: Melee swing arcs and frame-rate-independent weapon throws.
@@ -213,7 +220,7 @@ The codebase includes 23 automated regression test suites executed via Node.js (
 
 The repository is configured for automated deployment to GitHub Pages via GitHub Actions:
 - **Workflow (`.github/workflows/deploy.yml`):** Automatically triggered on every push to the `main` branch or manual dispatch.
-- **Automated Validation:** Runs `npm test` across all 23 test suites prior to artifact creation.
+- **Automated Validation:** Runs `npm test` across all 31 test suites prior to artifact creation.
 - **Dynamic Preview Generation (`tools/generate_preview.cjs`):** Launches an ephemeral server and headless Chromium at 1200x630 to capture a fresh screenshot of the title menu directly into `assets/images/og-preview.png` before artifact upload. Bundles `assets/fonts/Anton-Regular.ttf` (`GameHeading` font-face fallback for `Impact`) and provisions system TrueType fonts in GitHub Actions CI to guarantee authentic retro typography across all operating systems and headless environments. Fault-tolerant execution (`continue-on-error: true`) guarantees deployment continuity using the repository's high-DPI fallback image.
 - **Rich Social & Slack Unfurling:** `index.html` defines complete Open Graph (`og:type`, `og:title`, `og:description`, `og:image`, `og:image:width`, `og:image:height`, `og:image:alt`), Twitter Card (`summary_large_image`), and signature neon theme color (`theme-color: #ff007f`) metadata to render styled cards with a pink accent sidebar in Slack.
 - **Brand Identity & Multi-Resolution Favicons:** Favicons based on the stylized VISEO chevron emblem rendered in synthwave neon (`favicon.ico`, `assets/images/favicon-16x16.png`, `assets/images/favicon-32x32.png`, `assets/images/apple-touch-icon.png`, and `assets/images/logo-512x512.png`), using strict relative paths for full GitHub Pages subfolder compatibility.
@@ -233,7 +240,7 @@ The player must be inside the enemy's facing cone and visible through world geom
 
 Navigation sweeps the actor's actual radius against wall thickness, intact glass and rotated furniture. Furniture corner anchors supply missing detours; start/goal connectors must be reachable, and locked doors are impassable. Movement follows the path segment independently of smooth facing and clamps each step at corners. Failed paths stop and retry; an unreachable patrol stop is skipped after 1.5 seconds. Less than 20% of requested displacement for 0.8 seconds invalidates the path and advances a blocked patrol stop. Dynamic doors still open by physical pushing.
 
-Validation: `npm test` runs 23 suites. `test_enemy_navigation.js` simulates 24 room exits (three body sizes, two room angles, four frame rates), verifies all nine imported-map arrivals for all body sizes, and advances heavy patrols for 20 simulated seconds at each arrival. The saved map remains untouched.
+Validation: `npm test` runs 31 suites. `test_enemy_navigation.js` simulates 24 room exits (three body sizes, two room angles, four frame rates), verifies all nine imported-map arrivals for all body sizes, and advances heavy patrols for 20 simulated seconds at each arrival. The saved map remains untouched.
 
 Optional browser integration: start `node tools/serve.cjs --port 8097`, then run `node tools/validate_enemy_ai.cjs` with an existing Playwright installation (`PLAYWRIGHT_MODULE`, and optionally `CHROME_PATH` / `ENEMY_TEST_URL`). It exercises actual spawn hooks, director updates, visual acquisition, last-seen memory and the browser projectile loop without adding production dependencies.
 
@@ -241,7 +248,7 @@ Browser validation on 19 September 2026 passed in headless Chrome with zero page
 
 Wave progression (20 September 2026): total enemies follow Fibonacci starting at **5, 8, 13, 21, 34, 55, 89, 144**, with no former 48-enemy total cap. Archetype unlocks, preparation and squads of up to three remain unchanged. The configured 36-actor concurrency limit now gates reinforcements; queued enemies still belong to the wave and prevent premature completion. Existing imported arrival markers are checked for heavy-body clearance and a path to the player's starting area. If none are usable, connected navigation anchors supply runtime-only fallback markers. Spawn jitter is validated; a temporarily obstructed marker waits without losing its queued enemy or moving its warning.
 
-Updated validation: all 23 Node suites pass, including deterministic stay/exit patrol choices, locked-door rejection, navigation to gunshots outside a room, Fibonacci totals through wave eight, complete delivery of 144 queued enemies, concurrency gating and blocked-marker retries. The Chrome integration check also passes the actual player attack handler for gunfire, melee and dry fire, fixed shot memory, and all nine patrol arrivals, with zero page errors.
+Updated validation: all 31 Node suites pass, including deterministic stay/exit patrol choices, locked-door rejection, navigation to gunshots outside a room, Fibonacci totals through wave eight, complete delivery of 144 queued enemies, concurrency gating and blocked-marker retries. The Chrome integration check also passes the actual player attack handler for gunfire, melee and dry fire, fixed shot memory, and all nine patrol arrivals, with zero page errors.
 
 ## Performance implementation and validation
 
@@ -250,3 +257,21 @@ The current hot-path optimization uses conservative broad-phase rejection before
 Rotated camera bounds include shake and zoom. Render-only culling removes offscreen actor/weapon/furniture work while preserving simulation and world-layer order. Ordinary frames pass the downsampled pixel canvas directly to postprocessing with nearest-neighbor scaling; active glitch/chromatic distortion retains the full-resolution source path. Persistent blood stays on its fixed-size canvas.
 
 `test_performance_safety.js` adds coverage for live geometry invalidation, viewport corners, corpse lifecycle and supply expiry. Optional `tools/validate_geometry.cjs`, `tools/validate_performance.cjs` and `tools/validate_floating_text.cjs` compare reference geometry, actual pixels and text outlines. `tools/profile_game.cjs` measures callback work and animation intervals independently. See the [complete performance report](game-performance.md) for before/after numbers, GPU/worker decisions, test conditions, remaining ultrawide limitations and reproduction commands.
+
+## Optional Internet coop (2–5 players)
+
+The [multiplayer architecture](multiplayer-architecture.md) defines host authority, lazy module loading, the locally vendored MQTT signaling adapter, strict star WebRTC links, 40 Hz input delivery, 20 Hz snapshots, 100 ms interpolation and reliable fallback. `players` holds slots 0–4 while `player` remains the local alias. Existing gameplay functions accept an explicit actor/input source so the host reuses the combat loop; clients predict movement and render snapshots without advancing AI, projectiles or the spawner.
+
+The coop session routes multiplayer menu → lobby → mission → MVP/results → lobby. The seven-portrait roster separates preview, choice and ready state. Mouse, keyboard and standard Gamepad API use the same Canvas hit regions. Client options remain local; host options and host tab visibility each pause the whole squad. This follows the revised pause requirement from the September 23 bug report. Host departure closes the room. Both solo and coop pause menus expose an immediate exit to the title.
+
+The September 24 rescue extension adds host-owned `DOWNED` state: 25 seconds of bleeding, crawling at 22% speed and a continuous two-second E/Space or gamepad A/X hold within 58 world units. Geometry is checked on every step and actions are reserved during rescue. Only one helper advances each target; cover, release, range, disconnect or helper incapacitation reset progress. Revival retains inventory with 0.8 seconds of protection. An entirely downed/dead squad loses immediately; dead and downed players recover at wave intermission. The handshake requires the `downed-revive-v1` ruleset to reject incompatible old clients. Solo lethality and both results/leaderboard layouts remain unchanged.
+
+`player_presentation.js` builds a thin neon outline from the actual sprite alpha using two shared 160×160 canvases, excluding melee trails and corpse blood. P1–P5 labels avoid each other during close rescues. Countdown, progress arc, synthesised rescue beeps and urgent offscreen arrows use replicated state. `tools/validate_revive.cjs`, called by the WebRTC runner, verifies host/client rescue, keyboard/gamepad holds and 42 silhouette pixel cases across seven colleagues, three aim angles and standing/downed poses.
+
+`presentation_events.js` forwards only an explicit allowlist of cosmetic methods and bounded primitive arguments, without granting clients score or geometry authority. Nested calls do not create duplicate events. Text, glass/wood debris, hit sounds, executions, blood and footprints share this route. Each supply crate tracks a five-bit `claimedMask`; every colleague receives one refill independently and the cache weapon is released only once. Host/client rendering uses the same labeled crate function. The [event audit and test matrix](multiplayer-events.md) links every reported bug to its regression coverage.
+
+Client render cadence is independent of snapshot cadence: `projectile_presentation.js` advances bounded cosmetic tracers every frame, including immediate local shots and reliable births for short-lived remote bullets. Authoritative geometry updates immediately while the door's `renderAngle` eases separately for drawing. Reconciliation preserves local animation phase; execution poses use interpolation or a separate bounded local render clock without advancing authoritative execution hits. Birth/impact effects are batched with one reliable send in flight, protected from obsolete mission completions; coop target acquisition is amortized over 100–120 ms without throttling the current target's vision/attack checks. See [coop performance measurements](multiplayer-performance.md) for five-peer load, injected latency/loss and the limits of same-machine browser tests.
+
+The MVP spotlight and results columns share one laurel/rank renderer. Mirrored curved stems and attached leaves surround the numeral, centered using its actual ink bounds rather than italic advance width. `tools/validate_results.cjs` checks visible centering, branch symmetry and numeral clearance with the production font, and captures both screens at four viewport sizes.
+
+Coop spawns respect every living player and retarget occupied entrances with a fresh warning instead of retrying the queue head forever. Client HUD presentation uses elapsed frame time, while wave countdowns and spawn telegraphs come from the host. The optional `tools/validate_multiplayer.cjs` exercises public MQTT discovery and real WebRTC with five independent Chrome contexts, gamepad input, combat, mutable geometry, both reported wave regressions, results, host departure and a return to solo. See the linked document for reproducible commands, the exact scope of this validation and network limitations.
