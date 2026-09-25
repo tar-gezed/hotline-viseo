@@ -1,18 +1,19 @@
 # Hotline Viseo: After Hours
 
-> Un jeu d'action / shooter rétro néon en vue du dessus inspiré de *Hotline Miami*, situé dans les locaux stylisés de l'agence VISEO. Développé en pur JavaScript standard (ES6+), HTML5 Canvas 2D et Web Audio API, sans aucune dépendance de production externe (pour l'instant).
+> Un jeu d'action / shooter rétro néon en vue du dessus inspiré de *Hotline Miami*, situé dans les locaux stylisés de l'agence VISEO. Développé en pur JavaScript standard (ES6+), HTML5 Canvas 2D et Web Audio API, sans framework ni backend applicatif. Le mode coop charge à la demande un bundle WebRTC/MQTT vendorisé localement.
 
 [![JavaScript: Vanilla ES6+](https://img.shields.io/badge/JavaScript-Vanilla%20ES6+-yellow.svg)](#)
-[![Runtime: Browser / Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero%20Runtime-brightgreen.svg)](#)
+[![Runtime: Static Browser](https://img.shields.io/badge/Runtime-Static%20Browser-brightgreen.svg)](#)
 [![Hosting: GitHub Pages](https://img.shields.io/badge/Hosting-GitHub%20Pages%20Ready-blue.svg)](https://tar-gezed.github.io/hotline-viseo/)
 [![CI/CD: Deploy Pages](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml/badge.svg)](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml)
-[![Tests: 23 Node Suites Passing](https://img.shields.io/badge/Tests-23%20Passing-success.svg)](#)
+[![Tests: 30 Node Suites Passing](https://img.shields.io/badge/Tests-30%20Passing-success.svg)](#)
 
 ---
 
 ## Sommaire / Table of Contents
 - [Running and inspecting the game](#running-and-inspecting-the-game)
 - [GitHub Pages & Déploiement Automatique](#github-pages--déploiement-automatique)
+- [Multijoueur coopératif](#multijoueur-coopératif)
 - [Commandes & Contrôles](#commandes--contrôles)
 - [Architecture & Organisation du projet](#architecture--organisation-du-projet)
 - [Roster des 7 Personnages](#roster-des-7-personnages)
@@ -40,7 +41,7 @@ Les brouillons et cartes importées dans le navigateur dépendent de l'origine (
 
 ## Écran titre et menus
 
-Le lancement ouvre **HOTLINE VISEO** : logo animé, silhouettes de bâtiments en parallaxe et quatre choix principaux. **COMMENCER MA JOURNÉE** mène à la sélection des sept personnages ; **CONTRÔLES** sépare clavier/souris et manette ; **AUDIO** règle musique et effets ; **TOOLS / MAPS** donne accès aux cartes et à l’éditeur existants. **CRÉDITS**, en bas à droite, présente quinze postes tous attribués à **Targezed**.
+Le lancement ouvre **HOTLINE VISEO** : logo animé, silhouettes de bâtiments en parallaxe et cinq choix principaux. **COMMENCER MA JOURNÉE** mène à la sélection des sept personnages ; **MULTIJOUEUR (2–5)**, en deuxième position, ouvre la coop ; **CONTRÔLES** sépare clavier/souris et manette ; **AUDIO** règle musique et effets ; **TOOLS / MAPS** donne accès aux cartes et à l’éditeur existants. **CRÉDITS**, en bas à droite, présente quinze postes tous attribués à **Targezed**.
 
 La musique démarre au chargement si le navigateur autorise l’autoplay. Sinon, une touche, un clic n’importe où dans la page ou un toucher déverrouille le son, sans devoir choisir une option ; les réglages de volume et de mute sont conservés.
 
@@ -61,7 +62,7 @@ Le jeu est déployé et jouable publiquement en ligne sur GitHub Pages à l'adre
 
 Le déploiement est entièrement automatisé par GitHub Actions :
 - **Workflow :** `.github/workflows/deploy.yml` déclenché à chaque push sur la branche `main` (ou manuellement via *Actions*).
-- **Validation CI :** Exécute automatiquement la suite complète des 23 suites de régression (`npm test`) avant le packaging.
+- **Validation CI :** Exécute automatiquement la suite complète des 30 suites de régression (`npm test`) avant le packaging.
 - **Publication Pages :** Utilise les actions officielles `actions/configure-pages@v5`, `actions/upload-pages-artifact@v3` et `actions/deploy-pages@v4`.
 - **Prévisualisation dynamique Slack & Réseaux (Open Graph) :** Le `<head>` de `index.html` intègre les métadonnées Open Graph (`og:image`, `og:title`, etc.), Twitter Cards (`summary_large_image`) et la couleur d'accent néon (`theme-color: #ff007f`). L'image de prévisualisation au format standard 1200×630 (`assets/images/og-preview.png`) est rafraîchie dynamiquement lors du déploiement via un navigateur headless Chromium (`tools/generate_preview.cjs`), avec conservation d'une image de secours haute définition.
 - **Identité visuelle & Favicons :** Intégration du logo officiel inspiré de l'emblème chevron de VISEO revisité en néon cyan/magenta synthwave. Les favicons sont fournis en multi-résolution (`favicon.ico`, `assets/images/favicon-16x16.png`, `assets/images/favicon-32x32.png`, `assets/images/apple-touch-icon.png` 180×180, et `assets/images/logo-512x512.png`), avec chemins relatifs garantissant un affichage optimal sur GitHub Pages.
@@ -91,6 +92,28 @@ Les nouveaux morceaux alternent huit mesures de thème, quatre de break basse/ba
 Chaque nouvelle entrée en combat avance dans la rotation, y compris après une défaite. Une vague longue boucle son morceau ; les appels répétés pendant la même vague ne le relancent pas. Le tempo reste stable, tandis que l'adrénaline enrichit les percussions et ouvre la basse. Les thèmes de menu, d'intermission et de défaite ainsi que le mute et le volume sont conservés. Une marge de sortie réduit le risque de saturation des transitoires.
 
 `test_music.js` vérifie les six partitions et la conservation exacte des événements du morceau original, les notes fortes, les basses, la rotation et les commandes. Le [détail de la révision et des rendus audio](docs/music-direction.md) documente les références et l'outil d'export WAV, qui utilise le vrai moteur Web Audio sans ajouter de dépendance au jeu.
+
+## Multijoueur coopératif
+
+**MULTIJOUEUR → CRÉER UN SALON** crée un code à cinq caractères. Partagez **COPIER LE LIEN**, ou saisissez le code dans **REJOINDRE LE SALON**. Le champ accepte le collage ; un pavé virtuel permet aussi de rejoindre entièrement à la manette. Les liens `?room=7K9XM` conservent le sous-dossier GitHub Pages.
+
+Dans le lobby, choisissez directement l’un des **sept portraits** (clic, 1–7, ou croix/stick puis A), consultez son métier, son équipement et ses bonus, puis validez **JE SUIS PRÊT** (X à la manette). L’hôte lance avec le bouton ou Start lorsque les 2 à 5 collègues sont prêts. Les choix identiques sont autorisés ; P1 à P5 gardent leur couleur.
+
+Les joueurs partagent la mission sans tirs alliés. Un joueur touché tombe **À TERRE** : il rampe à 22 % de sa vitesse et dispose de **25 secondes** avant de mourir. Un collègue debout à proximité maintient **E ou ESPACE**, ou **A/X à la manette**, pendant **2 secondes** pour le relever avec 0,8 s de protection. Relâcher, s’éloigner, perdre le sauveteur ou fermer une porte entre eux interrompt le soin ; deux sauveteurs ne l’accélèrent pas. Le HUD affiche le saignement et un anneau indique la progression de réanimation. Un mort observe un survivant (Q/D, clic gauche/droit ou LB/RB), puis réapparaît à l’intermission avec son arme de départ ; les collègues encore à terre sont également remis sur pied. La défaite survient dès que tous les connectés sont à terre ou morts. Le solo conserve sa mort immédiate.
+
+Un **liseré fin épouse la silhouette réelle** de chaque collègue, masque et arme compris, à la place des ovales. Les tags P1–P5 restent visibles et s’écartent lorsqu’ils se chevauchent. Les touches 1–4 ou la croix directionnelle émettent des pings d’équipe. **Échap/Start chez l’hôte suspend toute l’escouade**, comme son onglet caché ; chez un client, les options restent locales. Le bouton **QUITTER LA ROOM** revient immédiatement au titre ; le départ de l’hôte clôture la session. Le solo propose aussi **QUITTER LA PARTIE** dans sa pause.
+
+Le pseudo se renseigne dans le champ commun **VOTRE IDENTITÉ**, avant de créer ou rejoindre. Chaque caisse de ravitaillement offre une recharge à **chaque joueur**, une seule fois par caisse, et affiche `AMMO` puis `RÉCUPÉRÉ` pour le joueur servi. Les textes d’action, bris de verre, impacts, exécutions et sons sont répliqués vers tous les clients. Les armes lancées cassent les vitres et rebondissent sur les portes et le décor. L’[audit des événements et ses tests](docs/multiplayer-events.md) suit chaque correction.
+
+Les résultats présentent un **MVP**, puis les colonnes individuelles (rangs, KOs, morts, arme favorite, scores). Espace/Entrée/A ou le bouton de votre colonne valide le retour collectif au lobby. Le classement d’équipe est conservé localement chez l’hôte, séparément du solo.
+
+Chez les joueurs non hôtes, les balles, les portes et les gestes d’exécution s’animent entre les snapshots réseau ; le tir local déclenche immédiatement traceur, recul, flash et son. Les effets sont regroupés et bornés pour les fusillades à cinq. Les collisions, dégâts et scores restent décidés par l’hôte. Les [mesures de performance coop](docs/multiplayer-performance.md) précisent le protocole de stress et ses limites.
+
+Les lauriers du MVP et du tableau des scores partagent le même dessin, centré sur le chiffre et adapté aux deux tailles. Avec l’environnement Playwright de validation, `node tools/validate_results.cjs` contrôle leur rendu et produit 16 captures dans `test-results/results/`.
+
+Le mode utilise **Trystero MQTT 0.25.4 vendorisé** dans `vendor/`, sans import CDN ni installation npm pour jouer. Seuls les relais publics de découverte et WebRTC nécessitent Internet ; le solo ne charge aucun module réseau. Les détails du protocole, les limites NAT et les commandes de test sont dans [l’architecture multijoueur](docs/multiplayer-architecture.md). HTTPS ou localhost est requis. Le bouton **COMMENCER MA JOURNÉE** garde le parcours solo habituel.
+
+Validation : **30 suites Node** (les 23 historiques + 7 coop), scénario réel MQTT/WebRTC à cinq contextes Chrome, combat avec 180–220 ms d’aller-retour et 20 % de perte injectés, test des entrées occupées en vague 2, fondu du bandeau client, navigation via l’API Gamepad et captures à quatre résolutions. La manette est simulée via l’API standard ; aucun essai de matériel physique ni entre plusieurs accès Internet indépendants n’est revendiqué. Reproduction : `node tools/validate_multiplayer.cjs` avec Playwright de développement et le serveur sous `/hotline-viseo/` ; voir la documentation liée.
 
 ## Commandes & Contrôles
 
@@ -142,11 +165,11 @@ La navigation et les collisions évitent les calculs sur les obstacles éloigné
 
 Les cadavres commencent à disparaître après 90 secondes de simulation, ou quand plus de 96 corps sont retenus, avec un fondu de deux secondes et une protection de la première seconde de chute. Les armes de ravitaillement non utilisées expirent au début de la deuxième vague suivante ; les armes placées sur la carte, lâchées par les ennemis ou reprises puis jetées sont conservées. Le sang reste sur sa toile persistante : le test de 5 000 taches ne montre pas de surcoût de redessin. Les petits pics noirs sur le texte de ramassage sont corrigés.
 
-Le [rapport complet de performances](docs/game-performance.md) détaille les changements, les mesures, leurs limites, le choix de conserver Canvas 2D accéléré et la simulation synchrone, les 23 suites et les validations navigateur, ainsi que les commandes de reproduction. Les outils Playwright sont réservés au développement et n’ajoutent aucune dépendance au jeu.
+Le [rapport complet de performances](docs/game-performance.md) détaille les changements, les mesures, leurs limites, le choix de conserver Canvas 2D accéléré et la simulation synchrone, la validation historique à 23 suites et les validations navigateur, ainsi que les commandes de reproduction. Le runner actuel compte 30 suites, dont sept suites coop. Les outils Playwright sont réservés au développement et n’ajoutent aucune dépendance au jeu.
 
 ## Verification
 
-Exécuter l'ensemble des 23 suites de régression automatisées avec Node.js :
+Exécuter l'ensemble des 30 suites de régression automatisées avec Node.js :
 
 ```bash
 npm test
@@ -299,4 +322,4 @@ Toutes les modifications du projet doivent respecter les règles établies dans 
 
 ## Enemy combat and patrol integration
 
-Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](docs/architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 30 suites. See [combat rules and regression coverage](docs/architecture.md#enemy-combat-and-navigation).

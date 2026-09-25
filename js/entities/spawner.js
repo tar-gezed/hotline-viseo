@@ -20,6 +20,9 @@ class WaveSpawner {
     this.spawnQueue = [];
     this.spawnInterval = 1.6; // Seconds between reinforcement squads
     this.spawnTimer = 0;
+    this.coopTime = 0;
+    this.coopPlanTimer = 0;
+    this.networkTelegraphs = null;
 
     // Intermission Timer
     this.intermissionTimeTotal = CONFIG.WAVES.INTERMISSION_TIME || 10;
@@ -93,6 +96,9 @@ class WaveSpawner {
    * Reset spawner state
    */
   reset() {
+    this.coopTime = 0;
+    this.coopPlanTimer = 0;
+    this.networkTelegraphs = null;
     this.currentWave = 0;
     this.state = 'IDLE';
     this.totalWaveEnemies = 0;
@@ -167,6 +173,7 @@ class WaveSpawner {
   }
 
   _spawnEnemyData(enemyData, activeSpawnPoint, exactPosition = false) {
+    if (this.coopPlayers && (enemyData.coopWarnUntil || 0) > this.coopTime) return null;
     const jitterX = exactPosition ? 0 : (Math.random() * 32 - 16);
     const jitterY = exactPosition ? 0 : (Math.random() * 32 - 16);
     let position = { x: activeSpawnPoint.x + jitterX, y: activeSpawnPoint.y + jitterY };
@@ -174,6 +181,10 @@ class WaveSpawner {
     // A swinging door may temporarily cover an announced marker. Wait for a
     // clear body-sized space rather than spawning embedded or moving the marker.
     if (this.spawnPositionValidator && !this.spawnPositionValidator(position)) return null;
+    if (this.coopPlayers && !this._isCoopSpawnSafe(position)) {
+      if (!this._isCoopSpawnSafe(activeSpawnPoint)) return null;
+      position = activeSpawnPoint;
+    }
     const newEnemyInstance = {
       id: enemyData.id,
       type: enemyData.type,
@@ -205,6 +216,7 @@ class WaveSpawner {
       const enemyData = this.spawnQueue.splice(queueIndex, 1)[0];
       const spawned = this._spawnEnemyData(enemyData, point, true);
       if (spawned) spawnedEntities.push(spawned);
+      else if (this.coopPlayers) this.spawnQueue.push({ ...enemyData, spawnPoint: point });
       else this.spawnQueue.unshift({ ...enemyData, spawnPoint: point });
     }
     this.spawnTimer = this.spawnInterval;
@@ -234,6 +246,7 @@ class WaveSpawner {
   }
 
   getSpawnTelegraphs() {
+    if (this.networkTelegraphs) return this.networkTelegraphs;
     const reinforcing = this.state === 'SPAWNING' && this.spawnQueue.length > 0 && this.spawnTimer <= 1.2;
     const points = reinforcing ? this._uniqueSpawnPointsFromQueue(this.spawnQueue.slice(0, 3))
       : this.state === 'INTERMISSION' ? this.nextWaveTelegraphPoints : this.spawnTelegraphs;
@@ -241,7 +254,8 @@ class WaveSpawner {
       : this.state === 'INTERMISSION' ? this.intermissionTimer : this.preWaveTimer;
     return (points || []).map((point, index) => ({
       id: point.id || `spawn_${index}`, x: point.x, y: point.y, angle: point.angle || 0,
-      name: point.name || 'INCOMING', type: point.type || 'reinforcement', countdown: Math.max(0, countdown)
+      name: point.name || 'INCOMING', type: point.type || 'reinforcement', countdown: Math.max(0, countdown),
+      blocked: !!this.coopPlayers && !this._isCoopSpawnSafe(point)
     }));
   }
 
@@ -261,6 +275,7 @@ class WaveSpawner {
 
       const spawned = this._spawnEnemyData(enemyData, activeSpawnPoint, false);
       if (spawned) spawnedEntities.push(spawned);
+      else if (this.coopPlayers) this.spawnQueue.push(enemyData);
       else { this.spawnQueue.unshift(enemyData); break; }
     }
 
@@ -281,8 +296,8 @@ class WaveSpawner {
     const queue = [];
     // Choose safe entrances before drawing their warnings. Once announced,
     // markers remain authoritative even if the player approaches one.
-    const safePoints = this.playerPosition ? this.spawnPoints.filter(p =>
-      Math.hypot(p.x - this.playerPosition.x, p.y - this.playerPosition.y) >= 260) : this.spawnPoints;
+    const targets = this.coopPlayers || (this.playerPosition ? [this.playerPosition] : []);
+    const safePoints = this.spawnPoints.filter(p => targets.every(t => t.isAlive === false || Math.hypot(p.x - t.x, p.y - t.y) >= 260));
     const availablePoints = safePoints.length ? safePoints : this.spawnPoints;
 
     const enemyCount = this.getWaveEnemyCount(wave);
@@ -347,7 +362,36 @@ class WaveSpawner {
   getWaveEnemyCount(wave) {
     let previous = 3, current = 5;
     for (let i = 1; i < wave; i++) [previous, current] = [current, previous + current];
-    return current;
+    return Math.ceil(current * (1 + (Math.max(1, this.playerCount || 1) - 1) * .35));
+  }
+
+  _isCoopSpawnSafe(point) {
+    return !!point && (!this.spawnPositionValidator || this.spawnPositionValidator(point))
+      && (this.coopPlayers || []).every(p => p.isAlive === false || Math.hypot(p.x - point.x, p.y - point.y) >= 260);
+  }
+
+  _planCoopSpawns() {
+    // Never let a camped entrance block every reinforcement behind it. Retarget
+    // the next squad to clear ingress space and give the new position a full
+    // warning. The solo telegraph/door behavior is deliberately unchanged.
+    let changed = false;
+    for (const data of this.spawnQueue.slice(0, 3)) {
+      if (this._isCoopSpawnSafe(data.spawnPoint)) continue;
+      let point = this.spawnPoints.find(p => this._isCoopSpawnSafe(p));
+      if (!point && this.spawnPositionValidator) {
+        // Nearby validated ingress offsets also work when every exact doorway
+        // is occupied. No fallback is allowed inside the players' safe radius.
+        outer: for (const base of this.spawnPoints) for (const radius of [64,128,192,256]) for (let i=0;i<8;i++) {
+          const candidate = {...base, id:base.id+'_'+radius+'_'+i, x:base.x+Math.cos(i*Math.PI/4)*radius, y:base.y+Math.sin(i*Math.PI/4)*radius};
+          if (this._isCoopSpawnSafe(candidate)) { point = candidate; break outer; }
+        }
+      }
+      if (point) { data.spawnPoint = point; data.coopWarnUntil = this.coopTime + 1.2; changed = true; }
+    }
+    if (changed) {
+      this.spawnTimer = Math.max(this.spawnTimer,1.2);
+      if (this.state === 'PREWAVE') { this.preWaveTimer = Math.max(this.preWaveTimer,1.2); this.spawnTelegraphs = this._uniqueSpawnPointsFromQueue(this.spawnQueue); }
+    }
   }
 
   /**
@@ -359,6 +403,11 @@ class WaveSpawner {
       playerPosition = null;
     }
     if (playerPosition) this.playerPosition = playerPosition;
+
+    if (this.coopPlayers) {
+      this.coopTime += dt; this.coopPlanTimer -= dt;
+      if (this.coopPlanTimer <= 0) { this.coopPlanTimer = .2; this._planCoopSpawns(); }
+    }
 
     const spawnedEntities = [];
 
@@ -462,7 +511,8 @@ class WaveSpawner {
 
   _pickNextWaveTelegraphs() {
     if (!this.spawnPoints.length) return [];
-    const shuffled = this.spawnPoints.slice().sort(() => Math.random() - 0.5);
+    const available = this.coopPlayers ? this.spawnPoints.filter(p => this._isCoopSpawnSafe(p)) : this.spawnPoints;
+    const shuffled = available.slice().sort(() => Math.random() - 0.5);
     return shuffled.slice(0, Math.min(4, shuffled.length));
   }
 
@@ -495,29 +545,8 @@ class WaveSpawner {
         ammoRefill: true,
         ammoAmount: isAubrey ? 1.5 : 1.0, // Aubrey +50% ammo
         isOpened: false,
-        render: function(ctx) {
-          if (this.isOpened) return;
-          ctx.save();
-          ctx.translate(this.x, this.y);
-
-          // Glowing supply box
-          ctx.shadowColor = '#00f3ff';
-          ctx.shadowBlur = 10;
-          ctx.fillStyle = '#1b1429';
-          ctx.fillRect(-16, -12, 32, 24);
-          ctx.strokeStyle = '#00f3ff';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(-16, -12, 32, 24);
-
-          // Inner cross / ammo icon
-          ctx.fillStyle = '#ffe600';
-          ctx.font = '900 9px monospace';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('AMMO', 0, 0);
-
-          ctx.restore();
-        }
+        claimedMask: 0,
+        render: WaveSpawner.renderSupplyCrate
       };
       crate.draw = crate.render;
 
@@ -531,11 +560,33 @@ class WaveSpawner {
   /**
    * Collect a supply crate
    */
-  collectSupplyCrate(crateId) {
+  static renderSupplyCrate(ctx, localId) {
+    if(this.isOpened)return;
+    const claimed=Number.isInteger(localId)&&!!(this.claimedMask & (1<<localId));
+    ctx.save();ctx.translate(this.x,this.y);ctx.globalAlpha=claimed ? .45 : 1;
+    ctx.shadowColor=claimed?'#776c84':'#00f3ff';ctx.shadowBlur=10;ctx.fillStyle='#1b1429';ctx.fillRect(-16,-12,32,24);
+    ctx.strokeStyle=claimed?'#776c84':'#00f3ff';ctx.lineWidth=2;ctx.strokeRect(-16,-12,32,24);
+    ctx.fillStyle=claimed?'#b6abbf':'#ffe600';ctx.font='900 9px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('AMMO',0,0);
+    if(Number.isInteger(localId)){ctx.font='bold 8px monospace';ctx.fillText(claimed?'RÉCUPÉRÉ':'RAVITAILLEMENT',0,-22);}
+    ctx.restore();
+  }
+
+  claimSupply(crate, slot) {
+    if(!crate || crate.isOpened)return false;
+    if(!this.coopPlayers){crate.isOpened=true;return true;}
+    if(!Number.isInteger(slot)||!this.coopPlayers.some(p=>p.playerId===slot))return false;
+    const bit=1<<slot;if(crate.claimedMask & bit)return false;
+    crate.claimedMask=(crate.claimedMask||0)|bit;
+    const eligible=this.coopPlayers.reduce((mask,p)=>mask|(1<<p.playerId),0);
+    crate.isOpened=(crate.claimedMask & eligible)===eligible;
+    return true;
+  }
+
+  collectSupplyCrate(crateId, slot) {
     const crate = this.supplyCrates.find(c => c.id === crateId && !c.isOpened);
     if (!crate) return null;
 
-    crate.isOpened = true;
+    if(!this.claimSupply(crate,slot))return null;
     if (typeof window !== 'undefined' && window.soundFx) {
       window.soundFx.playAmmoRefill();
     }

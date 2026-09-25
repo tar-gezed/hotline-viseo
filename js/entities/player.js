@@ -66,6 +66,12 @@
 
             // Health & state
             this.isAlive = true;
+            this.coopEnabled = false;
+            this.isDowned = false;
+            this.isReviving = false;
+            this.downedTimer = 0;
+            this.reviveProgress = 0;
+            this.reviverId = -1;
             this.state = 'IDLE'; // 'IDLE', 'WALK', 'ATTACKING', 'EXECUTING', 'DEAD'
             this.isInvulnerable = false;
 
@@ -139,6 +145,11 @@
             this.vx = 0;
             this.vy = 0;
             this.isAlive = true;
+            this.isDowned = false;
+            this.isReviving = false;
+            this.downedTimer = 0;
+            this.reviveProgress = 0;
+            this.reviverId = -1;
             this.state = 'IDLE';
             this.isInvulnerable = false;
             this.currentWeapon = this.mask === 'DENNIS' ? WEAPON_TYPES.KNIFE : WEAPON_TYPES.FISTS;
@@ -191,6 +202,7 @@
 
             // Handle Active Ground Execution
             if (this.state === 'EXECUTING') {
+                if (this.networkPrediction) return;
                 this._updateExecution(dt, effects, camera);
                 return;
             }
@@ -207,9 +219,10 @@
             const movementStartX = this.x;
             const movementStartY = this.y;
             const move = input && typeof input.getMovementVector === 'function' ? input.getMovementVector() : { x: 0, y: 0, length: 0 };
+            const moveSpeed = this.baseSpeed * (this.isDowned ? .22 : 1);
             if (move.length > 0) {
-                const targetVx = move.x * this.baseSpeed;
-                const targetVy = move.y * this.baseSpeed;
+                const targetVx = move.x * moveSpeed;
+                const targetVy = move.y * moveSpeed;
 
                 this.vx += (targetVx - this.vx) * Math.min(1, this.accel * dt / this.baseSpeed);
                 this.vy += (targetVy - this.vy) * Math.min(1, this.accel * dt / this.baseSpeed);
@@ -265,8 +278,13 @@
                 this.swingAnimationTimer = Math.max(0, this.swingAnimationTimer - dt);
             }
 
+            // Only the host advances bleeding and rescue. Prediction may crawl,
+            // but must never finish a revive or fire a queued burst.
+            if (this.isDowned) { this.state = 'DOWNED'; return; }
+            if (this.isReviving) { this.burstRemaining = 0; return; }
+
             // 4. Handle M16 Burst Fire Queuing
-            if (this.burstRemaining > 0) {
+            if (this.burstRemaining > 0 && !this.networkPrediction) {
                 this.burstTimer -= dt;
                 if (this.burstTimer <= 0) {
                     this._fireBullet(bullets, effects, camera);
@@ -363,7 +381,9 @@
             for (let i = 0; i < pellets; i++) {
                 const spreadAngle = (Math.random() - 0.5) * (w.spread || 0.05) * (this.perks.spreadMult || 1);
                 const bulletAngle = this.angle + spreadAngle;
-                bullets.push(new Bullet(muzzleX, muzzleY, bulletAngle, w, true));
+                const bullet = new Bullet(muzzleX, muzzleY, bulletAngle, w, true);
+                if (this.playerId !== undefined) bullet.ownerPlayerId = this.playerId;
+                bullets.push(bullet);
             }
         }
 
@@ -581,7 +601,7 @@
 
         _finishExecution() {
             this.state = 'IDLE';
-            this.isInvulnerable = false;
+            this.isInvulnerable = (this.respawnShield || 0) > 0;
             this.executionTarget = null;
             this.executionTimer = 0;
             this.executionStep = 0;
@@ -589,7 +609,7 @@
         }
 
         attack(targetX, targetY) {
-            if (!this.isAlive || this.attackCooldown > 0) return null;
+            if (!this.isAlive || this.isDowned || this.isReviving || this.attackCooldown > 0) return null;
             if (this.state === 'EXECUTING') return null;
 
             const w = this.currentWeapon || WEAPON_TYPES.FISTS;
@@ -614,7 +634,9 @@
                     const spreadAngle = (Math.random() - 0.5) * (w.spread || 0.05) * (this.perks.spreadMult || 1);
                     const finalAngle = this.angle + spreadAngle;
                     if (BulletClass) {
-                        spawnedBullets.push(new BulletClass(muzzleX, muzzleY, finalAngle, w, 'player'));
+                        const bullet = new BulletClass(muzzleX, muzzleY, finalAngle, w, 'player');
+                        if (this.playerId !== undefined) bullet.ownerPlayerId = this.playerId;
+                        spawnedBullets.push(bullet);
                     }
                 }
 
@@ -676,6 +698,7 @@
         }
 
         throwWeapon(targetX, targetY) {
+            if (!this.isAlive || this.isDowned || this.isReviving) return null;
             if (this.currentWeapon.id === 'FISTS' || this.currentWeapon.id === 'unarmed') return null;
             const oldWeapon = this.currentWeapon;
             const oldAmmo = this.ammo;
@@ -693,12 +716,13 @@
         }
 
         startExecution(enemy) {
+            if (!this.isAlive || this.isDowned || this.isReviving) return;
             this._startExecution(enemy, null, null);
         }
 
         stepInBlood(bloodSystem) {
             if (!bloodSystem) return;
-            const id = 'player';
+            const id = Number.isInteger(this.playerId) ? 'player:' + this.playerId : 'player';
             if (bloodSystem.activeFootsteps && !bloodSystem.activeFootsteps.has(id) && typeof bloodSystem.triggerBloodySteps === 'function') {
                 bloodSystem.triggerBloodySteps(id, 12);
             }
@@ -716,7 +740,21 @@
          * Hotline Miami standard: 1 hit = instant death.
          */
         takeHit(hitInfo = {}) {
-            if (!this.isAlive || this.isInvulnerable) return;
+            if (!this.isAlive || this.isInvulnerable || this.isDowned) return;
+
+            if (this.coopEnabled) {
+                this.isDowned = true;
+                this.isReviving = false;
+                this.state = 'DOWNED';
+                this.downedTimer = 25;
+                this.reviveProgress = 0;
+                this.reviverId = -1;
+                this.vx = this.vy = 0;
+                this.burstRemaining = 0;
+                this.swingAnimationTimer = 0;
+                this.combo = this.comboTimer = 0;
+                return;
+            }
 
             this.isAlive = false;
             this.state = 'DEAD';
@@ -729,6 +767,29 @@
             else if (Audio && typeof Audio.playPlayerDeath === 'function') Audio.playPlayerDeath();
         }
 
+        bleedOut() {
+            if (!this.isDowned) return;
+            this.isAlive = false;
+            this.isDowned = false;
+            this.isReviving = false;
+            this.state = 'DEAD';
+            this.downedTimer = this.reviveProgress = this.deathTimer = 0;
+            this.reviverId = -1;
+            this.vx = this.vy = 0;
+        }
+
+        revive() {
+            if (!this.isAlive || !this.isDowned) return false;
+            this.isDowned = false;
+            this.state = 'IDLE';
+            this.downedTimer = this.reviveProgress = 0;
+            this.reviverId = -1;
+            this.vx = this.vy = 0;
+            this.respawnShield = .8;
+            this.isInvulnerable = true;
+            return true;
+        }
+
         onDoorSlam(door, damage = 80, dirX = 1, dirY = 0) {
             if (!this.isAlive || this.isInvulnerable || !door?.lastKickedBy?.isEnemy) return;
             this.takeHit({ type: 'DOOR_SLAM', damage, angle: Math.atan2(dirY, dirX) });
@@ -739,6 +800,7 @@
         }
 
         addScore(points, label = '') {
+            if (this.externalScoring) return;
             this.combo++;
             this.comboTimer = this.comboMaxTime;
             const multiplier = Math.min(8, this.combo);
@@ -751,7 +813,7 @@
          * Renders player entity, scissor walking legs, rotating torso, mask, and held weapon.
          * @param {CanvasRenderingContext2D} ctx 
          */
-        draw(ctx) {
+        draw(ctx, bodyOnly = false) {
             const px = typeof this.x === 'number' && !isNaN(this.x) ? this.x : 0;
             const py = typeof this.y === 'number' && !isNaN(this.y) ? this.y : 0;
             ctx.save();
@@ -760,6 +822,16 @@
             // If dead, render death sprite on floor
             if (!this.isAlive) {
                 this._drawDeadBody(ctx);
+                ctx.restore();
+                return;
+            }
+
+            if (this.isDowned) {
+                ctx.rotate(this.angle);
+                ctx.scale(1.12, .72);
+                ctx.save(); ctx.translate(-10, 0); this._drawLegs(ctx); ctx.restore();
+                this._drawTorso(ctx, true, .35 + Math.sin(this.legPhase * 2) * .12);
+                ctx.translate(5, 0); this._drawMask(ctx);
                 ctx.restore();
                 return;
             }
@@ -797,7 +869,7 @@
             const swingProgress = isSwinging ? (1.0 - Math.max(0, Math.min(1, this.swingAnimationTimer / swingDur))) : 0;
 
             // Draw Melee Slash Arc Wave (VFX Trail)
-            if (isSwinging) {
+            if (isSwinging && !bodyOnly) {
                 this._drawSlashWave(ctx, swingProgress);
             }
 
@@ -811,6 +883,14 @@
             this._drawMask(ctx, isSwinging, swingProgress);
 
             ctx.restore();
+            ctx.restore();
+        }
+
+        drawAttackTrail(ctx) {
+            if (!this.isAlive || this.isDowned || this.state === 'EXECUTING' || this.swingAnimationTimer <= 0) return;
+            ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle);
+            ctx.translate(-Math.max(0, this.recoilOffset), this.bodyBob || 0);
+            this._drawSlashWave(ctx, 1 - Math.min(1, this.swingAnimationTimer / (this.swingAnimationDuration || .18)));
             ctx.restore();
         }
 
@@ -1296,7 +1376,8 @@
         }
 
         _drawExecutionSprite(ctx) {
-            if(this.character){ctx.save();ctx.rotate(this.angle);this._drawLegs(ctx);this._drawTorso(ctx,true,(Math.sin(this.executionTimer*14)+1)/2);this._drawMask(ctx);ctx.restore();return;}
+            const animationTime = this.networkPrediction ? (this.executionRenderTimer ?? this.executionTimer) : this.executionTimer;
+            if(this.character){ctx.save();ctx.rotate(this.angle);this._drawLegs(ctx);this._drawTorso(ctx,true,(Math.sin(animationTime*14)+1)/2);this._drawMask(ctx);ctx.restore();return;}
             // Mounted stance over downed enemy
             ctx.save();
             ctx.rotate(this.angle);
@@ -1313,7 +1394,7 @@
             ctx.fill();
 
             // Fist raised or smashing down based on step timer
-            const smashOffset = Math.sin(this.executionTimer * 18) * 8;
+            const smashOffset = Math.sin(animationTime * 18) * 8;
             ctx.fillStyle = '#f5cba7';
             ctx.beginPath();
             ctx.arc(10 + smashOffset, 0, 6, 0, Math.PI * 2);

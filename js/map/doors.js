@@ -67,6 +67,8 @@
       // Lethal / Stun sweep properties
       this.isDangerous = false;
       this.lastKickedBy = null;
+      this.lastKickedByPlayerId = undefined;
+      this.renderAngle = undefined;
       this.kickTime = 0;
       this.kickCooldown = 0;
       this.kickSign = 0;
@@ -155,6 +157,8 @@
       this.bloodStains = [];
       this.isDangerous = false;
       this.lastKickedBy = null;
+      this.lastKickedByPlayerId = undefined;
+      this.renderAngle = undefined;
       this.kickTime = this.kickCooldown = this.kickSign = 0;
       this.hitEntities = new WeakSet();
       this.pushContributors = new WeakSet();
@@ -174,6 +178,7 @@
       }
 
       this.lastKickedBy = instigator;
+      this.lastKickedByPlayerId = instigator?.playerId;
       const normal = this.getNormal();
       const dot = kickDirX * normal.x + kickDirY * normal.y;
       const swingSign = dot >= 0 ? 1 : -1;
@@ -247,7 +252,7 @@
       // exempt, and a reversal starts a new stroke instead of a rebound attack.
       if(this.kickTime<=0 || !this.contactPush || this.kickSign!==sign) {
         this.hitEntities=new WeakSet();this.pushContributors=new WeakSet();
-        this.lastKickedBy=entity;this.kickSign=sign;
+        this.lastKickedBy=entity;this.lastKickedByPlayerId=entity.playerId;this.kickSign=sign;
       }
       this.pushContributors.add(entity);
       this.contactPush=true;this.kickTime=0.08;
@@ -307,7 +312,7 @@
 
       ctx.save();
       ctx.translate(this.x, this.y);
-      ctx.rotate(this.angle);
+      ctx.rotate(this.renderAngle ?? this.angle);
 
       // Door Drop Shadow
       ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';

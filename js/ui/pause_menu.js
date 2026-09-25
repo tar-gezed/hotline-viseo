@@ -5,6 +5,7 @@
       super(); this.onBack = actions.resume;
       this.maskName = actions.maskName;
       this.items = [{ label: 'REPRENDRE', action: actions.resume }, { label: 'AUDIO', action: actions.audio }, { label: 'RECOMMENCER', action: actions.restart }];
+      if(actions.quit)this.items.push({label:'QUITTER LA PARTIE',action:actions.quit});
     }
     render(c, w, h, input) {
       c.fillStyle = 'rgba(16,14,32,.88)'; c.fillRect(0, 0, w, h);

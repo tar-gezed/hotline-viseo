@@ -43,7 +43,11 @@
   let navGraph = null;
 
   // Entities
-  let player = null;
+  let player = null; // Always the LOCAL player, including on the host.
+  const players = new Map();
+  let multiplayer = null;
+  let multiplayerLoading = false;
+  let mapDefinition = null;
   let enemies = [];
   let floorWeapons = [];
   let bullets = [];
@@ -191,6 +195,7 @@
     maskMenu.onBack = () => { selectedMaskId = maskMenu.selectedMaskId; backToTitle(); };
     titleMenu = new window.TitleMenu({
       start: () => enterMenu(STATES.MENU_MASK),
+      multiplayer: () => openMultiplayer(),
       controls: () => enterMenu(STATES.MENU_CONTROLS),
       audio: () => openAudio(STATES.MENU_TITLE),
       tools: () => enterMenu(STATES.MENU_TOOLS),
@@ -204,7 +209,8 @@
       resume: resumeGame,
       maskName: () => hud?.activeMask?.name || '',
       audio: () => openAudio(STATES.PAUSED),
-      restart: () => { pauseMenu.hide(); startNewGame(selectedMaskId); }
+      restart: () => { pauseMenu.hide(); startNewGame(selectedMaskId); },
+      quit: () => { input.reset({preserveGamepadButtons:true}); players.clear(); enterMenu(STATES.MENU_TITLE); }
     });
     const HudClass = window.GameHUD || (typeof GameHUD !== 'undefined' ? GameHUD : null);
     hud = new HudClass();
@@ -277,6 +283,41 @@
 
     // Start Animation Loop
     requestAnimationFrame(gameLoop);
+    const invitation = new URLSearchParams(location.search).get('room');
+    if (invitation) openMultiplayer(invitation);
+  }
+
+  async function openMultiplayer(invitation = '') {
+    if (multiplayerLoading) return;
+    multiplayerLoading = true;
+    try {
+      const { CoopSession } = await import('./network/coop_session.js');
+      if (!mapDefinition) mapDefinition = window.MapIO.snapshot(mapData);
+      if (!multiplayer) multiplayer = new CoopSession({
+        players, input, camera, mapData, mapDefinition, navGraph, hud, audioSettings, soundFX, bloodSystem, particleSystem, mapRenderer,
+        getWorld: () => ({ enemies, bullets, floorWeapons, thrownWeapons, waveSpawner, runStats }),
+        setWorld: world => { enemies = world.enemies; bullets = world.bullets; floorWeapons = world.floorWeapons; thrownWeapons = world.thrownWeapons; },
+        getPlayer: () => player,
+        setPlayer: local => { player = local; input.setPlayer(local); hud.setMask(local.mask.toLowerCase()); },
+        reset: mask => { startNewGame(mask); waveSpawner.reset(); },
+        simulate: dt => { runStats.elapsedTime += dt; updateGame(dt, dt); },
+        render: renderGameWorld,
+        clientEffects: dt => { particleSystem.update(dt); bloodSystem.update(dt,bloodWallCollision); postProcessor.update(dt); },
+        creditExecution: (actor, target) => {
+          bloodSystem.groundExecution(target.x, target.y, { angle: actor.angle });
+          runStats.totalKills++; runStats.executions++;
+          awardKill(1000, 'EXECUTION', target.x, target.y, 'EXECUTION', actor.playerId, actor.currentWeapon.id);
+          collectEnemyDrop(target);
+        },
+        back: () => { players.clear(); enterMenu(STATES.MENU_TITLE); },
+        setPlayingState: phase => { gameState = phase === 'INTERMISSION' ? STATES.INTERMISSION : STATES.PLAYING; }
+      });
+      activeMenu()?.hide(); multiplayer.open(invitation);
+    } catch (error) {
+      console.error('Multiplayer loading failed', error);
+      // This is a recoverable local loading error; the solo menu remains usable.
+      titleMenu.items.find(item => item.label.startsWith('MULTIJOUEUR')).label = 'MULTIJOUEUR : RÉESSAYER';
+    } finally { multiplayerLoading = false; }
   }
 
   function activeMenu() {
@@ -345,7 +386,14 @@
     if (postProcessor && typeof postProcessor.hitStop === 'function') postProcessor.hitStop(seconds);
   }
 
-  function awardKill(basePoints, label, x, y, killType = 'KILL') {
+  function awardKill(basePoints, label, x, y, killType = 'KILL', ownerPlayerId, weaponId) {
+    if (multiplayer?.playing) {
+      const earned = multiplayer.creditKill(ownerPlayerId, basePoints, weaponId || killType);
+      hud.addScore(earned);
+      hud.addScorePopup(x, y, label + ' +' + earned, '#00f3ff');
+      multiplayer.needsReliable = true;
+      return;
+    }
     if (hud && typeof hud.addKillScore === 'function') hud.addKillScore(killType, basePoints, x, y, label);
     runStats.maxCombo = Math.max(runStats.maxCombo || 1, hud.comboCount || 1);
   }
@@ -369,6 +417,7 @@
   window.addEventListener('focus', unlockAudio);
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) unlockAudio();
+    multiplayer?.visibilityChanged(document.hidden);
   });
 
   // ---------------------------------------------------------------------------
@@ -437,6 +486,8 @@
   // ---------------------------------------------------------------------------
   function startNewGame(maskInput) {
     audioSettings.apply();
+    players.clear();
+    if (!multiplayer?.playing) { waveSpawner.playerCount = 1; waveSpawner.coopPlayers = null; }
     const maskId = typeof maskInput === 'object' && maskInput ? (maskInput.id || 'vincent') : (maskInput || 'vincent');
     selectedMaskId = maskId;
     deathTimer = 0;
@@ -518,7 +569,7 @@
     const safeSpLocs = navGraph.getSafeSpawnPoints(spLocs, player, 20);
     waveSpawner.spawnPositionValidator = p => navGraph.canTraverse(p, p, 20, false);
     waveSpawner.setCustomSpawnPoints(safeSpLocs, mapData.crateLocations || (mapData.spawnPoints && mapData.spawnPoints.crateLocations) || null);
-    waveSpawner.start(maskId, { x: player.x, y: player.y });
+    if (!multiplayer?.playing) waveSpawner.start(maskId, { x: player.x, y: player.y });
 
     // Keep the large control cheat-sheet out of active gameplay.
     const instructionsOverlay = document.getElementById('instructions-overlay');
@@ -587,40 +638,41 @@
     if (e && typeof e.preventDefault === 'function') e.preventDefault();
   });
 
-  function handlePlayerAttack() {
-    if (!player || !player.isAlive) return;
+  function handlePlayerAttack(actor = player, source = input) {
+    if (!actor || !actor.isAlive || actor.isDowned || actor.isReviving) return;
 
-    // Check if player is near a downed enemy to execute
-    const downedEnemy = enemies.find(en => en.state === 'KNOCKED_DOWN' && Math.hypot(en.x - player.x, en.y - player.y) < 32 && canReachTarget(player, en, mapData));
+    // Check if actor is near a downed enemy to execute
+    const downedEnemy = enemies.find(en => en.state === 'KNOCKED_DOWN' && Math.hypot(en.x - actor.x, en.y - actor.y) < 32 && canReachTarget(actor, en, mapData));
     if (downedEnemy) {
-      executeEnemy(downedEnemy);
+      executeEnemy(downedEnemy, actor, source);
       return;
     }
 
     // Normal Weapon Attack
-    const attackResult = player.attack(input.worldMouseX, input.worldMouseY);
+    const attackResult = actor.attack(source.worldMouseX, source.worldMouseY);
     if (!attackResult) return;
+    if (multiplayer?.playing) multiplayer.attackEffect(actor, attackResult);
 
-    hud.setWeapon(player.currentWeapon, player.ammo);
+    hud.setWeapon(actor.currentWeapon, actor.ammo);
 
 
     if (attackResult.type === 'GUN_FIRED') {
       const weaponId = (attackResult.weaponId || 'pistol').toLowerCase();
       addTrauma(attackResult.trauma || 0.3);
-      player.recoilOffset = weaponId.includes('shotgun') || weaponId.includes('magnum') ? 10 : 6;
+      actor.recoilOffset = weaponId.includes('shotgun') || weaponId.includes('magnum') ? 10 : 6;
       particleSystem.spawnMuzzleFlash(attackResult.flashX, attackResult.flashY, attackResult.flashAngle, weaponId);
-      particleSystem.spawnCasing(attackResult.shellX, attackResult.shellY, player.angle, weaponId.includes('shotgun') ? 'shotgun' : (weaponId.includes('magnum') ? 'magnum' : (weaponId.includes('m16') ? 'rifle' : 'pistol')));
-      if (soundFX && typeof soundFX.playGunshot === 'function') soundFX.playGunshot(attackResult.weaponId, player.x, player.y);
+      particleSystem.spawnCasing(attackResult.shellX, attackResult.shellY, actor.angle, weaponId.includes('shotgun') ? 'shotgun' : (weaponId.includes('magnum') ? 'magnum' : (weaponId.includes('m16') ? 'rifle' : 'pistol')));
+      if (soundFX && typeof soundFX.playGunshot === 'function') soundFX.playGunshot(attackResult.weaponId, actor.x, actor.y);
 
       // Haptic Vibration (Dual-Rumble)
-      if (input && typeof input.vibrate === 'function') {
+      if (source && typeof source.vibrate === 'function') {
         const wId = attackResult.weaponId ? attackResult.weaponId.toLowerCase() : '';
         if (wId.includes('shotgun') || wId.includes('magnum') || wId.includes('double')) {
-          input.vibrate(120, 0.9, 0.7);
+          source.vibrate(120, 0.9, 0.7);
         } else if (wId.includes('uzi') || wId.includes('assault') || wId.includes('m16') || wId.includes('machine')) {
-          input.vibrate(60, 0.6, 0.4);
+          source.vibrate(60, 0.6, 0.4);
         } else {
-          input.vibrate(80, 0.75, 0.5);
+          source.vibrate(80, 0.75, 0.5);
         }
       }
 
@@ -630,32 +682,32 @@
       }
 
       // Acoustic Sound Propagation (Alert nearby enemies)
-      alertEnemiesInRadius(player.x, player.y, attackResult.soundRadius || 650, 'PLAYER_GUNSHOT');
+      alertEnemiesInRadius(actor.x, actor.y, attackResult.soundRadius || 650, 'PLAYER_GUNSHOT');
     } else if (attackResult.type === 'MELEE_SWING') {
       soundFX.playMeleeSwing(attackResult.weaponId);
       addTrauma(0.06);
-      if (input && typeof input.vibrate === 'function') {
-        input.vibrate(50, 0.4, 0.3);
+      if (source && typeof source.vibrate === 'function') {
+        source.vibrate(50, 0.4, 0.3);
       }
 
       // Check Melee Hit in Arc
-      checkMeleeHit(attackResult);
+      checkMeleeHit(attackResult, actor, source);
     } else if (attackResult.type === 'DRY_FIRE') {
       soundFX.playEmptyClick();
       hud.notifyDryFire();
     }
   }
 
-  function handlePlayerRightClick() {
-    if (!player || !player.isAlive) return;
+  function handlePlayerRightClick(actor = player, source = input) {
+    if (!actor || !actor.isAlive || actor.isDowned || actor.isReviving) return;
 
     // Check if there is a floor weapon within pickup radius
     let nearestWeapon = null;
     let minDist = 65;
     for (let i = 0; i < floorWeapons.length; i++) {
       const fw = floorWeapons[i];
-      const d = Math.hypot(fw.x - player.x, fw.y - player.y);
-      if (d < minDist && canReachTarget(player, fw, mapData)) {
+      const d = Math.hypot(fw.x - actor.x, fw.y - actor.y);
+      if (d < minDist && canReachTarget(actor, fw, mapData)) {
         minDist = d;
         nearestWeapon = fw;
       }
@@ -663,50 +715,54 @@
 
     if (nearestWeapon) {
       // Pick up weapon
-      const oldWeapon = player.currentWeapon;
-      const oldAmmo = player.ammo;
+      const oldWeapon = actor.currentWeapon;
+      const oldAmmo = actor.ammo;
 
       const weaponToEquip = nearestWeapon.def || nearestWeapon.type;
-      player.equipWeapon(weaponToEquip, nearestWeapon.ammo);
+      actor.equipWeapon(weaponToEquip, nearestWeapon.ammo);
       floorWeapons = floorWeapons.filter(w => w !== nearestWeapon);
+      if (multiplayer?.playing) multiplayer.needsReliable = true;
 
       // Drop old weapon if not fists
       if (oldWeapon && oldWeapon.id !== 'FISTS' && oldWeapon.id !== 'fists' && oldWeapon.id !== 'unarmed') {
-        spawnFloorWeapon(player.x, player.y, oldWeapon.id, oldAmmo);
+        spawnFloorWeapon(actor.x, actor.y, oldWeapon.id, oldAmmo);
       }
 
       if (soundFX && soundFX.playWeaponPickup) soundFX.playWeaponPickup();
-      if (input && typeof input.vibrate === 'function') input.vibrate(60, 0.35, 0.4);
-      hud.setWeapon(player.currentWeapon, player.ammo);
+      if (source && typeof source.vibrate === 'function') source.vibrate(60, 0.35, 0.4);
+      hud.setWeapon(actor.currentWeapon, actor.ammo);
       if (particleSystem && particleSystem.addFloatingText) {
-        particleSystem.addFloatingText(player.x, player.y - 30, `PICKED UP ${player.currentWeapon.name.toUpperCase()}`, '#00f3ff', 16);
+        particleSystem.addFloatingText(actor.x, actor.y - 30, `PICKED UP ${actor.currentWeapon.name.toUpperCase()}`, '#00f3ff', 16);
       }
-    } else if (player.currentWeapon && player.currentWeapon.id !== 'FISTS' && player.currentWeapon.id !== 'fists' && player.currentWeapon.id !== 'unarmed') {
+    } else if (actor.currentWeapon && actor.currentWeapon.id !== 'FISTS' && actor.currentWeapon.id !== 'fists' && actor.currentWeapon.id !== 'unarmed') {
       // Throw currently held weapon!
-      const thrown = player.throwWeapon(input.worldMouseX, input.worldMouseY);
+      const thrown = actor.throwWeapon(source.worldMouseX, source.worldMouseY);
       if (thrown) {
+        thrown.ownerPlayerId = actor.playerId;
+        if (multiplayer?.playing) multiplayer.needsReliable = true;
         thrownWeapons.push(thrown);
         if (soundFX && soundFX.playWeaponThrow) soundFX.playWeaponThrow();
-        if (input && typeof input.vibrate === 'function') input.vibrate(70, 0.5, 0.3);
-        hud.setWeapon(player.currentWeapon, player.ammo);
+        if (source && typeof source.vibrate === 'function') source.vibrate(70, 0.5, 0.3);
+        hud.setWeapon(actor.currentWeapon, actor.ammo);
       }
     }
   }
 
-  function executeEnemy(enemy) {
-    if (!enemy || enemy.state !== 'KNOCKED_DOWN' || !canReachTarget(player, enemy, mapData)) return;
+  function executeEnemy(enemy, actor = player, source = input) {
+    if (!actor || !actor.isAlive || actor.isDowned || actor.isReviving) return;
+    if (!enemy || enemy.isBeingExecuted || enemy.state !== 'KNOCKED_DOWN' || !canReachTarget(actor, enemy, mapData)) return;
 
-    player.startExecution(enemy);
+    actor.startExecution(enemy);
     enemy.isBeingExecuted = true;
     soundFX.playExecution();
     triggerHitStop(0.12);
     addTrauma(0.4);
-    if (input && typeof input.vibrate === 'function') {
-      input.vibrate(220, 0.95, 0.85);
+    if (source && typeof source.vibrate === 'function') {
+      source.vibrate(220, 0.95, 0.85);
     }
 
     // The target remains alive-but-pinned for the 3-hit execution animation.
-    // Gore and score are committed by player.onExecutionComplete, not immediately.
+    // Gore and score are committed by actor.onExecutionComplete, not immediately.
     particleSystem.addFloatingText(enemy.x, enemy.y - 26, 'FINISH HIM', '#ff007f', 16);
   }
 
@@ -731,16 +787,16 @@
       new Physics.Vec2(dx / distance, dy / distance), distance, { ignoreGlass: false }).hit;
   }
 
-  function checkMeleeHit(attack) {
+  function checkMeleeHit(attack, actor = player, source = input) {
     for (let i = 0; i < enemies.length; i++) {
       const en = enemies[i];
       if (!en.isAlive || en.state === 'DEAD') continue;
 
-      const dx = en.x - player.x;
-      const dy = en.y - player.y;
+      const dx = en.x - actor.x;
+      const dy = en.y - actor.y;
       const dist = Math.hypot(dx, dy);
 
-      if (dist <= attack.range + en.radius && canReachTarget(player, en, mapData)) {
+      if (dist <= attack.range + en.radius && canReachTarget(actor, en, mapData)) {
         const angleToEnemy = Math.atan2(dy, dx);
         let angleDiff = Math.abs(angleToEnemy - attack.angle);
         while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
@@ -748,44 +804,45 @@
 
         if (angleDiff <= attack.arc * 0.5) {
           // Melee Hit!
-          handleEnemyMeleeHit(en, attack);
+          handleEnemyMeleeHit(en, attack, actor, source);
         }
       }
     }
   }
 
-  function handleEnemyMeleeHit(enemy, attack) {
+  function handleEnemyMeleeHit(enemy, attack, actor = player, source = input) {
     soundFX.playMeleeImpact(attack.weaponId, true);
     triggerHitStop(0.06);
     addTrauma(0.25);
-    if (input && typeof input.vibrate === 'function') {
-      input.vibrate(100, 0.8, 0.6);
+    if (source && typeof source.vibrate === 'function') {
+      source.vibrate(100, 0.8, 0.6);
     }
 
     if (String(attack.weaponId).toUpperCase() === 'KATANA') {
       bloodSystem.katanaSlice(enemy.x, enemy.y, attack.angle);
-    } else if (attack.isLethal || player.mask === 'TONY') {
+    } else if (attack.isLethal || actor.mask === 'TONY') {
       bloodSystem.decapitation(enemy.x, enemy.y, attack.angle);
     } else {
       bloodSystem.sprayBlood(enemy.x, enemy.y, attack.angle, 18);
     }
 
-    if (enemy.archetype && enemy.archetype.isHeavy && !attack.isLethal && player.mask !== 'TONY') {
+    if (enemy.archetype && enemy.archetype.isHeavy && !attack.isLethal && actor.mask !== 'TONY') {
       enemy.takeHit({ type: 'MELEE', damage: 1, isLethal: false, knockdown: false, angle: attack.angle, weaponType: attack.weaponId });
       return;
     }
 
-    if (attack.isLethal || player.mask === 'TONY') {
+    if (attack.isLethal || actor.mask === 'TONY') {
       enemy.kill('MELEE', attack.angle);
       runStats.totalKills++;
       runStats.weaponsUsed.add(attack.weaponId.toUpperCase());
       runStats.meleeKills++;
       const pts = String(attack.weaponId).toUpperCase() === 'KATANA' ? 600 : 400;
-      awardKill(pts, `${attack.weaponName || 'MELEE'} KILL`, enemy.x, enemy.y, 'MELEE');
+      awardKill(pts, `${attack.weaponName || 'MELEE'} KILL`, enemy.x, enemy.y, 'MELEE', actor.playerId, attack.weaponId);
 
     } else {
       enemy.knockDown(attack.angle, 4.5);
-      hud.addScore(200, 'KNOCK DOWN');
+      hud.addScore(200, multiplayer?.playing ? '' : 'KNOCK DOWN');
+      if (multiplayer?.playing) { actor.score += 200; multiplayer.needsReliable = true; }
       particleSystem.floatingComboText(enemy.x, enemy.y - 20, 200, 'KNOCK DOWN', '#00f3ff');
     }
 
@@ -819,6 +876,12 @@
     input.update(realDt, player);
     updateInstructionsOverlay();
     if ((input.isGamepadMode || input.isMouseDown) && (!synthMusic?.isInitialized || synthMusic?.ctx?.state === 'suspended')) unlockAudio();
+
+    if (multiplayer?.active) {
+      multiplayer.tick(realDt, ctx, canvas.width, canvas.height);
+      input.clearFrameTriggers();
+      return;
+    }
 
     let dt = realDt;
     if (hitStopTimer > 0) {
@@ -894,35 +957,45 @@
   }
 
 
-  function updateGame(dt, realDt = dt) {
+  function updatePlayer(dt, player, input) {
     if (player && player.isAlive) {
       // Movement/aim only here. Gameplay actions are owned by this integration layer,
       // preventing the old double-fire / pickup-then-immediate-throw controller bug.
       player.update(dt, input, mapData, enemies, floorWeapons, bullets, combatEffects, camera, false);
-      camera.update(dt, player, input);
+      if (player.isDowned || player.isReviving) return;
 
       if (input.isExecuteJustPressed()) {
         const downedEnemy = enemies.find(en => en.state === 'KNOCKED_DOWN' && Math.hypot(en.x - player.x, en.y - player.y) < 48 && canReachTarget(player, en, mapData));
-        if (downedEnemy) executeEnemy(downedEnemy);
+        if (downedEnemy) executeEnemy(downedEnemy, player, input);
       }
 
       if (input.isThrowOrPickupJustPressed() && player.state !== 'EXECUTING') {
-        handlePlayerRightClick();
+        handlePlayerRightClick(player, input);
       }
 
       if (player.state !== 'EXECUTING') {
-        const attackInputReady = !waitingForAttackRelease;
+        const attackInputReady = multiplayer?.playing || !waitingForAttackRelease;
         if(waitingForAttackRelease && !input.isAttackDown()) waitingForAttackRelease=false;
         const isAuto = player.currentWeapon && player.currentWeapon.automatic;
         const wantsAttack = isAuto ? input.isAttackDown() : input.isAttackJustPressed();
-        if (attackInputReady && wantsAttack && player.attackCooldown <= 0) handlePlayerAttack();
+        if (attackInputReady && wantsAttack && player.attackCooldown <= 0) handlePlayerAttack(player, input);
       }
 
-      checkDoorInteractions();
-      checkGlassCollisions();
-      checkSupplyCrateInteractions();
+      checkDoorInteractions(player, input);
+      checkGlassCollisions(player);
+      checkSupplyCrateInteractions(player);
 
       if (bloodSystem.isPointInBlood(player.x, player.y)) player.stepInBlood(bloodSystem);
+    }
+
+  }
+
+  function updateGame(dt, realDt = dt) {
+    if (multiplayer?.playing) {
+      for (const actor of players.values()) updatePlayer(dt, actor, multiplayer.inputFor(actor.playerId));
+    } else {
+      updatePlayer(dt, player, input);
+      if (player?.isAlive) camera.update(dt, player, input);
     }
 
     updateBullets(dt);
@@ -936,8 +1009,8 @@
     if (mapData.doors) {
       mapData.doors.forEach(door => {
         if (!door || typeof door.update !== 'function') return;
-        if (player && player.isAlive && typeof door.handleEntityInteraction === 'function') {
-          door.handleEntityInteraction(player, player.x, player.y, player.radius || 14);
+        for (const actor of multiplayer?.playing ? players.values() : [player]) {
+          if (actor?.isAlive && typeof door.handleEntityInteraction === 'function') door.handleEntityInteraction(actor, actor.x, actor.y, actor.radius || 14);
         }
         enemies.forEach(en => {
           if (en && en.isAlive && typeof door.handleEntityInteraction === 'function') {
@@ -946,17 +1019,19 @@
             door.handleEntityInteraction(en, en.x, en.y, en.radius || 14);
             if (wasAlive && !en.isAlive) {
               bloodSystem.sprayBlood(en.x, en.y, en.deathAngle ?? en.angle, 25);
-              if (door.lastKickedBy === player) {
+              if (door.lastKickedBy === player || multiplayer?.playing && players.has(door.lastKickedByPlayerId)) {
                 runStats.totalKills++;
                 runStats.doorSlams++;
-                awardKill(800, 'DOOR SLAM CRUSH', en.x, en.y, 'DOOR');
+                awardKill(800, 'DOOR SLAM CRUSH', en.x, en.y, 'DOOR', door.lastKickedByPlayerId, 'DOOR');
               }
               collectEnemyDrop(en);
               triggerHitStop(0.075);
               addTrauma(0.38);
-            } else if (!wasDown && en.state === 'KNOCKED_DOWN' && door.lastKickedBy === player) {
+            } else if (!wasDown && en.state === 'KNOCKED_DOWN' && (door.lastKickedBy === player || multiplayer?.playing && players.has(door.lastKickedByPlayerId))) {
               runStats.doorSlams++;
-              hud.addScore(400, 'DOOR SLAM STUN');
+              hud.addScore(400, multiplayer?.playing ? '' : 'DOOR SLAM STUN');
+              if(multiplayer?.playing)hud.addScorePopup(en.x,en.y,'DOOR SLAM STUN +400','#00f3ff');
+              if (multiplayer?.playing) { players.get(door.lastKickedByPlayerId).score += 400; multiplayer.needsReliable = true; }
             }
           }
         });
@@ -978,32 +1053,34 @@
     const queuedCount = waveSpawner ? waveSpawner.spawnQueue.length : 0;
     hud.setEnemiesRemaining(livingCount + queuedCount);
 
-    if (player && !player.isAlive && gameState !== STATES.DEAD && gameState !== STATES.GAME_OVER) {
+    if (!multiplayer?.playing && player && !player.isAlive && gameState !== STATES.DEAD && gameState !== STATES.GAME_OVER) {
       enterDeathState();
     }
   }
 
 
-  function checkSupplyCrateInteractions() {
-    if (!player || !player.isAlive || !waveSpawner || !waveSpawner.supplyCrates) return;
+  function checkSupplyCrateInteractions(actor = player) {
+    if (!actor || !actor.isAlive || actor.isDowned || actor.isReviving || !waveSpawner || !waveSpawner.supplyCrates) return;
     for (let i = 0; i < waveSpawner.supplyCrates.length; i++) {
       const crate = waveSpawner.supplyCrates[i];
-      if (!crate || crate.isOpened) continue;
-      const d = Math.hypot(crate.x - player.x, crate.y - player.y);
-      if (d < player.radius + 28) {
-        crate.isOpened = true;
+      if (!crate || crate.isOpened || (crate.claimedMask & (1 << actor.playerId))) continue;
+      const d = Math.hypot(crate.x - actor.x, crate.y - actor.y);
+      if (d < actor.radius + 28) {
+        if (!waveSpawner.claimSupply(crate,actor.playerId)) continue;
+        if (multiplayer?.playing) { actor.score += 500; multiplayer.needsReliable = true; }
         if (soundFX && soundFX.playAmmoRefill) soundFX.playAmmoRefill();
 
-        if (crate.weapon) {
+        if (crate.weapon && !crate.weaponReleased) {
+          crate.weaponReleased = true;
           const weapon = spawnFloorWeapon(crate.x, crate.y + 16, crate.weapon);
           weapon.supplyWave = waveSpawner.currentWave;
         }
-        if (player.currentWeapon && player.currentWeapon.isGun) {
-          const maxA = player.currentWeapon.maxAmmo || 30;
-          player.ammo = Math.floor(maxA * (player.perks?.ammoCapacityMult || 1));
-          hud.setWeapon(player.currentWeapon, player.ammo);
+        if (actor.currentWeapon && actor.currentWeapon.isGun) {
+          const maxA = actor.currentWeapon.maxAmmo || 30;
+          actor.ammo = Math.floor(maxA * (actor.perks?.ammoCapacityMult || 1));
+          hud.setWeapon(actor.currentWeapon, actor.ammo);
         }
-        hud.addScore(500, 'RESUPPLY');
+        hud.addScore(500, multiplayer?.playing ? '' : 'RESUPPLY');
         if (particleSystem && particleSystem.addFloatingText) {
           particleSystem.addFloatingText(crate.x, crate.y - 25, 'AMMO REFILLED & WEAPON CACHE OPENED!', '#39ff14', 18);
         }
@@ -1011,25 +1088,26 @@
     }
   }
 
-  function checkDoorInteractions() {
-    if (!player || !player.isAlive || !mapData.doors) return;
+  function checkDoorInteractions(actor = player, source = input) {
+    if (!actor || !actor.isAlive || actor.isDowned || actor.isReviving || !mapData.doors) return;
 
-    const speed = Math.hypot(player.vx || 0, player.vy || 0);
-    const explicitKick = input.isExecuteJustPressed() && player.state !== 'EXECUTING';
+    const speed = Math.hypot(actor.vx || 0, actor.vy || 0);
+    const explicitKick = source.isExecuteJustPressed() && actor.state !== 'EXECUTING';
     if (!explicitKick) return;
 
     for (let i = 0; i < mapData.doors.length; i++) {
       const door = mapData.doors[i];
       if (!door || door.shattered) continue;
       const tip = door.getTipPosition ? door.getTipPosition() : { x: door.x, y: door.y };
-      const d = Collision.pointToSegmentDistance(player.x, player.y, door.x, door.y, tip.x, tip.y);
-      if (d > player.radius + 15) continue;
+      const d = Collision.pointToSegmentDistance(actor.x, actor.y, door.x, door.y, tip.x, tip.y);
+      if (d > actor.radius + 15) continue;
 
-      const kickDirX = speed > 35 ? player.vx / speed : Math.cos(player.angle);
-      const kickDirY = speed > 35 ? player.vy / speed : Math.sin(player.angle);
+      const kickDirX = speed > 35 ? actor.vx / speed : Math.cos(actor.angle);
+      const kickDirY = speed > 35 ? actor.vy / speed : Math.sin(actor.angle);
       if (explicitKick) {
         const previousDanger = door.isDangerous;
-        const result = door.kick(player, kickDirX, kickDirY, (player.mask === 'DON_JUAN'||player.perks?.doorLethal) ? 34 : 27);
+        const result = door.kick(actor, kickDirX, kickDirY, (actor.mask === 'DON_JUAN'||actor.perks?.doorLethal) ? 34 : 27);
+        if (multiplayer?.playing && result?.success) multiplayer.needsReliable = true;
         if (result && result.success !== false && !previousDanger) {
           soundFX.playDoorKick();
           addTrauma(0.18);
@@ -1039,16 +1117,17 @@
     }
   }
 
-  function checkGlassCollisions() {
-    if (!player || !player.isAlive) return;
+  function checkGlassCollisions(actor = player) {
+    if (!actor || !actor.isAlive) return;
     for (let i = 0; i < mapData.glassPartitions.length; i++) {
       const glass = mapData.glassPartitions[i];
       if (!glass || glass.shattered) continue;
-      const d = Collision.pointToSegmentDistance(player.x, player.y, glass.x1, glass.y1, glass.x2, glass.y2);
-      const speed = Math.hypot(player.vx || 0, player.vy || 0);
-      if (d < player.radius + 6 && speed > player.baseSpeed * 0.78) {
-        glass.shatter(player.x, player.y, player.vx, player.vy);
-        particleSystem.shatterGlass(player.x, player.y, 60, player.vx, player.vy);
+      const d = Collision.pointToSegmentDistance(actor.x, actor.y, glass.x1, glass.y1, glass.x2, glass.y2);
+      const speed = Math.hypot(actor.vx || 0, actor.vy || 0);
+      if (d < actor.radius + 6 && speed > actor.baseSpeed * 0.78) {
+        glass.shatter(actor.x, actor.y, actor.vx, actor.vy);
+        if (multiplayer?.playing) multiplayer.needsReliable = true;
+        particleSystem.shatterGlass(actor.x, actor.y, 60, actor.vx, actor.vy);
         soundFX.playGlassShatter();
         addTrauma(0.24);
       }
@@ -1113,13 +1192,14 @@
       runStats.gunKills++;
       runStats.weaponsUsed.add(weaponId);
       const pts = isShotgun ? 600 : (isMagnum ? 550 : 400);
-      awardKill(pts, isShotgun ? 'SHOTGUN BLAST' : 'GUNSHOT', enemy.x, enemy.y, 'GUN');
+      awardKill(pts, isShotgun ? 'SHOTGUN BLAST' : 'GUNSHOT', enemy.x, enemy.y, 'GUN', bullet.ownerPlayerId, weaponId);
 
       collectEnemyDrop(enemy);
     }
   }
 
   function updateBullets(dt) {
+    if(multiplayer?.playing)multiplayer.ensureProjectileBirths(bullets);
     for (let i = bullets.length - 1; i >= 0; i--) {
       const b = bullets[i];
       if (!b || b.alive === false) {
@@ -1129,6 +1209,7 @@
 
       b.update(dt, [], [], null, null);
       if (b.alive === false && Math.hypot(b.x - b.prevX, b.y - b.prevY) < 0.01) {
+        if(multiplayer?.playing)multiplayer.projectileEnd(b);
         bullets.splice(i, 1);
         continue;
       }
@@ -1153,6 +1234,7 @@
         ray.piercedObjects.forEach(hit => {
           if (hit.distance <= worldDistance && hit.target && !hit.target.shattered) {
             hit.target.shatter(hit.point.x, hit.point.y, dirX, dirY);
+            if (multiplayer?.playing) multiplayer.needsReliable = true;
             particleSystem.shatterGlass(hit.point.x, hit.point.y, 34, dirX * 180, dirY * 180);
             if (soundFX && soundFX.playGlassShatter) soundFX.playGlassShatter();
           }
@@ -1160,7 +1242,7 @@
       }
 
       const isPlayerBullet = b.isPlayer === true || b.isPlayerBullet === true || b.isPlayer === 'player';
-      const targets = isPlayerBullet ? enemies : (player && player.isAlive ? [player] : []);
+      const targets = isPlayerBullet ? enemies : (multiplayer?.playing ? [...players.values()].filter(p => p.isAlive && !p.isDowned) : (player && player.isAlive ? [player] : []));
       let nearest = null;
       let nearestDistance = worldDistance;
       for (let t = 0; t < targets.length; t++) {
@@ -1194,6 +1276,7 @@
         b.pierceLeft = Math.max(0, (b.pierceLeft || 1) - 1);
         if (b.pierceLeft <= 0 || !isPlayerBullet) b.alive = false;
         if (!b.alive) {
+          if(multiplayer?.playing)multiplayer.projectileEnd(b);
           bullets.splice(i, 1);
           continue;
         }
@@ -1204,17 +1287,18 @@
         b.y = ray.point.y;
         handleWorldBulletImpact(ray, b, dirX, dirY);
         b.alive = false;
+        if(multiplayer?.playing)multiplayer.projectileEnd(b);
         bullets.splice(i, 1);
         continue;
       }
 
-      if (b.isExpired || b.alive === false) bullets.splice(i, 1);
+      if (b.isExpired || b.alive === false) { if(multiplayer?.playing)multiplayer.projectileEnd(b);bullets.splice(i, 1); }
     }
   }
 
 
   function updateThrownWeapons(dt) {
-    const obstacles = mapData.walls || [];
+    const obstacles = Collision.worldObstacles(mapData);
     for (let i = thrownWeapons.length - 1; i >= 0; i--) {
       const tw = thrownWeapons[i];
       if (!tw) {
@@ -1230,10 +1314,15 @@
           runStats.totalKills++;
           runStats.throwKills = (runStats.throwKills || 0) + 1;
           runStats.weaponsUsed.add(tw.type.toUpperCase());
-          awardKill(600, 'THROW KILL', enemy.x, enemy.y, 'THROW');
+          awardKill(600, 'THROW KILL', enemy.x, enemy.y, 'THROW', tw.ownerPlayerId, tw.type);
           collectEnemyDrop(enemy);
         } else if (alive && state !== 'KNOCKED_DOWN' && enemy.state === 'KNOCKED_DOWN') {
-          hud.addScore(200, 'THROW KNOCKDOWN');
+          hud.addScore(200, typeof multiplayer !== 'undefined' && multiplayer?.playing ? '' : 'THROW KNOCKDOWN');
+          if (typeof multiplayer !== 'undefined' && multiplayer?.playing) {
+            hud.addScorePopup(enemy.x,enemy.y,'THROW KNOCKDOWN +200','#00f3ff');
+            const owner = players.get(tw.ownerPlayerId); if (owner) owner.score += 200;
+            multiplayer.needsReliable = true;
+          }
         }
       }
 
@@ -1260,6 +1349,7 @@
   }
 
   function updateEnemies(dt) {
+    const targets = multiplayer?.playing ? [...players.values()] : player;
     for (let i = 0; i < enemies.length; i++) {
       const en = enemies[i];
       if (!en) continue;
@@ -1272,11 +1362,15 @@
       }
 
       const bulletsBefore = bullets.length;
-      en.update(dt, player, mapData, enemies, floorWeapons, bullets, combatEffects, camera, navGraph);
+      en.update(dt, targets, mapData, enemies, floorWeapons, bullets, combatEffects, camera, navGraph);
       collectEnemyDrop(en);
 
       if (bullets.length > bulletsBefore && soundFX && typeof soundFX.playGunshot === 'function') {
         const weaponId = en.currentWeapon && en.currentWeapon.id ? en.currentWeapon.id : 'PISTOL';
+        if (multiplayer?.playing) {
+          const shot = bullets[bulletsBefore];
+          multiplayer.attackEffect(en,{type:'GUN_FIRED',weaponId,flashX:shot.x,flashY:shot.y,bullets:bullets.slice(bulletsBefore)});
+        }
         soundFX.playGunshot(weaponId, en.x, en.y);
         alertEnemiesInRadius(en.x, en.y, 520);
       }
@@ -1353,7 +1447,7 @@
       worldCtx.fillStyle = '#ffb3d0';
       worldCtx.font = '700 10px monospace';
       worldCtx.textAlign = 'center';
-      worldCtx.fillText(`${Math.ceil(t.countdown)}s`, 0, -r - 9);
+      worldCtx.fillText(t.blocked ? 'ZONE OCCUPÉE' : `${Math.ceil(t.countdown)}s`, 0, -r - 9);
       worldCtx.restore();
     });
   }
@@ -1421,7 +1515,7 @@
         }
         floorWeapons.forEach(fw => { if (fw && fw.render && visible(fw)) fw.render(sceneCtx); });
         if (waveSpawner && waveSpawner.supplyCrates) {
-          waveSpawner.supplyCrates.forEach(sc => { if (sc && sc.render) sc.render(sceneCtx); });
+          waveSpawner.supplyCrates.forEach(sc => { if (sc && sc.render) sc.render(sceneCtx,multiplayer?.playing ? player.playerId : undefined); });
         }
       },
       // Fixture pass: props/mural/elevators and interactive glass/doors are
@@ -1433,9 +1527,10 @@
         for (const e of enemies) {
           if (e.isAlive && e.state !== 'KNOCKED_DOWN' && visible(e)) e.render(sceneCtx);
         }
-        if (player) player.render(sceneCtx);
+        if (multiplayer?.playing) multiplayer.drawPlayers(sceneCtx);
+        else if (player) player.render(sceneCtx);
         thrownWeapons.forEach(tw => tw.render(sceneCtx));
-        bullets.forEach(b => b.render(sceneCtx));
+        bullets.forEach(b => { if (!multiplayer?.playing || visible(b,128)) b.render(sceneCtx); });
         particleSystem.render(sceneCtx);
       }
     });
@@ -1480,6 +1575,7 @@
       hud.render(ctx, canvas.width, canvas.height, camera, enemies.filter(e => e.isAlive), player, hudAim);
       input.renderCrosshair(ctx);
     }
+    if (multiplayer?.playing) multiplayer.drawHUD(ctx, canvas.width, canvas.height);
     // Include the lethal update's own frame: no one-frame HUD or title delay.
     if (gameState === STATES.DEAD) renderDeathOverlay();
   }

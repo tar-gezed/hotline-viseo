@@ -260,7 +260,7 @@
         /**
          * Resets all pressed keys and buttons (useful on blur or death).
          */
-        reset() {
+        reset({ preserveGamepadButtons = false } = {}) {
             this.keysDown = Object.create(null);
             this.keysJustPressed = Object.create(null);
             this.keysJustReleased = Object.create(null);
@@ -276,7 +276,9 @@
             if (this.gamepad) {
                 this.gamepad.justPressed = Object.create(null);
                 this.gamepad.justReleased = Object.create(null);
-                this.gamepad.prevButtons = Object.create(null);
+                // Menu exit may occur while A is still physically held. Keep
+                // its sampled edge until release so the title is not activated.
+                if (!preserveGamepadButtons) this.gamepad.prevButtons = Object.create(null);
             }
         }
 
@@ -801,6 +803,10 @@
             const kbMouse = this.isJustPressed(...this.SPACE_KEYS);
             const gp = this.gamepad.connected && this.gamepad.justPressed.buttonY;
             return Boolean(kbMouse || gp);
+        }
+
+        isReviveDown() {
+            return this.isDown('Space', 'KeyE') || Boolean(this.gamepad.connected && (this.gamepad.buttonA || this.gamepad.buttonX));
         }
 
         isLookaheadDown() {

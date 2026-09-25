@@ -268,14 +268,38 @@
          * @param {Object} effects Gore & particle manager
          * @param {Object} camera Camera
          */
+        selectPlayer(players, obstacles) {
+            const candidates = players.filter(p => p && p.isAlive && !p.isDowned && p.state !== 'DEAD'
+                && !(this.archetype.isDog && (p.mask === 'TED' || p.perks?.dogsIgnore)));
+            let best = null, score = Infinity;
+            for (const p of candidates) {
+                // A visible colleague outranks a closer one behind cover. Gunshots
+                // still use the existing acoustic investigation path and location.
+                const visible = this._checkLineOfSightToPlayer(p, obstacles);
+                const value = Math.hypot(p.x - this.x, p.y - this.y)
+                    + (visible ? 0 : 100000) - (p.recentShotTimer > 0 && visible ? 120 : 0);
+                if (value < score) { best = p; score = value; }
+            }
+            return best;
+        }
+
         update(dt = 1 / 60, player = null, obstacles = [], enemies = [], floorWeapons = [], bullets = [], effects = null, camera = null, navGraph = null) {
             dt = typeof dt === 'number' && !isNaN(dt) ? Math.min(Math.max(dt, 0.0001), 0.1) : 1 / 60;
-
             if (!this.isAlive) {
                 this.state = 'DEAD';
                 return;
             }
-
+            if (Array.isArray(player)) {
+                // Five LoS scans per enemy per simulation tick are unnecessary:
+                // retain a live target briefly, while its attack/vision checks
+                // still run every tick. Death/departure invalidates immediately.
+                this.coopTargetTimer = Math.max(0, (this.coopTargetTimer || 0) - dt);
+                if (!this.coopTargetTimer || !this.coopTarget?.isAlive || this.coopTarget.isDowned || !player.includes(this.coopTarget)) {
+                    this.coopTarget = this.selectPlayer(player, obstacles);
+                    this.coopTargetTimer = .1 + (this.legPhase % 1) * .02;
+                }
+                player = this.coopTarget;
+            }
             // Timers
             if (this.attackCooldown > 0) this.attackCooldown = Math.max(0, this.attackCooldown - dt);
             if (this.alertIndicatorTimer > 0) this.alertIndicatorTimer = Math.max(0, this.alertIndicatorTimer - dt);

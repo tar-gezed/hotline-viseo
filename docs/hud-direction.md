@@ -36,7 +36,7 @@ Recherche confiée à GPT‑5.6 Luna High : [capture du premier Hotline Miami](h
 
 ## Vérification reproductible
 
-`npm test` exécute les 23 suites. `test_scoring.js` vérifie aussi l’indépendance des impacts visuels, leur extinction, le reset, l’absence de réannonce lors des synchronisations répétées et le decay inchangé.
+`npm test` exécute les 30 suites actuelles. `test_scoring.js` vérifie aussi l’indépendance des impacts visuels, leur extinction, le reset, l’absence de réannonce lors des synchronisations répétées et le decay inchangé.
 
 Pour le navigateur : démarrer `node tools/serve.cjs --port 8093`, puis `node tools/validate_hud.cjs`. `PLAYWRIGHT_MODULE` peut désigner un package Playwright installé, `CHROME_PATH` un exécutable Chromium et `HUD_TEST_URL` une URL alternative. Ces outils n’ajoutent aucune dépendance de production.
 
@@ -46,8 +46,18 @@ Validation du 18 septembre 2026 : les 21 suites Node passent et les cinq formats
 
 ## Enemy combat and patrol integration
 
-Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 23 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 30 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
 
 ## Performance review — 20 September 2026
 
-Les contours des textes flottants utilisent des jointures arrondies pour supprimer les pics noirs sur les glyphes inclinés, tout en conservant leur sprite en cache, leur animation et leur fondu. Le HUD conserve ses placements et timings. `validate_hud.cjs` et `validate_wave_hud.cjs` passent dans la campagne courante, avec les 23 suites Node. Voir les [cinq cas de texte et les comparaisons visuelles](game-performance.md).
+Les contours des textes flottants utilisent des jointures arrondies pour supprimer les pics noirs sur les glyphes inclinés, tout en conservant leur sprite en cache, leur animation et leur fondu. Le HUD conserve ses placements et timings. `validate_hud.cjs` et `validate_wave_hud.cjs` passent dans la campagne courante, avec les 30 suites Node. Voir les [cinq cas de texte et les comparaisons visuelles](game-performance.md).
+
+## Coop presentation clocks
+
+Since the September 24 rescue extension, the squad panel distinguishes `EN VIE`, `À TERRE · Ns` and `SPECTATEUR`. A narrow gauge shows remaining bleeding time or rescue progress. Downed teammates have pulsing offscreen arrows. A clockwise progress arc appears only while a teammate is being revived; E/SPACE or gamepad A/X hints are contextual. The local downed hint explains crawling and the help ping.
+
+Player identification now uses a 1.25-world-unit outline following actual sprite alpha, including the mask and held weapon. It replaces the permanent oval. Two 160×160 offscreen canvases are shared by the squad. P1–P5 labels are stacked when crowded instead of overwriting each other. The results and leaderboard layouts are unchanged. Browser checks validate outline proximity to the sprite and preserve all opaque interior pixels; captures are in `test-results/multiplayer/player-outlines.png` and `revive-host.png` / `revive-client.png`.
+
+Coop world-space action/score labels are sent through the bounded presentation event channel. Every client uses the same `AMMO` crate renderer; `claimedMask` gives each player a separate refill and a personal `RÉCUPÉRÉ` state. See the [event audit](multiplayer-events.md) for pickup, execution, glass and supply regression coverage.
+
+`WorldSync.sample` advances the client HUD with frame time; setting presentation dt to zero freezes the WAVE announcement after PREWAVE. Countdown values and spawn markers remain host data. Coop adds a color-coded squad panel and offscreen teammate indicators. Occupied spawn entrances are rerouted with a fresh warning; an entrance with no safe alternative displays `ZONE OCCUPÉE`. The [multiplayer architecture](multiplayer-architecture.md) and `test_multiplayer_presentation.js` cover these behaviors without changing solo HUD timing.

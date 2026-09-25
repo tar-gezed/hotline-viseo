@@ -5,6 +5,7 @@
       super();
       this.items = [
         { label: 'COMMENCER MA JOURNÉE', action: actions.start },
+        ...(actions.multiplayer ? [{ label: 'MULTIJOUEUR (2–5)', action: actions.multiplayer }] : []),
         { label: 'CONTRÔLES', action: actions.controls },
         { label: 'AUDIO', action: actions.audio },
         { label: 'TOOLS / MAPS', action: actions.tools },
@@ -28,8 +29,8 @@
       this.items.forEach((item, i) => {
         const reveal = Math.min(1, Math.max(0, (this.timer - .08 - i * .045) / .22));
         c.save(); c.globalAlpha = reveal;
-        if (i === 4) this.option(c, i, item.label, 1118, 674, 23, 120, 'center');
-        else this.option(c, i, item.label, 640 - (1 - reveal) * 22, 459 + i * 51, i === 3 ? 23 : 32, 440, 'center');
+        if (i === this.items.length - 1) this.option(c, i, item.label, 1118, 674, 23, 120, 'center');
+        else this.option(c, i, item.label, 640 - (1 - reveal) * 22, this.items.length > 5 ? 435 + i * 47 : 459 + i * 51, i === this.items.length - 2 ? 23 : 32, 440, 'center');
         c.restore();
       });
       c.restore(); UITheme.texture(c, w, h, this.timer);
