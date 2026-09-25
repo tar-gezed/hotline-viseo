@@ -6,7 +6,7 @@
 [![Runtime: Static Browser](https://img.shields.io/badge/Runtime-Static%20Browser-brightgreen.svg)](#)
 [![Hosting: GitHub Pages](https://img.shields.io/badge/Hosting-GitHub%20Pages%20Ready-blue.svg)](https://tar-gezed.github.io/hotline-viseo/)
 [![CI/CD: Deploy Pages](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml/badge.svg)](https://github.com/tar-gezed/hotline-viseo/actions/workflows/deploy.yml)
-[![Tests: 30 Node Suites Passing](https://img.shields.io/badge/Tests-30%20Passing-success.svg)](#)
+[![Tests: 31 Node Suites Passing](https://img.shields.io/badge/Tests-31%20Passing-success.svg)](#)
 
 ---
 
@@ -33,7 +33,11 @@
 
 Les sept personnages jouables sont désormais **Vincent, Anne, Lucas, Arnaud, Jade, PAP et JC**. La sélection dédiée affiche un grand portrait actif, son métier, son animal, ses bonus/malus et son équipement initial. Les armes de départ reviennent à chaque nouvelle partie. Leurs portraits pixel art ainsi que leurs sprites en jeu en vue plongeante (marche, visée, exécution, mort) ont été intégralement refondus dans l'esprit authentique de *Hotline Miami*. Le [détail des personnages](docs/character-direction.md) et le comparatif visuel `character_review.html` documentent leurs silhouettes, leurs règles et les références Hotline Miami.
 
-Double-cliquer sur **Lancer-le-jeu.cmd** (Windows), ou lancer **`npm start`** dans ce dossier avec Node.js 18+ puis ouvrir http://localhost:8080. Aucune dépendance à installer (pour l'instant). Garder le serveur ouvert ; Ctrl+C l'arrête. Si le port est occupé : `npm start -- --port 8082`, puis http://localhost:8082.
+Double-cliquer sur **Lancer-le-jeu.cmd** (Windows), ou lancer **`npm start`** dans ce dossier avec Node.js 18+ puis ouvrir http://localhost:8080. Aucune dépendance npm à installer pour jouer en local. Garder le serveur ouvert ; Ctrl+C l'arrête. Si le port est occupé : `npm start -- --port 8082`, puis http://localhost:8082.
+
+Pour une session de test avec des amis sur Internet (Windows), double-cliquez sur **Lancer-avec-des-amis.cmd**. Le launcher utilise `cloudflared` depuis le PATH ou depuis `.cache/cloudflared/cloudflared.exe` ; il détecte aussi `cloudflared.exe` placé à la racine du projet. Si le programme manque, téléchargez la version Windows x64 depuis les [releases officielles Cloudflare](https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe), renommez le fichier en `cloudflared.exe` et placez-le dans `.cache/cloudflared/` à la racine du projet. Le dossier `.cache/` est ignoré par Git : le binaire reste local et n’est pas ajouté au dépôt. Le launcher affiche aussi ces instructions lorsqu’il ne trouve pas `cloudflared`.
+
+Le launcher démarre le jeu en HTTPS via un [Cloudflare Quick Tunnel](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/do-more-with-tunnels/trycloudflare/), ouvre le lien dans le navigateur et le copie dans le presse-papiers. Partagez ce lien ; créez ensuite un salon multijoueur et envoyez le lien/code de salon aux autres joueurs. Appuyez sur **Ctrl+C** dans la fenêtre du launcher pour arrêter le serveur et le tunnel. L’adresse aléatoire change au prochain lancement. Le serveur public expose les pages du jeu et de l’éditeur, leurs ressources et les notices/licences de `vendor/` ; les autres documents, tests et outils du dépôt restent bloqués. Toute personne ayant l’URL du tunnel peut accéder au jeu pendant qu’il tourne ; Quick Tunnel est destiné aux tests, pas à l’hébergement permanent.
 
 Ne pas ouvrir `index.html` en `file://` : le navigateur interdit la lecture automatique de `maps/active.json`. Le serveur local sert simplement les fichiers, sans modifier la carte. Alternative : `python -m http.server 8080`.
 
@@ -62,7 +66,7 @@ Le jeu est déployé et jouable publiquement en ligne sur GitHub Pages à l'adre
 
 Le déploiement est entièrement automatisé par GitHub Actions :
 - **Workflow :** `.github/workflows/deploy.yml` déclenché à chaque push sur la branche `main` (ou manuellement via *Actions*).
-- **Validation CI :** Exécute automatiquement la suite complète des 30 suites de régression (`npm test`) avant le packaging.
+- **Validation CI :** Exécute automatiquement la suite complète des 31 suites de régression (`npm test`) avant le packaging.
 - **Publication Pages :** Utilise les actions officielles `actions/configure-pages@v5`, `actions/upload-pages-artifact@v3` et `actions/deploy-pages@v4`.
 - **Prévisualisation dynamique Slack & Réseaux (Open Graph) :** Le `<head>` de `index.html` intègre les métadonnées Open Graph (`og:image`, `og:title`, etc.), Twitter Cards (`summary_large_image`) et la couleur d'accent néon (`theme-color: #ff007f`). L'image de prévisualisation au format standard 1200×630 (`assets/images/og-preview.png`) est rafraîchie dynamiquement lors du déploiement via un navigateur headless Chromium (`tools/generate_preview.cjs`), avec conservation d'une image de secours haute définition.
 - **Identité visuelle & Favicons :** Intégration du logo officiel inspiré de l'emblème chevron de VISEO revisité en néon cyan/magenta synthwave. Les favicons sont fournis en multi-résolution (`favicon.ico`, `assets/images/favicon-16x16.png`, `assets/images/favicon-32x32.png`, `assets/images/apple-touch-icon.png` 180×180, et `assets/images/logo-512x512.png`), avec chemins relatifs garantissant un affichage optimal sur GitHub Pages.
@@ -113,7 +117,7 @@ Les lauriers du MVP et du tableau des scores partagent le même dessin, centré 
 
 Le mode utilise **Trystero MQTT 0.25.4 vendorisé** dans `vendor/`, sans import CDN ni installation npm pour jouer. Seuls les relais publics de découverte et WebRTC nécessitent Internet ; le solo ne charge aucun module réseau. Les détails du protocole, les limites NAT et les commandes de test sont dans [l’architecture multijoueur](docs/multiplayer-architecture.md). HTTPS ou localhost est requis. Le bouton **COMMENCER MA JOURNÉE** garde le parcours solo habituel.
 
-Validation : **30 suites Node** (les 23 historiques + 7 coop), scénario réel MQTT/WebRTC à cinq contextes Chrome, combat avec 180–220 ms d’aller-retour et 20 % de perte injectés, test des entrées occupées en vague 2, fondu du bandeau client, navigation via l’API Gamepad et captures à quatre résolutions. La manette est simulée via l’API standard ; aucun essai de matériel physique ni entre plusieurs accès Internet indépendants n’est revendiqué. Reproduction : `node tools/validate_multiplayer.cjs` avec Playwright de développement et le serveur sous `/hotline-viseo/` ; voir la documentation liée.
+Validation : **31 suites Node** (les 23 historiques + 7 coop + 1 serveur site-only), scénario réel MQTT/WebRTC à cinq contextes Chrome, combat avec 180–220 ms d’aller-retour et 20 % de perte injectés, test des entrées occupées en vague 2, fondu du bandeau client, navigation via l’API Gamepad et captures à quatre résolutions. La manette est simulée via l’API standard ; aucun essai de matériel physique ni entre plusieurs accès Internet indépendants n’est revendiqué. Reproduction : `node tools/validate_multiplayer.cjs` avec Playwright de développement et le serveur sous `/hotline-viseo/` ; voir la documentation liée.
 
 ## Commandes & Contrôles
 
@@ -165,11 +169,11 @@ La navigation et les collisions évitent les calculs sur les obstacles éloigné
 
 Les cadavres commencent à disparaître après 90 secondes de simulation, ou quand plus de 96 corps sont retenus, avec un fondu de deux secondes et une protection de la première seconde de chute. Les armes de ravitaillement non utilisées expirent au début de la deuxième vague suivante ; les armes placées sur la carte, lâchées par les ennemis ou reprises puis jetées sont conservées. Le sang reste sur sa toile persistante : le test de 5 000 taches ne montre pas de surcoût de redessin. Les petits pics noirs sur le texte de ramassage sont corrigés.
 
-Le [rapport complet de performances](docs/game-performance.md) détaille les changements, les mesures, leurs limites, le choix de conserver Canvas 2D accéléré et la simulation synchrone, la validation historique à 23 suites et les validations navigateur, ainsi que les commandes de reproduction. Le runner actuel compte 30 suites, dont sept suites coop. Les outils Playwright sont réservés au développement et n’ajoutent aucune dépendance au jeu.
+Le [rapport complet de performances](docs/game-performance.md) détaille les changements, les mesures, leurs limites, le choix de conserver Canvas 2D accéléré et la simulation synchrone, la validation historique à 23 suites et les validations navigateur, ainsi que les commandes de reproduction. Le runner actuel compte 31 suites, dont sept suites coop et une sur le serveur public du launcher. Les outils Playwright sont réservés au développement et n’ajoutent aucune dépendance au jeu.
 
 ## Verification
 
-Exécuter l'ensemble des 30 suites de régression automatisées avec Node.js :
+Exécuter l'ensemble des 31 suites de régression automatisées avec Node.js :
 
 ```bash
 npm test
@@ -322,4 +326,4 @@ Toutes les modifications du projet doivent respecter les règles établies dans 
 
 ## Enemy combat and patrol integration
 
-Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 30 suites. See [combat rules and regression coverage](docs/architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 31 suites. See [combat rules and regression coverage](docs/architecture.md#enemy-combat-and-navigation).

@@ -48,7 +48,7 @@ le volume SFX partagé. La sortie de l’écran reprend les pistes existantes.
 
 ## Validation
 
-`npm test` : 30 suites, incluant les formules exactes, le stockage, les six grades,
+`npm test` : 31 suites, incluant les formules exactes, le stockage, les six grades,
 le skip, les actions clavier/manette et les coordonnées souris des cinq résolutions.
 La suite musicale exécute aussi les 128 pas de la nouvelle piste et les contrôles
 de volume/mute existants.
@@ -77,8 +77,8 @@ le soleil conserve volontairement une ambiance de fin de nuit/crépuscule synth�
 
 ## Enemy combat and patrol integration
 
-Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 30 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
+Enemy shots check cover between body and muzzle. Enemies investigate player gunshots at their heard location, while melee and dry fire do not summon them. Each automatic patrol round has a 50% chance of a reachable doorway excursion and return. Wave totals follow 5, 8, 13, 21, 34, 55, 89, 144 and onward, with at most 36 concurrent enemies and validated spawn space. Visual targeting, body clearance and stuck recovery remain active. The current Node regression runner includes 31 suites. See [combat rules and regression coverage](architecture.md#enemy-combat-and-navigation).
 
 ## Performance review — 20 September 2026
 
-Les règles de points, grades, combos et navigation des résultats restent inchangées. Le nettoyage des ennemis déjà morts se produit après leur mise à jour et ne remplace pas les événements de score. `validate_scores.cjs` repasse ses 30 cas de grade/format et les 30 suites Node passent, dont les deux suites de scoring. Voir la [campagne de validation des performances](game-performance.md).
+Les règles de points, grades, combos et navigation des résultats restent inchangées. Le nettoyage des ennemis déjà morts se produit après leur mise à jour et ne remplace pas les événements de score. `validate_scores.cjs` repasse ses 30 cas de grade/format et les 31 suites Node passent, dont les deux suites de scoring. Voir la [campagne de validation des performances](game-performance.md).

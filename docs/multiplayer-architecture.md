@@ -102,7 +102,7 @@ Direction visuelle : portraits sélectionnables et distinction focus/choix/prêt
 
 ## Validation et reproduction
 
-`npm test` exécute les 23 suites historiques et sept suites coop (30/30) : room code, protocol, network, logic, presentation, events et revive. Elles couvrent les entrées malformées, retransmissions/edges, SHA-256, admission simultanée, autorité, epochs, congestion, quorum/départ, IA multi-cibles, départs sûrs, réapparition, attribution unique du score, file de spawn bloquée, fondu du HUD et navigation/résultats à 2–5. Les tests de présentation vérifient aussi qu’un projectile reçu à 20 Hz et une porte avancent à chacune des frames à 60 Hz, sans retarder l’angle de collision ni doubler un tir local.
+`npm test` exécute les 23 suites historiques, sept suites coop et la suite du serveur site-only (31/31) : room code, protocol, network, logic, presentation, events et revive. Elles couvrent les entrées malformées, retransmissions/edges, SHA-256, admission simultanée, autorité, epochs, congestion, quorum/départ, IA multi-cibles, départs sûrs, réapparition, attribution unique du score, file de spawn bloquée, fondu du HUD et navigation/résultats à 2–5. Les tests de présentation vérifient aussi qu’un projectile reçu à 20 Hz et une porte avancent à chacune des frames à 60 Hz, sans retarder l’angle de collision ni doubler un tir local.
 
 Test navigateur facultatif avec une installation Playwright de développement et Chrome :
 
@@ -122,3 +122,5 @@ La validation manette utilise l’API Gamepad standard simulée dans Chrome et l
 ## Bundle et publication
 
 Voir [`vendor/README.md`](../vendor/README.md) pour la version, les licences, le hash et la reconstruction reproductible. Le déploiement Pages sert `vendor/` avec `js/` et les autres assets. Aucun import ESM depuis un CDN, aucun serveur applicatif ni clé d’API n’est nécessaire au jeu.
+
+Pour tester une partie Internet depuis Windows, `Lancer-avec-des-amis.cmd` démarre `tools/serve.cjs --site-only` sur `127.0.0.1:8787` et expose ce serveur par un Cloudflare Quick Tunnel. Il faut `cloudflared` dans le PATH ou dans `.cache/cloudflared/cloudflared.exe` ; le binaire reste local et n’est pas commité. L’URL HTTPS temporaire permet aux amis d’ouvrir la même version locale du jeu et change à chaque lancement. Le tunnel s’arrête avec Ctrl+C ; il ne sert pas à l’hébergement permanent. Voir les étapes d’installation dans le [README](../README.md#running-and-inspecting-the-game).

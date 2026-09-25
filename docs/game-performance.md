@@ -107,7 +107,7 @@ A WebGL2 migration would require replacing drawing primitives, sprite batching, 
 
 ## Regression evidence and reproduction
 
-At the time of this 20 September review, `npm test` passed all **23 suites** then present, including the new `test_performance_safety.js`. It checks prop-geometry invalidation, live glass and door changes, rotated viewport coverage, corpse cap/age/slide behavior, oldest-death retention and supply expiry. Existing combat, scoring, waves, doors, character, input, map, music and visual-pipeline suites also passed. The current repository adds seven coop suites, for 30 total; see [multiplayer architecture](multiplayer-architecture.md#validation-et-reproduction).
+At the time of this 20 September review, `npm test` passed all **23 suites** then present, including the new `test_performance_safety.js`. It checks prop-geometry invalidation, live glass and door changes, rotated viewport coverage, corpse cap/age/slide behavior, oldest-death retention and supply expiry. Existing combat, scoring, waves, doors, character, input, map, music and visual-pipeline suites also passed. The current repository adds seven coop suites and one site-only server suite, for 31 total; see [multiplayer architecture](multiplayer-architecture.md#validation-et-reproduction).
 
 Additional checks compare 5,000 body-clearance queries, 5,000 raycasts and 5,000 static body collision results against `84afbfb`. All 15,000 sampled results match. The reference validator uses the actual imported map, multiple radii, stationary paths, moving/locked doors and shattered glass; this is sampled equivalence, not a proof for every possible map.
 

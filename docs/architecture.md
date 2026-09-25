@@ -182,7 +182,7 @@ Floating labels rasterize their outline/glow once per instance and animate the r
 
 ## 4. Testing & Verification Framework
 
-The codebase includes 30 automated regression test suites executed via Node.js (`npm test` / `node tools/test.cjs`):
+The codebase includes 31 automated regression test suites executed via Node.js (`npm test` / `node tools/test.cjs`):
 - `test_arcade_waves.js`: Wave progression, enemy ingress routes, and boundary safety.
 - `test_character_gait.js`: Procedural leg movement, strafing gait, and torso orientation.
 - `test_character_roster.js`: Stats, starting loadouts, perks, and ammo caps for all 7 characters.
@@ -220,7 +220,7 @@ The codebase includes 30 automated regression test suites executed via Node.js (
 
 The repository is configured for automated deployment to GitHub Pages via GitHub Actions:
 - **Workflow (`.github/workflows/deploy.yml`):** Automatically triggered on every push to the `main` branch or manual dispatch.
-- **Automated Validation:** Runs `npm test` across all 30 test suites prior to artifact creation.
+- **Automated Validation:** Runs `npm test` across all 31 test suites prior to artifact creation.
 - **Dynamic Preview Generation (`tools/generate_preview.cjs`):** Launches an ephemeral server and headless Chromium at 1200x630 to capture a fresh screenshot of the title menu directly into `assets/images/og-preview.png` before artifact upload. Bundles `assets/fonts/Anton-Regular.ttf` (`GameHeading` font-face fallback for `Impact`) and provisions system TrueType fonts in GitHub Actions CI to guarantee authentic retro typography across all operating systems and headless environments. Fault-tolerant execution (`continue-on-error: true`) guarantees deployment continuity using the repository's high-DPI fallback image.
 - **Rich Social & Slack Unfurling:** `index.html` defines complete Open Graph (`og:type`, `og:title`, `og:description`, `og:image`, `og:image:width`, `og:image:height`, `og:image:alt`), Twitter Card (`summary_large_image`), and signature neon theme color (`theme-color: #ff007f`) metadata to render styled cards with a pink accent sidebar in Slack.
 - **Brand Identity & Multi-Resolution Favicons:** Favicons based on the stylized VISEO chevron emblem rendered in synthwave neon (`favicon.ico`, `assets/images/favicon-16x16.png`, `assets/images/favicon-32x32.png`, `assets/images/apple-touch-icon.png`, and `assets/images/logo-512x512.png`), using strict relative paths for full GitHub Pages subfolder compatibility.
@@ -240,7 +240,7 @@ The player must be inside the enemy's facing cone and visible through world geom
 
 Navigation sweeps the actor's actual radius against wall thickness, intact glass and rotated furniture. Furniture corner anchors supply missing detours; start/goal connectors must be reachable, and locked doors are impassable. Movement follows the path segment independently of smooth facing and clamps each step at corners. Failed paths stop and retry; an unreachable patrol stop is skipped after 1.5 seconds. Less than 20% of requested displacement for 0.8 seconds invalidates the path and advances a blocked patrol stop. Dynamic doors still open by physical pushing.
 
-Validation: `npm test` runs 30 suites. `test_enemy_navigation.js` simulates 24 room exits (three body sizes, two room angles, four frame rates), verifies all nine imported-map arrivals for all body sizes, and advances heavy patrols for 20 simulated seconds at each arrival. The saved map remains untouched.
+Validation: `npm test` runs 31 suites. `test_enemy_navigation.js` simulates 24 room exits (three body sizes, two room angles, four frame rates), verifies all nine imported-map arrivals for all body sizes, and advances heavy patrols for 20 simulated seconds at each arrival. The saved map remains untouched.
 
 Optional browser integration: start `node tools/serve.cjs --port 8097`, then run `node tools/validate_enemy_ai.cjs` with an existing Playwright installation (`PLAYWRIGHT_MODULE`, and optionally `CHROME_PATH` / `ENEMY_TEST_URL`). It exercises actual spawn hooks, director updates, visual acquisition, last-seen memory and the browser projectile loop without adding production dependencies.
 
@@ -248,7 +248,7 @@ Browser validation on 19 September 2026 passed in headless Chrome with zero page
 
 Wave progression (20 September 2026): total enemies follow Fibonacci starting at **5, 8, 13, 21, 34, 55, 89, 144**, with no former 48-enemy total cap. Archetype unlocks, preparation and squads of up to three remain unchanged. The configured 36-actor concurrency limit now gates reinforcements; queued enemies still belong to the wave and prevent premature completion. Existing imported arrival markers are checked for heavy-body clearance and a path to the player's starting area. If none are usable, connected navigation anchors supply runtime-only fallback markers. Spawn jitter is validated; a temporarily obstructed marker waits without losing its queued enemy or moving its warning.
 
-Updated validation: all 30 Node suites pass, including deterministic stay/exit patrol choices, locked-door rejection, navigation to gunshots outside a room, Fibonacci totals through wave eight, complete delivery of 144 queued enemies, concurrency gating and blocked-marker retries. The Chrome integration check also passes the actual player attack handler for gunfire, melee and dry fire, fixed shot memory, and all nine patrol arrivals, with zero page errors.
+Updated validation: all 31 Node suites pass, including deterministic stay/exit patrol choices, locked-door rejection, navigation to gunshots outside a room, Fibonacci totals through wave eight, complete delivery of 144 queued enemies, concurrency gating and blocked-marker retries. The Chrome integration check also passes the actual player attack handler for gunfire, melee and dry fire, fixed shot memory, and all nine patrol arrivals, with zero page errors.
 
 ## Performance implementation and validation
 
